@@ -23,6 +23,7 @@ import {
   Send,
   AlertTriangle,
   PenLine,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -1222,6 +1223,22 @@ const ExamTaking = () => {
         <div className="flex items-center gap-4">
           {activeSection === 3 && (
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-2 bg-white border-gray-300 hover:bg-gray-100"
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = '/pdfs/jlpt_n5_script.pdf';
+                  link.download = 'jlpt_n5_script.pdf';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+              >
+                <FileText className="h-4 w-4" />
+                Script
+              </Button>
               <div className="flex items-center bg-gray-100 rounded-full px-2 py-1 border border-gray-200">
                 <audio id="exam-audio-player" controls className="h-8 w-48 lg:w-64">
                   <source src="/audio/jlpt_n5_audio.mp3" type="audio/mpeg" />
@@ -1230,8 +1247,7 @@ const ExamTaking = () => {
               </div>
             </div>
           )}
-          {/* Timer Display Hidden */}
-          {/*
+          {/* Timer Display */}
           <div className={cn(
             "flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono text-lg font-bold",
             timeLeft <= 300 ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-600"
@@ -1239,7 +1255,6 @@ const ExamTaking = () => {
             <Clock className="h-5 w-5" />
             {formatTime(timeLeft)}
           </div>
-          */}
           <Button onClick={() => setShowSubmitDialog(true)} variant="default" className="bg-black hover:bg-gray-800 text-white">
             Nộp bài
           </Button>
