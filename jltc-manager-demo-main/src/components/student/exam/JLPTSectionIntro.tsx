@@ -13,7 +13,7 @@ const JLPTSectionIntro: React.FC<JLPTSectionIntroProps> = ({
     onNext,
     level = "N5",
     sectionName = "言語知識（文字・語彙）",
-    subTitle = "Language Knowledge (Vocabulary)",
+    subTitle,
     variant = "white"
 }) => {
     // Allow clicking anywhere or pressing Enter to continue
@@ -70,7 +70,6 @@ const JLPTSectionIntro: React.FC<JLPTSectionIntroProps> = ({
                 "absolute bottom-12 text-sm animate-pulse",
                 isBlue ? "text-white/70" : "text-black/50"
             )}>
-                Click anywhere to continue
             </div>
         </div>
     );

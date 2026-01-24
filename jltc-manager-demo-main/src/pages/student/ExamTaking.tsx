@@ -236,34 +236,38 @@ export const jlptGrammarData: JLPTMondai[] = [
           <div className="mb-4">
             <span>1.　ただしい　<ruby>文<rt>ぶん</rt></ruby>を　つくります。</span>
           </div>
-          <div className="border border-black p-4 inline-block min-w-[500px]">
-            <div className="flex items-start gap-2 mb-6">
-              <span className="w-6 font-bold text-center mt-2">A</span>
-              <span className="mt-2">「</span>
-              <div className="flex items-end flex-wrap gap-1">
-                <div className="flex flex-col items-center mx-1">
-                  <span className="border-b border-black w-20 mb-1"></span>
-                  <span className="font-bold text-sm whitespace-nowrap">3 あの人</span>
+          <div className="border border-black p-6 inline-block min-w-[600px] bg-white pt-10">
+            <div className="grid grid-cols-[40px_30px_1fr] gap-y-8 items-end">
+              {/* Row A */}
+              <div className="font-bold text-2xl text-center font-serif pb-2">A</div>
+              <div className="font-bold text-2xl font-serif pb-2">「</div>
+              <div className="flex items-end flex-wrap gap-1 font-serif">
+                <div className="flex flex-col items-center mx-2">
+                  <span className="border-b border-black w-24 mb-2"></span>
+                  <span className="font-bold text-base whitespace-nowrap">3 あの人</span>
                 </div>
-                <div className="flex flex-col items-center mx-1">
-                  <span className="border-b border-black w-12 mb-1"></span>
-                  <span className="font-bold text-sm whitespace-nowrap">2 は</span>
+                <div className="flex flex-col items-center mx-2">
+                  <span className="border-b border-black w-16 mb-2"></span>
+                  <span className="font-bold text-base whitespace-nowrap">2 は</span>
                 </div>
-                <div className="flex flex-col items-center mx-1 relative">
+                <div className="flex flex-col items-center mx-2 relative">
                   <span className="absolute -top-6 text-sm">★</span>
-                  <span className="border-b border-black w-14 mb-1"></span>
-                  <span className="font-bold text-sm whitespace-nowrap">4 だれ</span>
+                  <span className="border-b border-black w-20 mb-2"></span>
+                  <span className="font-bold text-base whitespace-nowrap">4 だれ</span>
                 </div>
-                <div className="flex flex-col items-center mx-1">
-                  <span className="border-b border-black w-14 mb-1"></span>
-                  <span className="font-bold text-sm whitespace-nowrap">1 です</span>
+                <div className="flex flex-col items-center mx-2">
+                  <span className="border-b border-black w-16 mb-2"></span>
+                  <span className="font-bold text-base whitespace-nowrap">1 です</span>
                 </div>
+                <div className="ml-2 pb-2 text-xl font-bold">か。」</div>
               </div>
-              <span className="mt-2">か。」</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="w-6 font-bold text-center">B</span>
-              <span>「<ruby>山田<rt>やまだ</rt></ruby>さんです。」</span>
+
+              {/* Row B */}
+              <div className="font-bold text-2xl text-center font-serif pb-1">B</div>
+              <div className="font-bold text-2xl font-serif pb-1">「</div>
+              <div className="text-xl font-serif pb-1">
+                <ruby>山田<rt>やまだ</rt></ruby>さんです。」
+              </div>
             </div>
           </div>
           <div className="mt-6 mb-4">
@@ -476,7 +480,7 @@ export const jlptGrammarData: JLPTMondai[] = [
         <div className="mb-8 pl-1">
           <ruby>先生<rt>せんせい</rt></ruby>が　アンナさんに　<ruby>手紙<rt>てがみ</rt></ruby>を　<ruby>書<rt>か</rt></ruby>きました。
         </div>
-        <div className="border border-black p-8 max-w-2xl mx-auto bg-white text-xl leading-relaxed" style={{ clipPath: 'polygon(0% 0%, 100% 0%, 100% 95%, 80% 98%, 60% 95%, 40% 98%, 20% 95%, 0% 98%)' }}>
+        <div className="border border-black p-8 max-w-2xl mx-auto bg-white text-xl leading-relaxed">
           <div className="mb-12">アンナさん</div>
           <div className="mb-2">
             <ruby>今週<rt>こんしゅう</rt></ruby>は　しごとが　たくさん　あります。<ruby>土曜日<rt>どようび</rt></ruby>と
@@ -577,38 +581,51 @@ export const jlptGrammarData: JLPTMondai[] = [
     passage: (
       <div className="mx-2 md:mx-6 leading-loose text-xl text-center">
         {/* Box 1: Train Time */}
-        <div className="relative border border-black p-4 md:p-8 max-w-2xl mx-auto bg-white mb-8" style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%)' }}>
-          {/* Folded Corner Effect - Visual only, clip-path handles the cut */}
-          <div className="absolute bottom-0 right-0 w-6 h-6 bg-gray-300 transform -translate-x-[1px] -translate-y-[1px]"
-            style={{ clipPath: 'polygon(0 0, 100% 100%, 0 100%)', background: 'linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.2) 50%)' }}>
-          </div>
-          {/* Fold line border simulation */}
-          <div className="absolute bottom-0 right-6 w-[1px] h-6 bg-black"></div>
-          <div className="absolute bottom-6 right-0 w-6 h-[1px] bg-black"></div>
-          {/* Diagonal border */}
-          <div className="absolute bottom-0 right-0 w-[34px] h-[1px] bg-black origin-bottom-right -rotate-45 transform translate-y-[0.5px]"></div>
+        <div className="relative border border-black p-4 md:p-8 max-w-2xl mx-auto bg-white mb-8">
+          {/* Corner Cover (Hides original border) */}
+          <div className="absolute -bottom-[1px] -right-[1px] w-9 h-9 bg-white z-10"></div>
+          {/* Darker Backside Fold Effect with Borders */}
+          <div className="absolute bottom-0 right-0 w-8 h-8 bg-gray-400 border-t border-l border-black rounded-bl-lg shadow-[-2px_-2px_6px_rgba(0,0,0,0.3)] pointer-events-none z-20" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}></div>
 
 
           {/* Train Header */}
-          <div className="flex justify-between items-center mb-6 px-4">
-            <div className="w-1/3 flex justify-center"><span className="text-3xl">🚃</span></div> {/* Train Icon Placeholder */}
-            <div className="text-center font-bold">
-              <ruby>電車<rt>でんしゃ</rt></ruby>の　<ruby>時間<rt>じかん</rt></ruby>
+          <div className="flex justify-between items-end px-4 relative h-24 mb-10">
+            <div className="absolute left-0 top-0 w-52 -mt-12 text-center">
+              <img src="/train_local.png" alt="Local Train" className="w-full grayscale mix-blend-multiply mb-1" />
+              <div className="absolute top-[40%] left-[45%] text-[10px] font-bold bg-white px-0.5 border border-black leading-none">ふじ</div>
             </div>
-            <div className="w-1/3 flex justify-center"><span className="text-3xl">🚅</span></div> {/* Bullet Train Icon Placeholder */}
+
+            <div className="text-center font-bold mx-auto z-10 pt-2 flex flex-col items-center">
+              <div className="text-sm mb-1"><ruby>電車<rt>でんしゃ</rt></ruby>の</div>
+              <div className="text-4xl tracking-[0.2em] relative">
+                <span className="relative z-10"><ruby>時間<rt>じかん</rt></ruby></span>
+              </div>
+            </div>
+
+            <div className="absolute right-0 top-0 w-56 -mt-16 text-center pt-2">
+              <img src="/train_shinkansen.png" alt="Shinkansen" className="w-full grayscale mix-blend-multiply" />
+              <div className="absolute top-[48%] left-[25%] text-[10px] font-bold bg-white px-0.5 border border-black leading-none">さくら</div>
+            </div>
           </div>
 
           {/* Train Table */}
-          <div className="border border-black mb-6">
+          <div className="border-2 border-black mb-6">
             {/* Header Row */}
-            <div className="flex border-b border-black">
-              <div className="w-1/4 border-r border-black p-2 flex items-center justify-center">
-                <ruby>電車<rt>でんしゃ</rt></ruby>
+            <div className="flex border-b-2 border-black">
+              <div className="w-[30%] border-r-2 border-black p-2 flex flex-col items-center justify-center">
+                <div className="text-xs leading-none mb-1"><ruby>電車<rt>でんしゃ</rt></ruby></div>
+                <div className="text-xl font-serif">電車</div>
               </div>
-              <div className="w-3/4 p-2 flex items-center justify-center gap-4">
-                <div><ruby>東京駅<rt>とうきょうえき</rt></ruby></div>
-                <div className="text-2xl">⇨</div>
-                <div><ruby>中川駅<rt>なかがわえき</rt></ruby></div>
+              <div className="w-[70%] p-2 flex items-center justify-center gap-6">
+                <div className="text-center">
+                  <div className="text-xs leading-none mb-1"><ruby>東京駅<rt>とうきょうえき</rt></ruby></div>
+                  <div className="text-lg">東京駅</div>
+                </div>
+                <div className="text-4xl text-white drop-shadow-[0_0_1px_black] scale-x-[2]">⇨</div>
+                <div className="text-center">
+                  <div className="text-xs leading-none mb-1"><ruby>中川駅<rt>なかがわえき</rt></ruby></div>
+                  <div className="text-lg">中川駅</div>
+                </div>
               </div>
             </div>
             {/* Data Rows */}
@@ -618,13 +635,15 @@ export const jlptGrammarData: JLPTMondai[] = [
               { name: "ふじ 3", dept: "9 : 2 0", arr: "1 1 : 2 0" },
               { name: "さくら 3", dept: "1 0 : 1 0", arr: "1 1 : 1 0" },
             ].map((row, idx, arr) => (
-              <div key={idx} className={`flex ${idx !== arr.length - 1 ? 'border-b border-black' : ''}`}>
-                <div className="w-1/4 border-r border-black p-2 bg-white flex items-center justify-center font-sans tracking-wide">
+              <div key={idx} className={`flex ${idx !== arr.length - 1 ? 'border-b border-black' : ''} text-lg md:text-xl h-12`}>
+                <div className="w-[30%] border-r border-black flex items-center justify-center font-serif tracking-widest bg-white">
                   {row.name}
                 </div>
-                <div className="w-3/4 flex divide-x divide-transparent">
-                  <div className="w-1/2 p-2 flex items-center justify-center tracking-widest">{row.dept}</div>
-                  <div className="w-1/2 p-2 flex items-center justify-center tracking-widest">{row.arr}</div>
+                <div className="w-[35%] border-r border-black flex items-center justify-center tracking-[0.2em]">
+                  {row.dept}
+                </div>
+                <div className="w-[35%] flex items-center justify-center tracking-[0.2em]">
+                  {row.arr}
                 </div>
               </div>
             ))}
@@ -642,36 +661,48 @@ export const jlptGrammarData: JLPTMondai[] = [
         </div>
 
         {/* Box 2: Bus Time */}
-        <div className="relative border border-black p-4 md:p-8 max-w-2xl mx-auto bg-white" style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%)' }}>
-          {/* Fold line visual details same as above */}
-          <div className="absolute bottom-0 right-6 w-[1px] h-6 bg-black"></div>
-          <div className="absolute bottom-6 right-0 w-6 h-[1px] bg-black"></div>
-          <div className="absolute bottom-0 right-0 w-[34px] h-[1px] bg-black origin-bottom-right -rotate-45 transform translate-y-[0.5px]"></div>
+        <div className="relative border border-black p-4 md:p-8 max-w-2xl mx-auto bg-white">
+          {/* Corner Cover (Hides original border) */}
+          <div className="absolute -bottom-[1px] -right-[1px] w-9 h-9 bg-white z-10"></div>
+          {/* Darker Backside Fold Effect with Borders */}
+          <div className="absolute bottom-0 right-0 w-8 h-8 bg-gray-400 border-t border-l border-black rounded-bl-lg shadow-[-2px_-2px_6px_rgba(0,0,0,0.3)] pointer-events-none z-20" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}></div>
 
           {/* Bus Header */}
-          <div className="flex justify-center items-center mb-6 gap-4">
-            <span className="text-3xl">🚌</span>
-            <div className="font-bold">
-              バスの　<ruby>時間<rt>じかん</rt></ruby>
+          <div className="flex justify-center items-center mb-6 gap-4 relative">
+            <div className="w-24 -ml-12">
+              <img src="/bus_local.png" alt="Bus" className="w-full grayscale mix-blend-multiply" />
+            </div>
+            <div className="text-center font-bold">
+              <div className="text-sm text-right pr-9 mb-1"><ruby>じかん<rt></rt></ruby></div>
+              <div className="text-2xl tracking-[0.2em] flex items-baseline gap-2">
+                <span>バスの</span>
+                <span className="text-3xl">時間</span>
+              </div>
             </div>
           </div>
 
           {/* Bus Table */}
-          <div className="border border-black mb-6 w-3/4 mx-auto">
+          <div className="border-2 border-black mb-6 w-3/4 mx-auto">
             {/* Header */}
-            <div className="flex border-b border-black p-2 justify-center items-center gap-4">
-              <div><ruby>中川駅<rt>なかがわえき</rt></ruby></div>
-              <div className="text-2xl">⇨</div>
-              <div>いちご<ruby>山<rt>やま</rt></ruby></div>
+            <div className="flex border-b-2 border-black p-3 justify-center items-center gap-8 bg-white">
+              <div className="text-center">
+                <div className="text-xs leading-none mb-1"><ruby>中川駅<rt>なかがわえき</rt></ruby></div>
+                <div className="text-lg tracking-wider">中川駅</div>
+              </div>
+              <div className="text-4xl text-white drop-shadow-[0_0_1px_black] scale-x-[2]">⇨</div>
+              <div className="text-center">
+                <div className="text-xs leading-none mb-1 text-right"><ruby>山<rt>やま</rt></ruby></div>
+                <div className="text-lg tracking-wider">いちご山</div>
+              </div>
             </div>
             {/* Rows */}
-            <div className="flex border-b border-black">
-              <div className="w-1/2 p-2 border-r border-black flex justify-center tracking-widest">1 0 : 3 0</div>
-              <div className="w-1/2 p-2 flex justify-center tracking-widest">1 1 : 0 0</div>
+            <div className="flex border-b border-black text-xl h-12">
+              <div className="w-1/2 border-r border-black flex items-center justify-center tracking-[0.2em]">1 0 : 3 0</div>
+              <div className="w-1/2 flex items-center justify-center tracking-[0.2em]">1 1 : 0 0</div>
             </div>
-            <div className="flex">
-              <div className="w-1/2 p-2 border-r border-black flex justify-center tracking-widest">1 1 : 3 0</div>
-              <div className="w-1/2 p-2 flex justify-center tracking-widest">1 2 : 0 0</div>
+            <div className="flex text-xl h-12">
+              <div className="w-1/2 border-r border-black flex items-center justify-center tracking-[0.2em]">1 1 : 3 0</div>
+              <div className="w-1/2 flex items-center justify-center tracking-[0.2em]">1 2 : 0 0</div>
             </div>
           </div>
 
@@ -704,6 +735,73 @@ export const jlptGrammarData: JLPTMondai[] = [
   }
 ];
 
+// (Old OpenBookGraphic removed)
+
+// Helper for cropping 2-panel images
+const ImageCropper = ({ src, side, alt }: { src: string, side: 'left' | 'right', alt: string }) => (
+  <div className="w-full relative overflow-hidden" style={{ paddingBottom: '75%' }}> {/* Aspect ratio placeholder */}
+    <img
+      src={src}
+      alt={alt}
+      className="absolute top-0 h-full max-w-none w-[200%]"
+      style={{ left: side === 'left' ? '0' : '-100%' }}
+    />
+  </div>
+);
+
+// Helper component for Open Book Graphic
+const OpenBookGraphic = ({
+  panelId,
+  variant
+}: {
+  panelId: number;
+  variant: 'both-pages' | 'right-page' | 'right-top' | 'right-bottom'
+}) => {
+  return (
+    <div className="border border-black p-2 relative bg-white w-full max-w-[280px] mx-auto aspect-[4/3] flex flex-col">
+      <div className="text-xl font-bold pl-2">{panelId}</div>
+      <div className="flex-1 flex items-center justify-center relative p-2">
+        {/* Book Container */}
+        <div className="flex relative w-full h-[120px]">
+          {/* Left Page */}
+          <div className="w-1/2 h-full border-2 border-black border-r-0 rounded-l-sm rounded-bl-[30px] bg-white relative">
+            <div className="absolute top-2 left-2 right-2 h-10 border border-black flex items-center justify-center font-bold">1</div>
+            <div className="absolute top-14 left-2 right-2 h-10 border border-black flex items-center justify-center font-bold">2</div>
+            <div className="absolute bottom-1 left-0 right-0 text-center text-[10px] font-bold">-20-</div>
+          </div>
+
+          {/* Right Page */}
+          <div className="w-1/2 h-full border-2 border-black border-l-0 rounded-r-sm rounded-br-[30px] bg-white relative">
+            <div className="absolute top-2 left-2 right-2 h-10 border border-black flex items-center justify-center font-bold">1</div>
+            <div className="absolute top-14 left-2 right-2 h-10 border border-black flex items-center justify-center font-bold">2</div>
+            <div className="absolute bottom-1 left-0 right-0 text-center text-[10px] font-bold">-21-</div>
+          </div>
+
+          {/* Spine Line */}
+          <div className="absolute left-1/2 top-0 bottom-0 w-[2px] bg-black -translate-x-1/2 z-10"></div>
+
+          {/* "Shukudai" Caption */}
+          <div className="absolute -bottom-6 right-0 text-xs font-bold">しゅくだい</div>
+
+          {/* Highlight Circles */}
+          {variant === 'both-pages' && (
+            <div className="absolute top-0 left-0 right-0 bottom-0 border-[3px] border-black rounded-[40%] scale-x-105 scale-y-110 z-20"></div>
+          )}
+          {variant === 'right-page' && (
+            <div className="absolute top-0 right-0 w-1/2 h-full border-[3px] border-black rounded-[40%] scale-110 translate-x-1 z-20"></div>
+          )}
+          {variant === 'right-top' && (
+            <div className="absolute top-1 right-2 w-[45%] h-[45%] border-[3px] border-black rounded-[50%] z-20"></div>
+          )}
+          {variant === 'right-bottom' && (
+            <div className="absolute bottom-6 right-2 w-[45%] h-[45%] border-[3px] border-black rounded-[50%] z-20"></div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // JLPT Section 3 Data (Listening)
 export const jlptListeningData: JLPTMondai[] = [
   {
@@ -725,8 +823,11 @@ export const jlptListeningData: JLPTMondai[] = [
         questionText: (
           <div className="space-y-6">
             <div className="text-2xl font-bold">1 ばん</div>
-            <div className="flex justify-center">
-              <img src="/images/jlpt/n5_listening_q1.png" alt="Question 1 Options" className="max-w-full md:max-w-xl mx-auto border border-black p-2 bg-white" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+              <OpenBookGraphic panelId={1} variant="both-pages" />
+              <OpenBookGraphic panelId={2} variant="right-page" />
+              <OpenBookGraphic panelId={3} variant="right-top" />
+              <OpenBookGraphic panelId={4} variant="right-bottom" />
             </div>
           </div>
         ),
@@ -740,8 +841,19 @@ export const jlptListeningData: JLPTMondai[] = [
         questionText: (
           <div className="space-y-6">
             <div className="text-2xl font-bold">2 ばん</div>
-            <div className="flex justify-center">
-              <img src="/images/jlpt/n5_listening_q2.png" alt="Question 2 Options" className="max-w-full md:max-w-xl mx-auto border border-black p-2 bg-white" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+              <div>
+                <img src="/images/jlpt/n5_q2/1.png" alt="Boys playing at beach" className="w-full aspect-square object-contain" />
+              </div>
+              <div>
+                <img src="/images/jlpt/n5_q2/2.png" alt="Boys at aquarium" className="w-full aspect-square object-contain" />
+              </div>
+              <div>
+                <img src="/images/jlpt/n5_q2/3.png" alt="Boys reading in library" className="w-full aspect-square object-contain" />
+              </div>
+              <div>
+                <img src="/images/jlpt/n5_q2/4.png" alt="Boys at ticket counter" className="w-full aspect-square object-contain" />
+              </div>
             </div>
           </div>
         ),
@@ -757,9 +869,9 @@ export const jlptListeningData: JLPTMondai[] = [
       <div>
         <h2 className="text-3xl font-bold mb-4">もんだい 2</h2>
         <div className="leading-loose text-lg space-y-2">
-          <p>もんだい２では　はじめに、　しつもんを　きいて　ください。</p>
-          <p>それから　はなしを　きいて、　もんだいようしの　１から４の</p>
-          <p>なかから、　ただしい　こたえを　ひとつ　えらんで　ください。</p>
+          <p>もんだい２では、　はじめに　しつもんを　きいて　ください。</p>
+          <p>それから　えを　みて、　もんだいようしの　１から４の　なかから、</p>
+          <p>ただしい　こたえを　ひとつ　えらんで　ください。</p>
         </div>
       </div>
     ),
@@ -770,8 +882,12 @@ export const jlptListeningData: JLPTMondai[] = [
         questionText: (
           <div className="space-y-6">
             <div className="text-2xl font-bold">1 ばん</div>
-            <div className="flex justify-center">
-              <img src="/images/jlpt/n5_listening_mondai2_q1.png" alt="Question 1 Options" className="max-w-full md:max-w-xl mx-auto border border-black p-2 bg-white" />
+            <div className="flex justify-center pt-4">
+              <img
+                src="/images/jlpt/n5_m2_q1.png"
+                alt="Group of 5 people with pointers"
+                className="max-w-full h-auto border-2 border-black max-h-[400px]"
+              />
             </div>
           </div>
         ),
@@ -785,8 +901,19 @@ export const jlptListeningData: JLPTMondai[] = [
         questionText: (
           <div className="space-y-6">
             <div className="text-2xl font-bold">2 ばん</div>
-            <div className="flex justify-center">
-              <img src="/images/jlpt/n5_listening_mondai2_q2.png" alt="Question 2 Options" className="max-w-full md:max-w-xl mx-auto border border-black p-2 bg-white" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+              <div>
+                <img src="/images/jlpt/n5_q2/1.png" alt="Placeholder: Movie" className="w-full aspect-square object-contain" />
+              </div>
+              <div>
+                <img src="/images/jlpt/n5_q2/2.png" alt="Placeholder: Laundry" className="w-full aspect-square object-contain" />
+              </div>
+              <div>
+                <img src="/images/jlpt/n5_q2/3.png" alt="Placeholder: Vacuum" className="w-full aspect-square object-contain" />
+              </div>
+              <div>
+                <img src="/images/jlpt/n5_q2/4.png" alt="Placeholder: Study" className="w-full aspect-square object-contain" />
+              </div>
             </div>
           </div>
         ),
@@ -801,13 +928,10 @@ export const jlptListeningData: JLPTMondai[] = [
     instruction: (
       <div>
         <h2 className="text-3xl font-bold mb-4">もんだい 3</h2>
-        <div className="leading-loose text-lg space-y-2 mb-6">
-          <p>もんだい３では、　えを　みながら　しつもんを　きいて</p>
-          <p>ください。　それから、　ただしい　こたえを　１から３の　なかから</p>
-          <p>ひとつ　えらんで　ください。</p>
-        </div>
-        <div className="flex justify-center">
-          <img src="/images/jlpt/n5_listening_mondai3.png" alt="Mondai 3 Context" className="max-w-full md:max-w-xl mx-auto border border-black p-2 bg-white" />
+        <div className="leading-loose text-lg space-y-2">
+          <p>もんだい３では、　えを　みて　ください。</p>
+          <p>やじるしの　ひとは　なんと　いいますか。</p>
+          <p>１から３の　なかから、　ただしい　こたえを　ひとつ　えらんで　ください。</p>
         </div>
       </div>
     ),
@@ -818,10 +942,20 @@ export const jlptListeningData: JLPTMondai[] = [
         questionText: (
           <div className="space-y-6">
             <div className="text-2xl font-bold">1 ばん</div>
+            <div className="flex justify-center pt-4">
+              {/* Placeholder for Restaurant Scene (Woman & Waitress) */}
+              <div className="relative border-2 border-black w-full max-w-[400px] aspect-[4/3] flex items-center justify-center bg-gray-100">
+                <span className="text-gray-500 font-bold p-4 text-center">
+                  PLACEHOLDER: Restaurant Scene<br />
+                  (Woman sitting, Waitress standing)<br />
+                  Arrow pointing to Woman
+                </span>
+              </div>
+            </div>
           </div>
         ),
         options: ["1", "2", "3"],
-        optionsLayout: "4-col",
+        optionsLayout: "3-col",
         correctAnswer: 0
       },
       {
@@ -830,10 +964,20 @@ export const jlptListeningData: JLPTMondai[] = [
         questionText: (
           <div className="space-y-6">
             <div className="text-2xl font-bold">2 ばん</div>
+            <div className="flex justify-center pt-4">
+              {/* Placeholder for Study/Classroom Scene (Two Men) */}
+              <div className="relative border-2 border-black w-full max-w-[400px] aspect-[4/3] flex items-center justify-center bg-gray-100">
+                <span className="text-gray-500 font-bold p-4 text-center">
+                  PLACEHOLDER: Study Scene<br />
+                  (Two men at desk)<br />
+                  Arrow pointing to Man on Right
+                </span>
+              </div>
+            </div>
           </div>
         ),
         options: ["1", "2", "3"],
-        optionsLayout: "4-col",
+        optionsLayout: "3-col",
         correctAnswer: 0
       }
     ]
@@ -843,23 +987,39 @@ export const jlptListeningData: JLPTMondai[] = [
     instruction: (
       <div>
         <h2 className="text-3xl font-bold mb-4">もんだい 4</h2>
-        <div className="leading-loose text-lg space-y-2 mb-8">
-          <p>もんだい４には、えなどが　ありません。　ぶんを　きいて、</p>
-          <p>１から３の　なかから　ただしい　こたえを　ひとつ　えらんで</p>
-          <p>ください。</p>
-        </div>
-        <div className="w-full h-80 border-2 border-gray-200 rounded-lg flex items-center justify-center bg-gray-50/50">
-          <span className="text-gray-400 text-xl font-medium tracking-widest">- メモ -</span>
+        <div className="leading-loose text-lg space-y-2">
+          <p>もんだい４では、　え　などが　ありません。</p>
+          <p>はじめに　ぶんを　きいて　ください。</p>
+          <p>それから　その　へんじを　きいて、　１から３の　なかから、</p>
+          <p>ただしい　こたえを　ひとつ　えらんで　ください。</p>
         </div>
       </div>
     ),
     questions: [
-      { id: 7, mondaiId: 4, questionText: <div className="text-2xl font-bold">1 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 },
-      { id: 8, mondaiId: 4, questionText: <div className="text-2xl font-bold">2 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 },
-      { id: 9, mondaiId: 4, questionText: <div className="text-2xl font-bold">3 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 },
-      { id: 10, mondaiId: 4, questionText: <div className="text-2xl font-bold">4 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 },
-      { id: 11, mondaiId: 4, questionText: <div className="text-2xl font-bold">5 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 },
-      { id: 12, mondaiId: 4, questionText: <div className="text-2xl font-bold">6 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 }
+      {
+        id: 7,
+        mondaiId: 4,
+        questionText: (
+          <div className="space-y-6">
+            <div className="text-2xl font-bold">1 ばん</div>
+          </div>
+        ),
+        options: ["1", "2", "3"],
+        optionsLayout: "3-col",
+        correctAnswer: 0
+      },
+      {
+        id: 8,
+        mondaiId: 4,
+        questionText: (
+          <div className="space-y-6">
+            <div className="text-2xl font-bold">2 ばん</div>
+          </div>
+        ),
+        options: ["1", "2", "3"],
+        optionsLayout: "3-col",
+        correctAnswer: 0
+      }
     ]
   }
 ];
@@ -894,14 +1054,12 @@ const ExamTaking = () => {
 
   // Load correct data based on active section
   const currentData = activeSection === 1 ? jlptVocabData : (activeSection === 2 ? jlptGrammarData : jlptListeningData);
-  const currentDuration = activeSection === 1 ? 20 : (activeSection === 2 ? 40 : 30); // 20m -> 40m -> 30m
+  const currentDuration = 60; // Fixed 60 minutes for all sections
   const currentSectionName = activeSection === 1 ? "言語知識（文字・語彙）" : (activeSection === 2 ? "言語知識（文法）・読解" : "聴解");
   const currentVariant = "white";
-  const currentSubTitle = activeSection === 1
-    ? "Language Knowledge (Vocabulary)"
-    : (activeSection === 2 ? "Language Knowledge (Grammar) / Reading" : "Listening");
+  const currentSubTitle = undefined;
 
-  // Timer
+  // Timer (disabled)
   useEffect(() => {
     if (examStep !== 'taking') return;
 
@@ -945,21 +1103,20 @@ const ExamTaking = () => {
     } else {
       setFlaggedQuestions(new Set()); // Clear flags if no saved data for this section
     }
-    // Also load time left if available for the current section
-    const savedTime = localStorage.getItem(`exam-${id}-timeleft-sec${activeSection}`);
-    if (savedTime) {
-      setTimeLeft(parseInt(savedTime, 10));
-    } else {
-      setTimeLeft(currentDuration * 60); // Reset to default duration for the section
-    }
+    // Load saved answer/flags but RESET timer to 60 mins on reload
+    // We intentionally ignore savedTime from localStorage
+    setTimeLeft(currentDuration * 60);
   }, [id, activeSection, currentDuration]);
 
   // Save time left periodically
+  // Save time left periodically (Disabled to ensure reset on reload)
+  /*
   useEffect(() => {
     if (examStep === 'taking') {
       localStorage.setItem(`exam-${id}-timeleft-sec${activeSection}`, timeLeft.toString());
     }
   }, [timeLeft, id, activeSection, examStep]);
+  */
 
 
   const formatTime = (seconds: number) => {
@@ -973,7 +1130,7 @@ const ExamTaking = () => {
       // Transition to Section 2
       setActiveSection(2);
       setExamStep('intro'); // Show intro directly for sec 2
-      setTimeLeft(40 * 60); // Reset time to 40 mins for section 2
+      setTimeLeft(60 * 60); // Reset time to 60 mins for section 2
       setAnswers({}); // Clear answers for the new section
       setFlaggedQuestions(new Set()); // Clear flags for the new section
       window.scrollTo(0, 0);
@@ -982,7 +1139,7 @@ const ExamTaking = () => {
       // Transition to Section 3
       setActiveSection(3);
       setExamStep('intro'); // SKIP cover for section 3, go to intro
-      setTimeLeft(30 * 60); // Reset time to 30 mins for section 3
+      setTimeLeft(60 * 60); // Reset time to 60 mins for section 3
       setAnswers({}); // Clear answers for the new section
       setFlaggedQuestions(new Set()); // Clear flags for the new section
       window.scrollTo(0, 0);
@@ -1063,6 +1220,18 @@ const ExamTaking = () => {
       <header className="fixed top-0 left-0 right-0 h-16 bg-card border-b border-border z-50 flex items-center justify-between px-4 lg:px-8 shadow-sm">
         <h1 className="font-semibold text-lg truncate max-w-[200px] md:max-w-md">{mockExam.title}</h1>
         <div className="flex items-center gap-4">
+          {activeSection === 3 && (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center bg-gray-100 rounded-full px-2 py-1 border border-gray-200">
+                <audio id="exam-audio-player" controls className="h-8 w-48 lg:w-64">
+                  <source src="/audio/jlpt_n5_audio.mp3" type="audio/mpeg" />
+                  Your browser does not support the audio element.
+                </audio>
+              </div>
+            </div>
+          )}
+          {/* Timer Display Hidden */}
+          {/*
           <div className={cn(
             "flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono text-lg font-bold",
             timeLeft <= 300 ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-600"
@@ -1070,6 +1239,7 @@ const ExamTaking = () => {
             <Clock className="h-5 w-5" />
             {formatTime(timeLeft)}
           </div>
+          */}
           <Button onClick={() => setShowSubmitDialog(true)} variant="default" className="bg-black hover:bg-gray-800 text-white">
             Nộp bài
           </Button>
@@ -1078,12 +1248,16 @@ const ExamTaking = () => {
 
       <main className="pt-20 px-4 md:px-0 max-w-5xl mx-auto">
         {mockExam.examType === 'jlpt' ? (
-          <JLPTQuestionView
-            mondaiList={currentData}
-            answers={answers}
-            onAnswer={(qid, ans) => handleAnswer(qid, ans)}
-            hideQuestionId={activeSection === 3}
-          />
+          <>
+            {/* Audio Player for Listening Section */}
+
+            <JLPTQuestionView
+              mondaiList={currentData}
+              answers={answers}
+              onAnswer={(qid, ans) => handleAnswer(qid, ans)}
+              hideQuestionId={activeSection === 3}
+            />
+          </>
         ) : (
           /* Fallback for other exam types */
           <div className="text-center p-8">Generic Exam View</div>

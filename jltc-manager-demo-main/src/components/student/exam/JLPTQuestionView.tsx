@@ -63,7 +63,6 @@ const JLPTQuestionView: React.FC<JLPTQuestionViewProps> = ({
                     {/* Mondai Header */}
                     <div className="mb-8 pl-4">
                         <div className="flex items-start gap-4 text-lg md:text-xl font-medium whitespace-pre-wrap leading-loose">
-                            <span className="shrink-0">もんだい{mondai.id}</span>
                             <div>{mondai.instruction}</div>
                         </div>
                     </div>
@@ -135,8 +134,14 @@ const JLPTQuestionView: React.FC<JLPTQuestionViewProps> = ({
                                 <div key={question.id} className="pl-2 md:pl-6">
                                     {/* Question Sentence */}
                                     <div className="flex items-start gap-4 mb-6 text-xl md:text-2xl font-medium">
-                                        {/* Badge removed as per request */}
-                                        <div className="pt-1 leading-loose w-full">
+                                        {!hideQuestionId && (
+                                            <div className="pt-1 min-w-[40px]">
+                                                <span className="border border-black px-1 font-bold inline-block text-center min-w-[30px]">
+                                                    {question.id}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div className="pt-1 leading-loose w-full space-y-4">
                                             {question.questionText}
                                             {question.imageUrl && imagePos === 'inline' && (
                                                 <div className="mt-6 flex justify-center">
@@ -147,60 +152,60 @@ const JLPTQuestionView: React.FC<JLPTQuestionViewProps> = ({
                                                     />
                                                 </div>
                                             )}
-                                        </div>
-                                    </div>
 
-                                    {/* Options */}
-                                    <div className="pl-12 md:pl-16">
-                                        <RadioGroup
-                                            value={selectedValue || ""}
-                                            onValueChange={(val) => !showResults && onAnswer && onAnswer(question.id, val)}
-                                            className={cn(
-                                                "grid gap-y-4 gap-x-8 text-lg md:text-xl",
-                                                getGridCols(question.optionsLayout)
+                                            {/* Options */}
+                                            <div className="pl-4 md:pl-8">
+                                                <RadioGroup
+                                                    value={selectedValue || ""}
+                                                    onValueChange={(val) => !showResults && onAnswer && onAnswer(question.id, val)}
+                                                    className={cn(
+                                                        "grid gap-y-4 gap-x-8 text-lg md:text-xl",
+                                                        getGridCols(question.optionsLayout)
+                                                    )}
+                                                    disabled={showResults}
+                                                >
+                                                    {question.options.map((option, idx) => {
+                                                        // Check if option is just the number itself (as string) to prevent "1 1" duplication
+                                                        const isSameNumber = typeof option === 'string' && option.trim() === (idx + 1).toString();
+                                                        const correct = isCorrectAnswer(idx);
+
+                                                        return (
+                                                            <div key={idx} className={cn(
+                                                                "flex items-center space-x-3 p-2 rounded -ml-2",
+                                                                !showResults && "cursor-pointer hover:bg-black/5"
+                                                            )}>
+                                                                <RadioGroupItem value={idx.toString()} id={`q${question.id}-opt${idx}`} className="border-black text-black" disabled={showResults} />
+                                                                <Label htmlFor={`q${question.id}-opt${idx}`} className={cn("font-normal text-lg md:text-xl flex items-center", !showResults && "cursor-pointer")}>
+                                                                    <span className={cn("relative inline-flex items-center justify-center min-w-[1.5rem]", !isSameNumber && "mr-3")}>
+                                                                        {isSameNumber ? option : (idx + 1)}
+
+                                                                        {/* Red Circle aligned to the number */}
+                                                                        {showResults && correct && (
+                                                                            <div className="absolute border-4 border-red-500 rounded-full w-8 h-8 md:w-10 md:h-10 opacity-70 pointer-events-none"
+                                                                                style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
+                                                                            </div>
+                                                                        )}
+                                                                    </span>
+                                                                    {!isSameNumber && option}
+                                                                </Label>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </RadioGroup>
+                                            </div>
+
+                                            {/* Image below options */}
+                                            {question.imageUrl && imagePos === 'below-options' && (
+                                                <div className="mt-4 flex justify-center">
+                                                    <img
+                                                        src={question.imageUrl}
+                                                        alt={`Question ${question.id}`}
+                                                        className="max-w-full md:max-w-md border-none mix-blend-multiply grayscale contrast-125 brightness-110"
+                                                    />
+                                                </div>
                                             )}
-                                            disabled={showResults}
-                                        >
-                                            {question.options.map((option, idx) => {
-                                                // Check if option is just the number itself (as string) to prevent "1 1" duplication
-                                                const isSameNumber = typeof option === 'string' && option.trim() === (idx + 1).toString();
-                                                const correct = isCorrectAnswer(idx);
-
-                                                return (
-                                                    <div key={idx} className={cn(
-                                                        "flex items-center space-x-3 p-2 rounded -ml-2",
-                                                        !showResults && "cursor-pointer hover:bg-black/5"
-                                                    )}>
-                                                        <RadioGroupItem value={idx.toString()} id={`q${question.id}-opt${idx}`} className="border-black text-black" disabled={showResults} />
-                                                        <Label htmlFor={`q${question.id}-opt${idx}`} className={cn("font-normal text-lg md:text-xl flex items-center", !showResults && "cursor-pointer")}>
-                                                            <span className={cn("relative inline-flex items-center justify-center min-w-[1.5rem]", !isSameNumber && "mr-3")}>
-                                                                {isSameNumber ? option : (idx + 1)}
-
-                                                                {/* Red Circle aligned to the number */}
-                                                                {showResults && correct && (
-                                                                    <div className="absolute border-4 border-red-500 rounded-full w-8 h-8 md:w-10 md:h-10 opacity-70 pointer-events-none"
-                                                                        style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
-                                                                    </div>
-                                                                )}
-                                                            </span>
-                                                            {!isSameNumber && option}
-                                                        </Label>
-                                                    </div>
-                                                );
-                                            })}
-                                        </RadioGroup>
-                                    </div>
-
-                                    {/* Image below options */}
-                                    {question.imageUrl && imagePos === 'below-options' && (
-                                        <div className="mt-8 pl-12 md:pl-16 flex justify-center">
-                                            <img
-                                                src={question.imageUrl}
-                                                alt={`Question ${question.id}`}
-                                                className="max-w-full md:max-w-md border-none mix-blend-multiply grayscale contrast-125 brightness-110"
-                                            />
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             );
                         })}
@@ -212,3 +217,4 @@ const JLPTQuestionView: React.FC<JLPTQuestionViewProps> = ({
 };
 
 export default JLPTQuestionView;
+
