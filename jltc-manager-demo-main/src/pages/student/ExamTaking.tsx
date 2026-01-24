@@ -32,7 +32,7 @@ import JLPTQuestionView, { JLPTMondai } from "@/components/student/exam/JLPTQues
 
 // JLPT Specific Mock Data matching the image
 // JLPT Section 1 Data (Vocabulary)
-const jlptVocabData: JLPTMondai[] = [
+export const jlptVocabData: JLPTMondai[] = [
   {
     id: 1,
     instruction: "________の　ことばは　どう　よみますか。\n１・２・３・４から　いちばん　いい　ものを　ひとつ\nえらんで　ください。",
@@ -151,7 +151,7 @@ const jlptVocabData: JLPTMondai[] = [
 ];
 
 // JLPT Section 2 Data (Grammar / Reading)
-const jlptGrammarData: JLPTMondai[] = [
+export const jlptGrammarData: JLPTMondai[] = [
   {
     id: 1,
     instruction: (
@@ -705,7 +705,7 @@ const jlptGrammarData: JLPTMondai[] = [
 ];
 
 // JLPT Section 3 Data (Listening)
-const jlptListeningData: JLPTMondai[] = [
+export const jlptListeningData: JLPTMondai[] = [
   {
     id: 1,
     instruction: (
@@ -733,7 +733,133 @@ const jlptListeningData: JLPTMondai[] = [
         options: ["1", "2", "3", "4"],
         optionsLayout: "4-col",
         correctAnswer: 0
+      },
+      {
+        id: 2,
+        mondaiId: 1,
+        questionText: (
+          <div className="space-y-6">
+            <div className="text-2xl font-bold">2 ばん</div>
+            <div className="flex justify-center">
+              <img src="/images/jlpt/n5_listening_q2.png" alt="Question 2 Options" className="max-w-full md:max-w-xl mx-auto border border-black p-2 bg-white" />
+            </div>
+          </div>
+        ),
+        options: ["1", "2", "3", "4"],
+        optionsLayout: "4-col",
+        correctAnswer: 0
       }
+    ]
+  },
+  {
+    id: 2,
+    instruction: (
+      <div>
+        <h2 className="text-3xl font-bold mb-4">もんだい 2</h2>
+        <div className="leading-loose text-lg space-y-2">
+          <p>もんだい２では　はじめに、　しつもんを　きいて　ください。</p>
+          <p>それから　はなしを　きいて、　もんだいようしの　１から４の</p>
+          <p>なかから、　ただしい　こたえを　ひとつ　えらんで　ください。</p>
+        </div>
+      </div>
+    ),
+    questions: [
+      {
+        id: 3,
+        mondaiId: 2,
+        questionText: (
+          <div className="space-y-6">
+            <div className="text-2xl font-bold">1 ばん</div>
+            <div className="flex justify-center">
+              <img src="/images/jlpt/n5_listening_mondai2_q1.png" alt="Question 1 Options" className="max-w-full md:max-w-xl mx-auto border border-black p-2 bg-white" />
+            </div>
+          </div>
+        ),
+        options: ["1", "2", "3", "4"],
+        optionsLayout: "4-col",
+        correctAnswer: 0
+      },
+      {
+        id: 4,
+        mondaiId: 2,
+        questionText: (
+          <div className="space-y-6">
+            <div className="text-2xl font-bold">2 ばん</div>
+            <div className="flex justify-center">
+              <img src="/images/jlpt/n5_listening_mondai2_q2.png" alt="Question 2 Options" className="max-w-full md:max-w-xl mx-auto border border-black p-2 bg-white" />
+            </div>
+          </div>
+        ),
+        options: ["1", "2", "3", "4"],
+        optionsLayout: "4-col",
+        correctAnswer: 0
+      }
+    ]
+  },
+  {
+    id: 3,
+    instruction: (
+      <div>
+        <h2 className="text-3xl font-bold mb-4">もんだい 3</h2>
+        <div className="leading-loose text-lg space-y-2 mb-6">
+          <p>もんだい３では、　えを　みながら　しつもんを　きいて</p>
+          <p>ください。　それから、　ただしい　こたえを　１から３の　なかから</p>
+          <p>ひとつ　えらんで　ください。</p>
+        </div>
+        <div className="flex justify-center">
+          <img src="/images/jlpt/n5_listening_mondai3.png" alt="Mondai 3 Context" className="max-w-full md:max-w-xl mx-auto border border-black p-2 bg-white" />
+        </div>
+      </div>
+    ),
+    questions: [
+      {
+        id: 5,
+        mondaiId: 3,
+        questionText: (
+          <div className="space-y-6">
+            <div className="text-2xl font-bold">1 ばん</div>
+          </div>
+        ),
+        options: ["1", "2", "3"],
+        optionsLayout: "4-col",
+        correctAnswer: 0
+      },
+      {
+        id: 6,
+        mondaiId: 3,
+        questionText: (
+          <div className="space-y-6">
+            <div className="text-2xl font-bold">2 ばん</div>
+          </div>
+        ),
+        options: ["1", "2", "3"],
+        optionsLayout: "4-col",
+        correctAnswer: 0
+      }
+    ]
+  },
+  {
+    id: 4,
+    instruction: (
+      <div>
+        <h2 className="text-3xl font-bold mb-4">もんだい 4</h2>
+        <div className="leading-loose text-lg space-y-2 mb-8">
+          <p>もんだい４には、えなどが　ありません。　ぶんを　きいて、</p>
+          <p>１から３の　なかから　ただしい　こたえを　ひとつ　えらんで</p>
+          <p>ください。</p>
+        </div>
+        <div className="w-full h-80 border-2 border-gray-200 rounded-lg flex items-center justify-center bg-gray-50/50">
+          <span className="text-gray-400 text-xl font-medium tracking-widest">- メモ -</span>
+        </div>
+      </div>
+    ),
+    questions: [
+      { id: 7, mondaiId: 4, questionText: <div className="text-2xl font-bold">1 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 },
+      { id: 8, mondaiId: 4, questionText: <div className="text-2xl font-bold">2 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 },
+      { id: 9, mondaiId: 4, questionText: <div className="text-2xl font-bold">3 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 },
+      { id: 10, mondaiId: 4, questionText: <div className="text-2xl font-bold">4 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 },
+      { id: 11, mondaiId: 4, questionText: <div className="text-2xl font-bold">5 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 },
+      { id: 12, mondaiId: 4, questionText: <div className="text-2xl font-bold">6 ばん</div>, options: ["1", "2", "3"], optionsLayout: "4-col", correctAnswer: 0 }
     ]
   }
 ];
@@ -770,7 +896,7 @@ const ExamTaking = () => {
   const currentData = activeSection === 1 ? jlptVocabData : (activeSection === 2 ? jlptGrammarData : jlptListeningData);
   const currentDuration = activeSection === 1 ? 20 : (activeSection === 2 ? 40 : 30); // 20m -> 40m -> 30m
   const currentSectionName = activeSection === 1 ? "言語知識（文字・語彙）" : (activeSection === 2 ? "言語知識（文法）・読解" : "聴解");
-  const currentVariant = activeSection === 1 ? "white" : "blue";
+  const currentVariant = "white";
   const currentSubTitle = activeSection === 1
     ? "Language Knowledge (Vocabulary)"
     : (activeSection === 2 ? "Language Knowledge (Grammar) / Reading" : "Listening");
@@ -855,7 +981,7 @@ const ExamTaking = () => {
     } else if (activeSection === 2) {
       // Transition to Section 3
       setActiveSection(3);
-      setExamStep('cover'); // Show cover for section 3
+      setExamStep('intro'); // SKIP cover for section 3, go to intro
       setTimeLeft(30 * 60); // Reset time to 30 mins for section 3
       setAnswers({}); // Clear answers for the new section
       setFlaggedQuestions(new Set()); // Clear flags for the new section
@@ -867,13 +993,6 @@ const ExamTaking = () => {
         title: "Hoàn thành bài thi!",
         description: "Kết quả của bạn đã được ghi nhận.",
       });
-      // Clear all exam-related local storage items
-      localStorage.removeItem(`exam-${id}-answers-sec1`);
-      localStorage.removeItem(`exam-${id}-flagged-sec1`);
-      localStorage.removeItem(`exam-${id}-timeleft-sec1`);
-      localStorage.removeItem(`exam-${id}-answers-sec2`);
-      localStorage.removeItem(`exam-${id}-flagged-sec2`);
-      localStorage.removeItem(`exam-${id}-timeleft-sec2`);
       navigate(`/student/result/${id}`); // Navigate to results page
     }
   };
@@ -963,6 +1082,7 @@ const ExamTaking = () => {
             mondaiList={currentData}
             answers={answers}
             onAnswer={(qid, ans) => handleAnswer(qid, ans)}
+            hideQuestionId={activeSection === 3}
           />
         ) : (
           /* Fallback for other exam types */
@@ -975,18 +1095,18 @@ const ExamTaking = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {activeSection === 1 ? "Nộp bài phần 1?" : "Nộp bài thi?"}
+              {activeSection < 3 ? `Nộp bài phần ${activeSection}?` : "Nộp bài thi?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {activeSection === 1
-                ? "Bạn có chắc chắn muốn nộp bài phần 1 không? Bạn sẽ không thể quay lại phần này."
+              {activeSection < 3
+                ? `Bạn có chắc chắn muốn nộp bài phần ${activeSection} không? Bạn sẽ không thể quay lại phần này.`
                 : "Bạn có chắc chắn muốn nộp bài không? Hành động này không thể hoàn tác."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction onClick={handleSubmit} className="bg-primary text-primary-foreground hover:bg-primary/90">
-              {activeSection === 1 ? "Nộp & Sang phần 2" : "Nộp bài"}
+              {activeSection < 3 ? `Nộp & Sang phần ${activeSection + 1}` : "Nộp bài"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

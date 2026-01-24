@@ -32,13 +32,17 @@ export interface JLPTMondai {
 export interface JLPTQuestionViewProps {
     mondaiList: JLPTMondai[];
     answers: Record<number, string | string[] | null>;
-    onAnswer: (questionId: number, answer: string) => void;
+    onAnswer?: (questionId: number, answer: string) => void;
+    hideQuestionId?: boolean;
+    showResults?: boolean;
 }
 
 const JLPTQuestionView: React.FC<JLPTQuestionViewProps> = ({
     mondaiList,
     answers,
     onAnswer,
+    hideQuestionId = false,
+    showResults = false,
 }) => {
 
     const getGridCols = (layout?: '1-col' | '2-col' | '4-col') => {
@@ -65,7 +69,7 @@ const JLPTQuestionView: React.FC<JLPTQuestionViewProps> = ({
                     </div>
 
                     {/* Example Section (Standard or Custom) */}
-                    {(mondai.example || mondai.customExample) && (
+                    {(mondai.example || mondai.customExample) && !showResults && (
                         <div className="mb-12 mx-4">
                             <div className="border-t-2 border-black my-6"></div>
 
@@ -82,7 +86,6 @@ const JLPTQuestionView: React.FC<JLPTQuestionViewProps> = ({
                                     <div className="flex gap-8 pl-20 mb-6 text-xl">
                                         {mondai.example.options.map((opt, idx) => (
                                             <div key={idx} className="flex gap-2">
-                                                <span>{idx + 1}</span>
                                                 <span>{opt}</span>
                                             </div>
                                         ))}
@@ -125,14 +128,14 @@ const JLPTQuestionView: React.FC<JLPTQuestionViewProps> = ({
                         {mondai.questions.map((question) => {
                             const selectedValue = answers[question.id]?.toString();
                             const imagePos = question.imagePosition || 'below-options';
+                            const isCorrectAnswer = (idx: number) => idx === question.correctAnswer;
+                            const isSelected = (idx: number) => selectedValue === idx.toString();
 
                             return (
                                 <div key={question.id} className="pl-2 md:pl-6">
                                     {/* Question Sentence */}
                                     <div className="flex items-start gap-4 mb-6 text-xl md:text-2xl font-medium">
-                                        <div className="border border-black w-8 h-8 flex items-center justify-center shrink-0 mt-1">
-                                            <span className="font-bold font-sans text-xl">{question.id}</span>
-                                        </div>
+                                        {/* Badge removed as per request */}
                                         <div className="pt-1 leading-loose w-full">
                                             {question.questionText}
                                             {question.imageUrl && imagePos === 'inline' && (
@@ -151,21 +154,40 @@ const JLPTQuestionView: React.FC<JLPTQuestionViewProps> = ({
                                     <div className="pl-12 md:pl-16">
                                         <RadioGroup
                                             value={selectedValue || ""}
-                                            onValueChange={(val) => onAnswer(question.id, val)}
+                                            onValueChange={(val) => !showResults && onAnswer && onAnswer(question.id, val)}
                                             className={cn(
                                                 "grid gap-y-4 gap-x-8 text-lg md:text-xl",
                                                 getGridCols(question.optionsLayout)
                                             )}
+                                            disabled={showResults}
                                         >
-                                            {question.options.map((option, idx) => (
-                                                <div key={idx} className="flex items-center space-x-3 cursor-pointer hover:bg-black/5 p-2 rounded -ml-2">
-                                                    <RadioGroupItem value={idx.toString()} id={`q${question.id}-opt${idx}`} className="border-black text-black" />
-                                                    <Label htmlFor={`q${question.id}-opt${idx}`} className="font-normal cursor-pointer text-lg md:text-xl">
-                                                        <span className="mr-3">{idx + 1}</span>
-                                                        {option}
-                                                    </Label>
-                                                </div>
-                                            ))}
+                                            {question.options.map((option, idx) => {
+                                                // Check if option is just the number itself (as string) to prevent "1 1" duplication
+                                                const isSameNumber = typeof option === 'string' && option.trim() === (idx + 1).toString();
+                                                const correct = isCorrectAnswer(idx);
+
+                                                return (
+                                                    <div key={idx} className={cn(
+                                                        "flex items-center space-x-3 p-2 rounded -ml-2",
+                                                        !showResults && "cursor-pointer hover:bg-black/5"
+                                                    )}>
+                                                        <RadioGroupItem value={idx.toString()} id={`q${question.id}-opt${idx}`} className="border-black text-black" disabled={showResults} />
+                                                        <Label htmlFor={`q${question.id}-opt${idx}`} className={cn("font-normal text-lg md:text-xl flex items-center", !showResults && "cursor-pointer")}>
+                                                            <span className={cn("relative inline-flex items-center justify-center min-w-[1.5rem]", !isSameNumber && "mr-3")}>
+                                                                {isSameNumber ? option : (idx + 1)}
+
+                                                                {/* Red Circle aligned to the number */}
+                                                                {showResults && correct && (
+                                                                    <div className="absolute border-4 border-red-500 rounded-full w-8 h-8 md:w-10 md:h-10 opacity-70 pointer-events-none"
+                                                                        style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
+                                                                    </div>
+                                                                )}
+                                                            </span>
+                                                            {!isSameNumber && option}
+                                                        </Label>
+                                                    </div>
+                                                );
+                                            })}
                                         </RadioGroup>
                                     </div>
 
