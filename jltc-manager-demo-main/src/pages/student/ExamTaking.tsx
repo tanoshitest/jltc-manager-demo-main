@@ -821,17 +821,13 @@ export const jlptListeningData: JLPTMondai[] = [
       {
         id: 1,
         mondaiId: 1,
-        questionText: (
-          <div className="space-y-6">
-            <div className="text-2xl font-bold">1 ばん</div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-              <OpenBookGraphic panelId={1} variant="both-pages" />
-              <OpenBookGraphic panelId={2} variant="right-page" />
-              <OpenBookGraphic panelId={3} variant="right-top" />
-              <OpenBookGraphic panelId={4} variant="right-bottom" />
-            </div>
-          </div>
-        ),
+        questionText: "1ばん",
+        imageGridUrls: [
+          '/images/jlpt/mondai1/lamp1.png',
+          '/images/jlpt/mondai1/lamp2.png',
+          '/images/jlpt/mondai1/lamp3.png',
+          '/images/jlpt/mondai1/lamp4.png',
+        ],
         options: ["1", "2", "3", "4"],
         optionsLayout: "4-col",
         correctAnswer: 0
@@ -839,25 +835,13 @@ export const jlptListeningData: JLPTMondai[] = [
       {
         id: 2,
         mondaiId: 1,
-        questionText: (
-          <div className="space-y-6">
-            <div className="text-2xl font-bold">2 ばん</div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-              <div>
-                <img src="/images/jlpt/n5_q2/1.png" alt="Boys playing at beach" className="w-full aspect-square object-contain" />
-              </div>
-              <div>
-                <img src="/images/jlpt/n5_q2/2.png" alt="Boys at aquarium" className="w-full aspect-square object-contain" />
-              </div>
-              <div>
-                <img src="/images/jlpt/n5_q2/3.png" alt="Boys reading in library" className="w-full aspect-square object-contain" />
-              </div>
-              <div>
-                <img src="/images/jlpt/n5_q2/4.png" alt="Boys at ticket counter" className="w-full aspect-square object-contain" />
-              </div>
-            </div>
-          </div>
-        ),
+        questionText: "2ばん",
+        imageGridUrls: [
+          '/images/jlpt/n5_q2/1.png',
+          '/images/jlpt/n5_q2/2.png',
+          '/images/jlpt/n5_q2/3.png',
+          '/images/jlpt/n5_q2/4.png',
+        ],
         options: ["1", "2", "3", "4"],
         optionsLayout: "4-col",
         correctAnswer: 0
@@ -883,12 +867,16 @@ export const jlptListeningData: JLPTMondai[] = [
         questionText: (
           <div className="space-y-6">
             <div className="text-2xl font-bold">1 ばん</div>
-            <div className="flex justify-center pt-4">
-              <img
-                src="/images/jlpt/n5_m2_q1.png"
-                alt="Group of 5 people with pointers"
-                className="max-w-full h-auto border-2 border-black max-h-[400px]"
-              />
+            <div className="flex justify-start pt-4 -ml-2 md:-ml-6">
+              <div className="w-full max-w-2xl border-4 border-black p-6 bg-white">
+                <div className="relative w-full aspect-video flex items-center justify-center bg-white">
+                  <img
+                    src="/images/jlpt/n5_m2_q1.png"
+                    alt="Group of 5 people with pointers"
+                    className="absolute inset-0 w-full h-full object-contain"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         ),
@@ -899,25 +887,13 @@ export const jlptListeningData: JLPTMondai[] = [
       {
         id: 4,
         mondaiId: 2,
-        questionText: (
-          <div className="space-y-6">
-            <div className="text-2xl font-bold">2 ばん</div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-              <div>
-                <img src="/images/jlpt/n5_q2/1.png" alt="Placeholder: Movie" className="w-full aspect-square object-contain" />
-              </div>
-              <div>
-                <img src="/images/jlpt/n5_q2/2.png" alt="Placeholder: Laundry" className="w-full aspect-square object-contain" />
-              </div>
-              <div>
-                <img src="/images/jlpt/n5_q2/3.png" alt="Placeholder: Vacuum" className="w-full aspect-square object-contain" />
-              </div>
-              <div>
-                <img src="/images/jlpt/n5_q2/4.png" alt="Placeholder: Study" className="w-full aspect-square object-contain" />
-              </div>
-            </div>
-          </div>
-        ),
+        questionText: "2ばん",
+        imageGridUrls: [
+          '/images/jlpt/n5_q2/1.png',
+          '/images/jlpt/n5_q2/2.png',
+          '/images/jlpt/n5_q2/3.png',
+          '/images/jlpt/n5_q2/4.png',
+        ],
         options: ["1", "2", "3", "4"],
         optionsLayout: "4-col",
         correctAnswer: 0
@@ -943,14 +919,15 @@ export const jlptListeningData: JLPTMondai[] = [
         questionText: (
           <div className="space-y-6">
             <div className="text-2xl font-bold">1 ばん</div>
-            <div className="flex justify-center pt-4">
-              {/* Placeholder for Restaurant Scene (Woman & Waitress) */}
-              <div className="relative border-2 border-black w-full max-w-[400px] aspect-[4/3] flex items-center justify-center bg-gray-100">
-                <span className="text-gray-500 font-bold p-4 text-center">
-                  PLACEHOLDER: Restaurant Scene<br />
-                  (Woman sitting, Waitress standing)<br />
-                  Arrow pointing to Woman
-                </span>
+            <div className="flex justify-start pt-4 -ml-2 md:-ml-6">
+              <div className="w-full max-w-2xl border-4 border-black p-6 bg-white">
+                <div className="relative w-full aspect-video flex items-center justify-center bg-white overflow-hidden">
+                  <img
+                    src="/images/jlpt/mondai3/q1.png"
+                    alt="Mondai 3 Question 1"
+                    className="absolute inset-0 w-full h-full object-contain"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -965,14 +942,15 @@ export const jlptListeningData: JLPTMondai[] = [
         questionText: (
           <div className="space-y-6">
             <div className="text-2xl font-bold">2 ばん</div>
-            <div className="flex justify-center pt-4">
-              {/* Placeholder for Study/Classroom Scene (Two Men) */}
-              <div className="relative border-2 border-black w-full max-w-[400px] aspect-[4/3] flex items-center justify-center bg-gray-100">
-                <span className="text-gray-500 font-bold p-4 text-center">
-                  PLACEHOLDER: Study Scene<br />
-                  (Two men at desk)<br />
-                  Arrow pointing to Man on Right
-                </span>
+            <div className="flex justify-start pt-4 -ml-2 md:-ml-6">
+              <div className="w-full max-w-2xl border-4 border-black p-6 bg-white">
+                <div className="relative w-full aspect-video flex items-center justify-center bg-white overflow-hidden">
+                  <img
+                    src="/images/jlpt/mondai3/q2.png"
+                    alt="Mondai 3 Question 2"
+                    className="absolute inset-0 w-full h-full object-contain"
+                  />
+                </div>
               </div>
             </div>
           </div>
