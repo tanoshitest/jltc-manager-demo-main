@@ -176,7 +176,7 @@ const JLPTQuestionView: React.FC<JLPTQuestionViewProps> = ({
                                             value={selectedValue || ""}
                                             onValueChange={(val) => !showResults && onAnswer && onAnswer(question.id, val)}
                                             className={cn(
-                                                "grid gap-y-4 gap-x-8 text-lg md:text-xl place-items-center",
+                                                "grid gap-y-4 gap-x-8 text-lg md:text-xl",
                                                 getGridCols(question.optionsLayout)
                                             )}
                                             disabled={showResults}
@@ -188,7 +188,7 @@ const JLPTQuestionView: React.FC<JLPTQuestionViewProps> = ({
 
                                                 return (
                                                     <div key={idx} className={cn(
-                                                        "flex items-center space-x-3 p-2 rounded -ml-2",
+                                                        "flex items-center space-x-3 p-2 rounded -ml-2 w-full",
                                                         !showResults && "cursor-pointer hover:bg-black/5"
                                                     )}>
                                                         <RadioGroupItem value={idx.toString()} id={`q${question.id}-opt${idx}`} className="border-black text-black" disabled={showResults} />
