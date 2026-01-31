@@ -15,6 +15,7 @@ import { Search, Clock, FileText, Lock, CheckCircle2, PenLine } from "lucide-rea
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// Filter to show only JLPT exams
 const allExams = [
   {
     id: 1,
@@ -103,7 +104,7 @@ const allExams = [
     examType: "after_lesson",
     hasEssay: true,
   },
-];
+].filter(exam => exam.examType === "jlpt");
 
 const examTypeLabels: Record<string, string> = {
   after_lesson: "Sau mỗi bài",
@@ -218,28 +219,14 @@ const StudentExams = () => {
         {/* Filters */}
         <Card>
           <CardContent className="p-4">
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Tìm kiếm đề thi..."
-                  className="pl-9"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-full lg:w-56">
-                  <SelectValue placeholder="Loại đề" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả loại đề</SelectItem>
-                  <SelectItem value="after_lesson">Bài kiểm tra sau mỗi bài</SelectItem>
-                  <SelectItem value="after_5_lessons">Bài kiểm tra sau 5 bài</SelectItem>
-                  <SelectItem value="final">Bài kiểm tra cuối khóa</SelectItem>
-                  <SelectItem value="jlpt">Thi thử JLPT</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Tìm kiếm đề thi..."
+                className="pl-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </CardContent>
         </Card>

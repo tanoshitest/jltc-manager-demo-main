@@ -260,7 +260,7 @@ const ExamManagement = () => {
   };
 
   const ExamRow = ({ exam }: { exam: typeof mockExams[0] }) => (
-    <TableRow 
+    <TableRow
       className="cursor-pointer hover:bg-muted/50"
       onClick={() => navigate(`/admin/exams/${exam.id}`)}
     >
@@ -284,8 +284,8 @@ const ExamManagement = () => {
             exam.status === "active"
               ? "default"
               : exam.status === "draft"
-              ? "secondary"
-              : "outline"
+                ? "secondary"
+                : "outline"
           }
         >
           {exam.status === "active" ? "Đang mở" : exam.status === "draft" ? "Nháp" : "Đã đóng"}
@@ -293,9 +293,9 @@ const ExamManagement = () => {
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             title="Xem chi tiết"
             onClick={() => navigate(`/admin/exams/${exam.id}`)}
           >
@@ -324,7 +324,7 @@ const ExamManagement = () => {
               <FileSpreadsheet className="h-4 w-4 mr-2" />
               Import Excel
             </Button>
-            <Button onClick={() => setShowCreateDialog(true)}>
+            <Button onClick={() => navigate("/admin/exams/create")}>
               <Plus className="h-4 w-4 mr-2" />
               Tạo đề thi
             </Button>
@@ -424,8 +424,8 @@ const ExamManagement = () => {
                         {(status === "active"
                           ? activeExams
                           : status === "draft"
-                          ? draftExams
-                          : inactiveExams
+                            ? draftExams
+                            : inactiveExams
                         ).map((exam) => (
                           <ExamRow key={exam.id} exam={exam} />
                         ))}

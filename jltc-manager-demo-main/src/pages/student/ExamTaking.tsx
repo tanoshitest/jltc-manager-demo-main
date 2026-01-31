@@ -1026,13 +1026,91 @@ const ExamTaking = () => {
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [showTimeWarning, setShowTimeWarning] = useState(false);
 
+  // States for exam data (mock default, updated from local storage if exists)
+  const [vocabData, setVocabData] = useState<JLPTMondai[]>(jlptVocabData);
+  const [grammarData, setGrammarData] = useState<JLPTMondai[]>(jlptGrammarData);
+  const [listeningData, setListeningData] = useState<JLPTMondai[]>(jlptListeningData);
+
+  useEffect(() => {
+    const savedExam = localStorage.getItem('jlpt_exam_demo');
+    if (savedExam) {
+      try {
+        const parsed = JSON.parse(savedExam);
+        if (parsed.sections) {
+          const convertToMondai = (questions: any[], sectionIdx: number): JLPTMondai[] => {
+            const mondaiList: JLPTMondai[] = [];
+            let currentDefaultMondai: JLPTMondai | null = null;
+            let qIdCounter = (sectionIdx + 1) * 10000;
+
+            questions.forEach((q: any) => {
+              const isPassage = q.type === 'passage';
+              if (isPassage) {
+                if (currentDefaultMondai) {
+                  mondaiList.push(currentDefaultMondai);
+                  currentDefaultMondai = null;
+                }
+                mondaiList.push({
+                  id: mondaiList.length + 1,
+                  instruction: "つぎの　ぶんを　よんで、しつもんに　こたえて　ください。",
+                  passage: q.passage,
+                  questions: (q.subQuestions || []).map((sq: any) => ({
+                    id: qIdCounter++,
+                    mondaiId: mondaiList.length + 1,
+                    questionText: sq.question,
+                    options: sq.answers || [],
+                    correctAnswer: sq.correctAnswer,
+                    optionsLayout: '1-col'
+                  }))
+                });
+              } else {
+                if (!currentDefaultMondai) {
+                  currentDefaultMondai = {
+                    id: mondaiList.length + 1,
+                    instruction: "ただしい　こたえを　ひとつ　えらんで　ください。",
+                    questions: []
+                  };
+                }
+                const studentQ: any = {
+                  id: qIdCounter++,
+                  mondaiId: currentDefaultMondai.id,
+                  questionText: q.content || "...",
+                  options: q.answers || [],
+                  correctAnswer: q.correctAnswer,
+                  optionsLayout: q.type === 'image-grid' ? "2-col" : "4-col"
+                };
+                if (q.type === 'single-image') {
+                  studentQ.imageUrl = q.imageUrl;
+                  studentQ.imagePosition = q.imagePosition === 'inline' ? 'inline' : 'bottom';
+                }
+                if (q.type === 'image-grid') {
+                  studentQ.imageGridUrls = q.imageUrls;
+                }
+                currentDefaultMondai.questions.push(studentQ);
+              }
+            });
+            if (currentDefaultMondai) {
+              mondaiList.push(currentDefaultMondai);
+            }
+            return mondaiList.length > 0 ? mondaiList : [];
+          };
+
+          if (parsed.sections[0]?.questions?.length > 0) setVocabData(convertToMondai(parsed.sections[0].questions, 0));
+          if (parsed.sections[1]?.questions?.length > 0) setGrammarData(convertToMondai(parsed.sections[1].questions, 1));
+          if (parsed.sections[2]?.questions?.length > 0) setListeningData(convertToMondai(parsed.sections[2].questions, 2));
+        }
+      } catch (e) {
+        console.error("Failed to load saved exam", e);
+      }
+    }
+  }, []);
+
   // Initialize exam step
   const [examStep, setExamStep] = useState<ExamStep>(
     mockExam.examType === "jlpt" ? 'cover' : 'taking'
   );
 
   // Load correct data based on active section
-  const currentData = activeSection === 1 ? jlptVocabData : (activeSection === 2 ? jlptGrammarData : jlptListeningData);
+  const currentData = activeSection === 1 ? vocabData : (activeSection === 2 ? grammarData : listeningData);
   const currentDuration = 60; // Fixed 60 minutes for all sections
   const currentSectionName = activeSection === 1 ? "言語知識（文字・語彙）" : (activeSection === 2 ? "言語知識（文法）・読解" : "聴解");
   const currentVariant = "white";

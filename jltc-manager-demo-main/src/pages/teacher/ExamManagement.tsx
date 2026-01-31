@@ -54,6 +54,7 @@ const examTypes = [
   { value: "jlpt_mock", label: "Thi thử JLPT", icon: GraduationCap },
 ];
 
+// Filter to show only JLPT exams
 const mockExams = [
   {
     id: 1,
@@ -110,7 +111,7 @@ const mockExams = [
     createdAt: "2024-11-20",
     assignedClasses: ["N5-A"],
   },
-];
+].filter(exam => exam.type === "jlpt_mock");
 
 const typeLabels: Record<string, string> = {
   after_lesson: "Sau bài học",
@@ -260,7 +261,7 @@ const TeacherExamManagement = () => {
   };
 
   const ExamRow = ({ exam }: { exam: typeof mockExams[0] }) => (
-    <TableRow 
+    <TableRow
       className="cursor-pointer hover:bg-muted/50"
       onClick={() => navigate(`/teacher/exams/${exam.id}`)}
     >
@@ -284,8 +285,8 @@ const TeacherExamManagement = () => {
             exam.status === "active"
               ? "default"
               : exam.status === "draft"
-              ? "secondary"
-              : "outline"
+                ? "secondary"
+                : "outline"
           }
         >
           {exam.status === "active" ? "Đang mở" : exam.status === "draft" ? "Nháp" : "Đã đóng"}
@@ -293,9 +294,9 @@ const TeacherExamManagement = () => {
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             title="Xem chi tiết"
             onClick={() => navigate(`/teacher/exams/${exam.id}`)}
           >
@@ -319,16 +320,10 @@ const TeacherExamManagement = () => {
               Tạo và quản lý đề thi tiếng Nhật
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleImportExcel}>
-              <FileSpreadsheet className="h-4 w-4 mr-2" />
-              Import Excel
-            </Button>
-            <Button onClick={() => setShowCreateDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Tạo đề thi
-            </Button>
-          </div>
+          <Button onClick={() => navigate("/teacher/exams/create")}>
+            <Plus className="h-4 w-4 mr-2" />
+            Tạo đề thi
+          </Button>
         </div>
 
         {/* Stats */}
@@ -424,8 +419,8 @@ const TeacherExamManagement = () => {
                         {(status === "active"
                           ? activeExams
                           : status === "draft"
-                          ? draftExams
-                          : inactiveExams
+                            ? draftExams
+                            : inactiveExams
                         ).map((exam) => (
                           <ExamRow key={exam.id} exam={exam} />
                         ))}
