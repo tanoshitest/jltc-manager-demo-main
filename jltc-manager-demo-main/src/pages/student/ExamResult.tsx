@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import JLPTQuestionView, { JLPTMondai } from "@/components/student/exam/JLPTQuestionView";
 import { jlptVocabData, jlptGrammarData, jlptListeningData } from "./ExamTaking";
+import { evaluateJLPTTest } from "@/utils/evaluationLogic";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,15 +43,25 @@ const ExamResult = () => {
         }
       });
     });
-    return { total, correct, score: Math.round((correct / total) * 60) || 0 }; // Mock scaling to 60 per section
+    // Scale: For N5, specific weights apply, but preserving current mock scaling (60 per section) for now
+    // as we don't have individual question weights.
+    return { total, correct, score: Math.round((correct / total) * 60) || 0 };
   };
 
   const s1 = calculateSectionScore(jlptVocabData, answersSec1);
   const s2 = calculateSectionScore(jlptGrammarData, answersSec2);
   const s3 = calculateSectionScore(jlptListeningData, answersSec3);
 
-  const totalScore = s1.score + s2.score + s3.score;
-  const isPassed = totalScore >= 90; // Mock pass criteria: > 50% of 180 (90)
+  // Integrate Evaluation Logic (Assuming N5 for this demo page)
+  const currentLevel = 'N5';
+  const evaluation = evaluateJLPTTest(currentLevel, {
+    section1: s1.score + s2.score, // N5 Written uses combined Vocab + Grammar + Reading score
+    section2: s3.score             // N5 Listening
+  });
+
+  const totalScore = evaluation.totalScore;
+  const isPassed = evaluation.passed;
+  const failureReason = evaluation.reason;
 
   return (
     <StudentLayout>
@@ -112,7 +123,7 @@ const ExamResult = () => {
                 <p className="text-sm text-gray-700 mt-1">
                   {isPassed
                     ? "Chúc mừng bạn đã hoàn thành tốt bài thi! Bạn có nền tảng vững chắc ở cả 3 kỹ năng."
-                    : "Bạn cần cố gắng hơn ở các phần thi chưa đạt điểm cao. Hãy ôn tập lại từ vựng và luyện nghe thêm nhé!"}
+                    : `Bạn chưa đạt tiêu chuẩn. Lý do: ${failureReason || "Điểm chưa đạt yêu cầu"}. Hãy ôn tập thêm nhé!`}
                 </p>
               </div>
             </div>
