@@ -26,7 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 import { useState, Fragment } from "react";
 import { Plus, Edit, Trash2, Printer } from "lucide-react";
 import { toast } from "sonner";
@@ -43,19 +43,14 @@ interface TestRecord {
     grammar: number;
     reading: number;
     listening: number;
+    speaking: number;
   };
   result: string;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-const lineData = [
-  { month: "T7/2024", score: 480 },
-  { month: "T8/2024", score: 520 },
-  { month: "T9/2024", score: 560 },
-  { month: "T10/2024", score: 590 },
-  { month: "T11/2024", score: 620 },
-];
+
 
 const printStyles = `
   @media print {
@@ -63,13 +58,15 @@ const printStyles = `
     .no-print { display: none !important; }
     .print-only { display: block !important; }
     .print-content { 
-      position: absolute;
-      left: 0;
-      top: 0;
+    .print-content { 
+      position: relative; /* Changed from absolute to relative */
+      left: auto;
+      top: auto;
       width: 100%;
-      padding: 0;
-      margin: 0;
+      padding: 40px; /* Increased padding */
+      margin: 0 auto;
       background: white;
+      box-sizing: border-box;
     }
     .card { border: none !important; box-shadow: none !important; }
     .card-header { border-bottom: none !important; }
@@ -106,7 +103,7 @@ const initialEvaluations: Record<string, any> = {
     compTests: [],
     jlptTests: [{
       id: "mock-1", name: "Mock Test 1", date: "2024-10-15",
-      scores: { vocab: 0, grammar: 0, reading: 0, listening: 0 },
+      scores: { vocab: 0, grammar: 0, reading: 0, listening: 0, speaking: 0 },
       result: "Trượt"
     }],
     generalTests: []
@@ -130,49 +127,54 @@ const initialEvaluations: Record<string, any> = {
     lessonTests: [
       {
         id: "lt-11-1", name: "Bài 18 - Minna no Nihongo", date: "2024-11-05",
-        scores: { vocab: 95, grammar: 90, reading: 85, listening: 88 },
-        result: "Đạt"
+        scores: { vocab: 95, grammar: 90, reading: 85, listening: 88, speaking: 90 },
+        result: "Giỏi"
       },
       {
         id: "lt-11-2", name: "Bài 19 - Minna no Nihongo", date: "2024-11-20",
-        scores: { vocab: 40, grammar: 35, reading: 45, listening: 30 },
-        result: "Trượt"
+        scores: { vocab: 40, grammar: 35, reading: 45, listening: 30, speaking: 25 },
+        result: "Không đạt"
       }
     ],
     compTests: [
       {
         id: "ct-11-1", name: "Kiểm tra giữa kỳ", date: "2024-11-10",
-        scores: { vocab: 85, grammar: 82, reading: 80, listening: 78 },
-        result: "Đạt"
+        scores: { vocab: 80, grammar: 82, reading: 80, listening: 78, speaking: 80 },
+        result: "Khá"
       },
       {
         id: "ct-11-2", name: "Kiểm tra cuối kỳ", date: "2024-11-28",
-        scores: { vocab: 50, grammar: 45, reading: 55, listening: 40 },
-        result: "Trượt"
+        scores: { vocab: 70, grammar: 75, reading: 72, listening: 70, speaking: 73 },
+        result: "Trung bình"
+      },
+      {
+        id: "ct-11-3", name: "Kiểm tra bổ sung", date: "2024-11-29",
+        scores: { vocab: 60, grammar: 55, reading: 65, listening: 60, speaking: 50 },
+        result: "Không đạt"
       }
     ],
     jlptTests: [
       {
         id: "jt-11-1", name: "Mock Test N5 Lần 1", date: "2024-11-08",
-        scores: { vocab: 35, grammar: 40, reading: 38, listening: 45 },
+        scores: { vocab: 35, grammar: 40, reading: 38, listening: 45, speaking: 0 },
         result: "Đỗ"
       },
       {
         id: "jt-11-2", name: "Mock Test N5 Lần 2", date: "2024-11-25",
-        scores: { vocab: 15, grammar: 20, reading: 18, listening: 25 },
+        scores: { vocab: 15, grammar: 20, reading: 18, listening: 25, speaking: 0 },
         result: "Trượt"
       }
     ],
     generalTests: [
       {
         id: "gt-11-1", name: "Kỹ năng tổng hợp Tuần 1", date: "2024-11-03",
-        scores: { vocab: 8, grammar: 9, reading: 8, listening: 8 },
-        result: "Đạt"
+        scores: { vocab: 8, grammar: 9, reading: 8, listening: 8, speaking: 7 },
+        result: "Không đạt"
       },
       {
         id: "gt-11-2", name: "Kỹ năng tổng hợp Tuần 3", date: "2024-11-17",
-        scores: { vocab: 3, grammar: 4, reading: 3, listening: 2 },
-        result: "Trượt"
+        scores: { vocab: 3, grammar: 4, reading: 3, listening: 2, speaking: 3 },
+        result: "Không đạt"
       }
     ]
   },
@@ -220,13 +222,12 @@ const StudentPerformance = () => {
       { skill: "Ngữ pháp", value: 0 },
       { skill: "Đọc hiểu", value: 0 },
       { skill: "Nghe hiểu", value: 0 },
+      { skill: "Nói", value: 0 },
     ];
 
-    // Calculate average from Lesson Tests and Comprehensive Tests (sau 5 bài)
-    // Exclude General Test and JLPT as requested
+    // Calculate average from Lesson Tests ONLY
     const applicableTests = [
-      ...(currentEvaluation.lessonTests || []),
-      ...(currentEvaluation.compTests || [])
+      ...(currentEvaluation.lessonTests || [])
     ];
 
     if (applicableTests.length === 0) return [
@@ -234,6 +235,7 @@ const StudentPerformance = () => {
       { skill: "Ngữ pháp", value: 0 },
       { skill: "Đọc hiểu", value: 0 },
       { skill: "Nghe hiểu", value: 0 },
+      { skill: "Nói", value: 0 },
     ];
 
     const total = applicableTests.reduce((acc: any, t: TestRecord) => ({
@@ -241,16 +243,49 @@ const StudentPerformance = () => {
       grammar: acc.grammar + (t.scores.grammar || 0),
       reading: acc.reading + (t.scores.reading || 0),
       listening: acc.listening + (t.scores.listening || 0),
-    }), { vocab: 0, grammar: 0, reading: 0, listening: 0 });
+      speaking: (acc.speaking || 0) + (t.scores.speaking || 0),
+    }), { vocab: 0, grammar: 0, reading: 0, listening: 0, speaking: 0 });
 
     const count = applicableTests.length;
+    const avgVocab = Math.round(total.vocab / count);
+    const avgGrammar = Math.round(total.grammar / count);
+    const avgReading = Math.round(total.reading / count);
+    const avgListening = Math.round(total.listening / count);
+    const avgSpeaking = Math.round((total.speaking || 0) / count);
+
     return [
-      { skill: "Từ vựng", value: Math.round(total.vocab / count) },
-      { skill: "Ngữ pháp", value: Math.round(total.grammar / count) },
-      { skill: "Đọc hiểu", value: Math.round(total.reading / count) },
-      { skill: "Nghe hiểu", value: Math.round(total.listening / count) },
+      { skill: `Từ vựng (${avgVocab}/100)`, value: avgVocab },
+      { skill: `Ngữ pháp (${avgGrammar}/100)`, value: avgGrammar },
+      { skill: `Đọc hiểu (${avgReading}/100)`, value: avgReading },
+      { skill: `Nghe hiểu (${avgListening}/100)`, value: avgListening },
+      { skill: `Nói (${avgSpeaking}/100)`, value: avgSpeaking },
     ];
   })();
+
+  // Calculate Growth Chart Data (Total Average of Comprehensive Tests per Month)
+  const lineData = Object.values(evaluations).map((ev: any) => {
+    const compTests = ev.compTests || [];
+    let avgScore = 0;
+
+    if (compTests.length > 0) {
+      const totalSum = compTests.reduce((sum: number, t: TestRecord) => {
+        return sum + (t.scores.vocab + t.scores.grammar + t.scores.reading + t.scores.listening + (t.scores.speaking || 0));
+      }, 0);
+      avgScore = Math.round(totalSum / compTests.length);
+    }
+
+    return {
+      month: `T${ev.month}/${ev.year}`,
+      score: avgScore,
+      rawMonth: parseInt(ev.month),
+      rawYear: parseInt(ev.year)
+    };
+  })
+    .sort((a, b) => {
+      if (a.rawYear !== b.rawYear) return a.rawYear - b.rawYear;
+      return a.rawMonth - b.rawMonth;
+    });
+
   const hasEvaluation = !!currentEvaluation;
 
   const handleOpenCreate = () => {
@@ -302,21 +337,51 @@ const StudentPerformance = () => {
       // @ts-ignore
       const html2pdf = window.html2pdf;
       const opt = {
-        margin: 10,
+        margin: [5, 5, 5, 0], // Top, Right, Bottom, Left: 0
         filename: `Danh-gia-thang-${selectedMonth}-${selectedYear}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
           scale: 2,
           useCORS: true,
           logging: false,
+          windowWidth: 1450, // Wider capture to fit full table
+          x: 0,
+          y: 0,
           onclone: (doc: any) => {
+            // Force reset body
+            doc.body.style.margin = '0';
+            doc.body.style.padding = '0';
+            doc.body.style.overflow = 'hidden';
+
+            const root = doc.getElementById('evaluation-report');
+            if (root) {
+              root.style.position = 'absolute';
+              root.style.left = '0';
+              root.style.top = '0';
+              root.style.width = '1400px'; // Match wider capture
+              root.style.margin = '0';
+              root.style.padding = '10px 10px 10px 0'; // Zero left padding
+              root.style.backgroundColor = 'white';
+            }
+
             const pdfOnly = doc.querySelector('.pdf-only');
             if (pdfOnly) {
               pdfOnly.style.display = 'block';
             }
+
+            const printContent = doc.querySelector('.print-content');
+            if (printContent) {
+              printContent.style.width = '100%';
+              printContent.style.marginLeft = '-40px'; // Force table significantly left
+              printContent.style.padding = '0';
+              printContent.style.boxSizing = 'border-box';
+
+              const table = printContent.querySelector('table');
+              if (table) table.style.width = '100%';
+            }
           }
         },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
       };
 
       // Hide buttons temporarily during capture if needed, 
@@ -363,7 +428,7 @@ const StudentPerformance = () => {
       id: generateId(),
       name: "",
       date: new Date().toISOString().split('T')[0],
-      scores: { vocab: 0, grammar: 0, reading: 0, listening: 0 },
+      scores: { vocab: 0, grammar: 0, reading: 0, listening: 0, speaking: 0 },
       result: ""
     };
     setFormData(prev => ({ ...prev, [type]: [...prev[type], newTest] }));
@@ -389,21 +454,27 @@ const StudentPerformance = () => {
         let result = t.result;
 
         // Auto-calculate result
-        if (type === 'lessonTests') {
-          const evalRes = evaluateLessonTest(newScores);
-          result = evalRes.passed ? "Đạt" : "Trượt";
-        } else if (type === 'compTests') {
-          const evalRes = evaluateComprehensiveTest(newScores);
-          result = evalRes.passed ? "Đạt" : "Trượt";
+        const currentScores = { ...t.scores, [field]: value };
+        const totalScore = currentScores.vocab + currentScores.grammar + currentScores.reading + currentScores.listening + (currentScores.speaking || 0);
+
+        if (type === 'lessonTests' || type === 'compTests' || type === 'generalTests') {
+          // Max score assumption: 100 per skill. 5 skills = 500. 
+          // If Speaking is 0/hidden (unlikely for these tests now), we still assume 500 max for consistency or 400? 
+          // User said "tổng điểm toàn bộ các cột".
+          const maxScore = 500;
+          const percentage = (totalScore / maxScore) * 100;
+
+          if (percentage >= 90) result = "Giỏi";
+          else if (percentage >= 80) result = "Khá";
+          else if (percentage >= 70) result = "Trung bình";
+          else result = "Không đạt";
         } else if (type === 'jlptTests') {
-          const evalRes = evaluateJLPTTest(prev.jlptLevel as JLPTLevel, newScores); // Use global level for now
+          // JLPT logic remains as before or uses specific JLPT eval
+          const evalRes = evaluateJLPTTest(prev.jlptLevel as JLPTLevel, currentScores);
           result = evalRes.passed ? "Đỗ" : "Trượt";
-        } else if (type === 'generalTests') {
-          const evalRes = evaluateGeneralTest(newScores);
-          result = evalRes.passed ? "Đạt" : "Trượt";
         }
 
-        return { ...t, scores: newScores, result };
+        return { ...t, scores: currentScores, result };
       });
       return { ...prev, [type]: updatedTests };
     });
@@ -499,6 +570,12 @@ const StudentPerformance = () => {
               <Label>Nghe hiểu</Label>
               <Input type="number" value={test.scores.listening} onChange={(e) => updateTestScore(type, test.id, 'listening', Number(e.target.value))} />
             </div>
+            {type !== 'jlptTests' && (
+              <div className="space-y-2">
+                <Label>Nói</Label>
+                <Input type="number" value={test.scores.speaking} onChange={(e) => updateTestScore(type, test.id, 'speaking', Number(e.target.value))} />
+              </div>
+            )}
           </div>
           <div className="space-y-2">
             <Label>Kết quả</Label>
@@ -527,11 +604,13 @@ const StudentPerformance = () => {
             <TableRow>
               <TableHead className="w-[45%] whitespace-nowrap py-3 text-sm font-bold text-foreground border-r">Tên bài kiểm tra</TableHead>
               <TableHead className="w-[12%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Ngày thi</TableHead>
-              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground border-r">Từ vựng</TableHead>
-              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground border-r">Ngữ pháp</TableHead>
-              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground border-r">Đọc hiểu</TableHead>
-              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground border-r">Nghe hiểu</TableHead>
-              <TableHead className="text-right w-[11%] py-3 text-sm font-bold text-foreground">{isEditing ? "Hành động" : "Kết quả"}</TableHead>
+              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Từ vựng</TableHead>
+              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Ngữ pháp</TableHead>
+              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Đọc hiểu</TableHead>
+              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Nghe hiểu</TableHead>
+              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Nói</TableHead>
+              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Tổng điểm</TableHead>
+              <TableHead className="text-right w-[11%] py-3 text-sm font-bold text-foreground whitespace-nowrap">{isEditing ? "Hành động" : "Kết quả"}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -591,7 +670,9 @@ const StudentPerformance = () => {
                               className="h-8 text-center"
                             />
                           ) : (
-                            test.scores.vocab
+                            <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.vocab < 50 ? "text-red-600 font-bold" : ""}>
+                              {test.scores.vocab}
+                            </span>
                           )}
                         </TableCell>
                         <TableCell className="py-2 text-sm text-center border-r">
@@ -603,7 +684,9 @@ const StudentPerformance = () => {
                               className="h-8 text-center"
                             />
                           ) : (
-                            test.scores.grammar
+                            <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.grammar < 50 ? "text-red-600 font-bold" : ""}>
+                              {test.scores.grammar}
+                            </span>
                           )}
                         </TableCell>
                         <TableCell className="py-2 text-sm text-center border-r">
@@ -615,7 +698,9 @@ const StudentPerformance = () => {
                               className="h-8 text-center"
                             />
                           ) : (
-                            test.scores.reading
+                            <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.reading < 50 ? "text-red-600 font-bold" : ""}>
+                              {test.scores.reading}
+                            </span>
                           )}
                         </TableCell>
                         <TableCell className="py-2 text-sm text-center border-r">
@@ -627,8 +712,29 @@ const StudentPerformance = () => {
                               className="h-8 text-center"
                             />
                           ) : (
-                            test.scores.listening
+                            <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.listening < 50 ? "text-red-600 font-bold" : ""}>
+                              {test.scores.listening}
+                            </span>
                           )}
+                        </TableCell>
+                        <TableCell className="py-2 text-sm text-center border-r">
+                          {type === 'jlptTests' ? (
+                            <span className="text-muted-foreground">-</span>
+                          ) : isEditing ? (
+                            <Input
+                              type="number"
+                              value={test.scores.speaking}
+                              onChange={(e) => updateTestScore(type, test.id, 'speaking', Number(e.target.value))}
+                              className="h-8 text-center"
+                            />
+                          ) : (
+                            <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.speaking < 50 ? "text-red-600 font-bold" : ""}>
+                              {test.scores.speaking}
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="py-2 text-sm text-center font-bold border-r">
+                          {test.scores.vocab + test.scores.grammar + test.scores.reading + test.scores.listening + (type === 'jlptTests' ? 0 : (test.scores.speaking || 0))}
                         </TableCell>
                         <TableCell className="py-2 text-sm text-right">
                           {isEditing ? (
@@ -641,7 +747,12 @@ const StudentPerformance = () => {
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           ) : (
-                            <span className={`font-bold ${test.result?.includes("Đạt") || test.result === "Pass" || test.result?.includes("Đỗ") ? "text-green-600" : "text-red-600"}`}>
+                            <span className={`font-bold ${test.result === "Giỏi" ? "text-blue-600" :
+                              test.result === "Khá" ? "text-green-600" :
+                                test.result === "Trung bình" ? "text-yellow-600" :
+                                  test.result === "Đỗ" ? "text-green-600" :
+                                    "text-red-600"
+                              }`}>
                               {test.result || "-"}
                             </span>
                           )}
@@ -650,7 +761,7 @@ const StudentPerformance = () => {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-muted-foreground py-2 text-sm italic">
+                      <TableCell colSpan={8} className="text-center text-muted-foreground py-2 text-sm italic">
                         Chưa có dữ liệu
                       </TableCell>
                     </TableRow>
@@ -663,29 +774,50 @@ const StudentPerformance = () => {
                       grammar: acc.grammar + t.scores.grammar,
                       reading: acc.reading + t.scores.reading,
                       listening: acc.listening + t.scores.listening,
-                    }), { vocab: 0, grammar: 0, reading: 0, listening: 0 });
+                      speaking: acc.speaking + (t.scores.speaking || 0),
+                    }), { vocab: 0, grammar: 0, reading: 0, listening: 0, speaking: 0 });
                     const count = tests.length;
                     const avg = {
                       vocab: (total.vocab / count).toFixed(1),
                       grammar: (total.grammar / count).toFixed(1),
                       reading: (total.reading / count).toFixed(1),
                       listening: (total.listening / count).toFixed(1),
+                      speaking: (total.speaking / count).toFixed(1),
                     };
 
-                    const overallAvg = (parseFloat(avg.vocab) + parseFloat(avg.grammar) + parseFloat(avg.reading) + parseFloat(avg.listening)) / 4;
+                    const sumAvg = parseFloat(avg.vocab) + parseFloat(avg.grammar) + parseFloat(avg.reading) + parseFloat(avg.listening) + parseFloat(avg.speaking);
+                    const percentage = (sumAvg / 500) * 100;
+
                     let classification = "";
-                    if (overallAvg >= 70) classification = "Khá";
-                    else if (overallAvg >= 50) classification = "Trung bình";
-                    else classification = "Chưa đạt";
+                    if (percentage >= 90) classification = "Giỏi";
+                    else if (percentage >= 80) classification = "Khá";
+                    else if (percentage >= 70) classification = "Trung bình";
+                    else classification = "Không đạt";
+
+                    let colorClass = "text-red-600";
+                    let bgClass = "bg-red-50 hover:bg-red-50 border-red-200";
+
+                    if (classification === "Giỏi") {
+                      colorClass = "text-blue-600";
+                      bgClass = "bg-blue-50 hover:bg-blue-50 border-blue-200";
+                    } else if (classification === "Khá") {
+                      colorClass = "text-green-600";
+                      bgClass = "bg-green-50 hover:bg-green-50 border-green-200";
+                    } else if (classification === "Trung bình") {
+                      colorClass = "text-yellow-600";
+                      bgClass = "bg-yellow-50 hover:bg-yellow-50 border-yellow-200";
+                    }
 
                     return (
-                      <TableRow className="bg-red-50 hover:bg-red-50 border-t-2 border-red-200">
-                        <TableCell colSpan={2} className="font-bold text-red-600 border-r">Điểm trung bình tháng ( báo cáo công ty khách hàng)</TableCell>
-                        <TableCell className="text-center font-bold text-red-600 border-r">{avg.vocab}</TableCell>
-                        <TableCell className="text-center font-bold text-red-600 border-r">{avg.grammar}</TableCell>
-                        <TableCell className="text-center font-bold text-red-600 border-r">{avg.reading}</TableCell>
-                        <TableCell className="text-center font-bold text-red-600 border-r">{avg.listening}</TableCell>
-                        <TableCell className="text-right font-bold text-red-600 whitespace-nowrap">
+                      <TableRow className={`${bgClass} border-t-2`}>
+                        <TableCell colSpan={2} className={`font-bold ${colorClass} border-r`}>Điểm trung bình tháng ( báo cáo công ty khách hàng)</TableCell>
+                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.vocab}</TableCell>
+                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.grammar}</TableCell>
+                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.reading}</TableCell>
+                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.listening}</TableCell>
+                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.speaking}</TableCell>
+                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{(parseFloat(avg.vocab) + parseFloat(avg.grammar) + parseFloat(avg.reading) + parseFloat(avg.listening) + parseFloat(avg.speaking)).toFixed(1)}</TableCell>
+                        <TableCell className={`text-right font-bold ${colorClass} whitespace-nowrap`}>
                           {classification}
                         </TableCell>
                       </TableRow>
@@ -704,31 +836,7 @@ const StudentPerformance = () => {
     <div className="space-y-6">
       <style dangerouslySetInnerHTML={{ __html: printStyles }} />
       {/* Current Level */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Trình độ hiện tại</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center p-4 bg-primary/10 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-2">Cấp độ</p>
-              <p className="text-3xl font-bold text-primary">N4</p>
-            </div>
-            <div className="text-center p-4 bg-primary/10 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-2">Điểm tổng hợp</p>
-              <p className="text-3xl font-bold text-primary">620</p>
-            </div>
-            <div className="text-center p-4 bg-success/10 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-2">Xếp loại</p>
-              <p className="text-3xl font-bold text-success">優</p>
-            </div>
-            <div className="text-center p-4 bg-primary/10 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-2">Tiến độ</p>
-              <p className="text-3xl font-bold text-primary">85%</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Growth Chart */}
       <Card>
@@ -737,20 +845,19 @@ const StudentPerformance = () => {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={lineData}>
-              <CartesianGrid strokeDasharray="3 3" />
+            <BarChart data={lineData} barSize={40}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="month" />
-              <YAxis domain={[400, 700]} />
-              <Tooltip />
+              <YAxis domain={[0, 500]} />
+              <Tooltip cursor={{ fill: 'transparent' }} />
               <Legend />
-              <Line
-                type="monotone"
+              <Bar
                 dataKey="score"
-                stroke="hsl(var(--primary))"
-                strokeWidth={3}
+                fill="hsl(var(--primary))"
                 name="Điểm tổng hợp"
+                radius={[4, 4, 0, 0]}
               />
-            </LineChart>
+            </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
@@ -765,7 +872,7 @@ const StudentPerformance = () => {
             <RadarChart data={currentRadarData}>
               <PolarGrid />
               <PolarAngleAxis dataKey="skill" />
-              <PolarRadiusAxis domain={[0, 100]} />
+              <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
               <Radar
                 name="Kỹ năng"
                 dataKey="value"
@@ -792,21 +899,44 @@ const StudentPerformance = () => {
               <p><span className="font-semibold">Tháng:</span> {selectedMonth}/{selectedYear}</p>
             </div>
 
-            <div className="flex flex-col items-center py-4 bg-muted/5 rounded-xl mt-4 border border-dashed border-primary/20">
-              <p className="font-bold text-lg mb-2 text-primary">Biểu đồ kỹ năng</p>
-              <div className="flex justify-center" style={{ width: '500px', height: '300px' }}>
-                <RadarChart width={500} height={300} data={currentRadarData} margin={{ top: 10, right: 30, left: 30, bottom: 10 }}>
-                  <PolarGrid stroke="#e2e8f0" />
-                  <PolarAngleAxis dataKey="skill" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 'bold' }} />
-                  <PolarRadiusAxis domain={[0, 100]} axisLine={false} tick={false} />
-                  <Radar
-                    name="Kỹ năng"
-                    dataKey="value"
-                    stroke="hsl(var(--primary))"
-                    fill="hsl(var(--primary))"
-                    fillOpacity={0.6}
-                  />
-                </RadarChart>
+            <div className="flex flex-col items-center gap-6 mt-6">
+              {/* Growth Chart - Top */}
+              <div className="flex flex-col items-center w-full max-w-[800px] py-4 bg-muted/5 rounded-xl border border-dashed border-primary/20">
+                <p className="font-bold text-lg mb-2 text-primary">Biểu đồ tăng trưởng</p>
+                <div className="flex justify-center" style={{ width: '700px', height: '350px' }}>
+                  <BarChart width={700} height={350} data={lineData} barSize={50}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="month" />
+                    <YAxis domain={[0, 500]} />
+                    <Tooltip cursor={{ fill: 'transparent' }} />
+                    <Legend />
+                    <Bar
+                      dataKey="score"
+                      fill="hsl(var(--primary))"
+                      name="Điểm tổng hợp"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </div>
+              </div>
+
+              {/* Radar Chart - Bottom */}
+              <div className="flex flex-col items-center w-full max-w-[800px] py-4 bg-muted/5 rounded-xl border border-dashed border-primary/20">
+                <p className="font-bold text-lg mb-2 text-primary">Biểu đồ kỹ năng</p>
+                <div className="flex justify-center" style={{ width: '500px', height: '350px' }}>
+                  <RadarChart width={500} height={350} data={currentRadarData} margin={{ top: 10, right: 30, left: 30, bottom: 10 }}>
+                    <PolarGrid stroke="#e2e8f0" />
+                    <PolarAngleAxis dataKey="skill" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 'bold' }} />
+                    <PolarRadiusAxis domain={[0, 100]} axisLine={false} tick={false} />
+                    <Radar
+                      name="Kỹ năng"
+                      dataKey="value"
+                      stroke="hsl(var(--primary))"
+                      fill="hsl(var(--primary))"
+                      fillOpacity={0.6}
+                    />
+                  </RadarChart>
+                </div>
               </div>
             </div>
           </div>
