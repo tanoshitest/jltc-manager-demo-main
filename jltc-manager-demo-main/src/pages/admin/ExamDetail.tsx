@@ -34,6 +34,8 @@ import {
   CheckCircle,
   Plus,
   X,
+  Eye,
+  Save,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -113,7 +115,7 @@ interface Question {
 const ExamDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   // In real app, fetch exam by id
   const exam = mockExamDetail;
 
@@ -205,6 +207,14 @@ const ExamDetail = () => {
             </div>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate(`/student/exam/${id}`)}>
+              <Eye className="h-4 w-4 mr-2" />
+              Xem trước
+            </Button>
+            <Button variant="default">
+              <Save className="h-4 w-4 mr-2" />
+              Update
+            </Button>
             <Button variant="outline" onClick={() => setShowEditDialog(true)}>
               <Edit className="h-4 w-4 mr-2" />
               Chỉnh sửa
@@ -217,86 +227,24 @@ const ExamDetail = () => {
         </div>
 
         {/* Info Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Clock className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{exam.duration}</p>
-                <p className="text-xs text-muted-foreground">Phút</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <FileText className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{exam.questions.length}</p>
-                <p className="text-xs text-muted-foreground">Câu hỏi</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 bg-green-500/10 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{exam.passingScore}%</p>
-                <p className="text-xs text-muted-foreground">Điểm đạt</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 bg-purple-500/10 rounded-lg">
-                <Users className="h-5 w-5 text-purple-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{exam.assignedClasses.length}</p>
-                <p className="text-xs text-muted-foreground">Lớp được gán</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+
 
         {/* Description & Classes */}
-        <div className="grid lg:grid-cols-3 gap-4">
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="text-lg">Mô tả đề thi</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                {exam.description || "Không có mô tả"}
-              </p>
-              <Separator className="my-4" />
-              <div className="text-sm text-muted-foreground">
-                <p>Ngày tạo: {exam.createdAt}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Lớp được gán</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {exam.assignedClasses.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {exam.assignedClasses.map((cls) => (
-                    <Badge key={cls} variant="secondary">{cls}</Badge>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-sm">Chưa gán lớp nào</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        {/* Description */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Mô tả đề thi</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              {exam.description || "Không có mô tả"}
+            </p>
+            <Separator className="my-4" />
+            <div className="text-sm text-muted-foreground">
+              <p>Ngày tạo: {exam.createdAt}</p>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Questions List */}
         <Card>
@@ -316,22 +264,20 @@ const ExamDetail = () => {
                         <p className="font-medium text-foreground">{question.content}</p>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 ml-11">
                       {question.answers.map((answer, aIndex) => (
                         <div
                           key={aIndex}
-                          className={`flex items-center gap-2 p-2 rounded-lg border ${
-                            aIndex === question.correctAnswer
-                              ? "bg-green-500/10 border-green-500/50"
-                              : "bg-background border-border"
-                          }`}
+                          className={`flex items-center gap-2 p-2 rounded-lg border ${aIndex === question.correctAnswer
+                            ? "bg-green-500/10 border-green-500/50"
+                            : "bg-background border-border"
+                            }`}
                         >
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                            aIndex === question.correctAnswer
-                              ? "bg-green-500 text-white"
-                              : "bg-muted text-muted-foreground"
-                          }`}>
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${aIndex === question.correctAnswer
+                            ? "bg-green-500 text-white"
+                            : "bg-muted text-muted-foreground"
+                            }`}>
                             {String.fromCharCode(65 + aIndex)}
                           </div>
                           <span className={aIndex === question.correctAnswer ? "text-green-700 dark:text-green-400 font-medium" : ""}>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
@@ -1006,10 +1007,12 @@ export const jlptListeningData: JLPTMondai[] = [
 // Mock basic exam data shell
 const mockExam = {
   id: 1,
-  title: "JLPT N5 - Đề thi thử",
+  title: "Bài 16 - Kiểm tra sau bài học",
   duration: 0, // Managed dynamically
   examType: "jlpt",
   hasEssay: false,
+  description: "Đề kiểm tra kiến thức sau bài học 16 về ngữ pháp và từ vựng",
+  createdAt: "2024-12-01",
   questions: [],
 };
 
@@ -1244,18 +1247,41 @@ const ExamTaking = () => {
   // Keeping it minimal as we are focusing on JLPT view
   const renderBasicQuestion = (question: any) => null;
 
+  const DescriptionCard = (
+    <Card className="mb-6 max-w-5xl mx-auto shadow-sm border rounded-lg overflow-hidden">
+      <CardHeader className="bg-gray-50/50 border-b py-4">
+        <CardTitle className="text-lg font-medium text-gray-800">Mô tả đề thi</CardTitle>
+      </CardHeader>
+      <CardContent className="p-6">
+        <p className="text-gray-600 leading-relaxed">
+          {mockExam.description}
+        </p>
+        <Separator className="my-4" />
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <Clock className="h-4 w-4" />
+          <p>Ngày tạo: {mockExam.createdAt}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   if (examStep === 'cover') {
     return (
-      <JLPTCoverPage
-        onStart={() => setExamStep('intro')}
-        level="N5"
-        sectionName={currentSectionName}
-        title={currentSectionName}
-        subTitle={currentSubTitle}
-        variant={currentVariant}
-        examineeNumber="2026-0001"
-        examineeName="NGUYEN VAN A"
-      />
+      <div className="min-h-screen bg-gray-50/30 pb-10 overflow-y-auto">
+
+        <div className="transform scale-95 origin-top">
+          <JLPTCoverPage
+            onStart={() => setExamStep('intro')}
+            level="N5"
+            sectionName={currentSectionName}
+            title={currentSectionName}
+            subTitle={currentSubTitle}
+            variant={currentVariant}
+            examineeNumber="2026-0001"
+            examineeName="NGUYEN VAN A"
+          />
+        </div>
+      </div>
     );
   }
 
@@ -1317,7 +1343,12 @@ const ExamTaking = () => {
         </div>
       </header>
 
+
+      {/* Audio Player for Listening Section */}
+
       <main className="pt-20 px-4 md:px-0 max-w-5xl mx-auto">
+
+
         {mockExam.examType === 'jlpt' ? (
           <>
             {/* Audio Player for Listening Section */}
@@ -1332,11 +1363,12 @@ const ExamTaking = () => {
         ) : (
           /* Fallback for other exam types */
           <div className="text-center p-8">Generic Exam View</div>
-        )}
-      </main>
+        )
+        }
+      </main >
 
       {/* Submit Confirmation Dialog */}
-      <AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+      < AlertDialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog} >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
@@ -1355,10 +1387,10 @@ const ExamTaking = () => {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog >
 
       {/* Time Warning Dialog */}
-      <AlertDialog open={showTimeWarning} onOpenChange={setShowTimeWarning}>
+      < AlertDialog open={showTimeWarning} onOpenChange={setShowTimeWarning} >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-orange-500">
@@ -1373,8 +1405,8 @@ const ExamTaking = () => {
             <AlertDialogAction onClick={() => setShowTimeWarning(false)}>Đã hiểu</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
-    </div>
+      </AlertDialog >
+    </div >
   );
 };
 

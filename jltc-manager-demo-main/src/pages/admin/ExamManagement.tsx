@@ -40,10 +40,10 @@ import {
   FileText,
   BookOpen,
   GraduationCap,
-  Upload,
-  FileSpreadsheet,
+
   PenLine,
   ListChecks,
+  Pencil,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -57,58 +57,69 @@ const examTypes = [
 const mockExams = [
   {
     id: 1,
-    title: "Bài 16 - Kiểm tra sau bài học",
-    type: "after_lesson",
+    title: "Thi thử JLPT 2024-12-01",
+    type: "jlpt_mock",
     level: "N5",
-    duration: 30,
-    questions: 20,
-    status: "active",
+    duration: 90,
+    questions: 80,
+    status: "published",
     createdAt: "2024-12-01",
     assignedClasses: ["N5-A", "N5-B"],
   },
   {
     id: 2,
-    title: "Kiểm tra 5 bài (Bài 11-15)",
-    type: "after_5_lessons",
-    level: "N5",
-    duration: 45,
-    questions: 35,
-    status: "active",
+    title: "Thi thử JLPT 2024-11-25",
+    type: "jlpt_mock",
+    level: "N4",
+    duration: 105,
+    questions: 90,
+    status: "published",
     createdAt: "2024-11-25",
-    assignedClasses: ["N5-A"],
+    assignedClasses: ["N4-A"],
   },
   {
     id: 3,
-    title: "JLPT N5 - Đề thi thử tháng 12",
+    title: "Thi thử JLPT 2024-12-05",
     type: "jlpt_mock",
-    level: "N5",
-    duration: 90,
-    questions: 80,
-    status: "active",
+    level: "N3",
+    duration: 140,
+    questions: 100,
+    status: "published",
     createdAt: "2024-12-05",
-    assignedClasses: ["N5-A", "N5-B", "N5-C"],
+    assignedClasses: ["N3-A", "N3-B"],
   },
   {
     id: 4,
-    title: "Kiểm tra cuối khóa N4",
-    type: "final",
-    level: "N4",
-    duration: 120,
-    questions: 100,
+    title: "Thi thử JLPT 2024-12-08",
+    type: "jlpt_mock",
+    level: "N2",
+    duration: 155,
+    questions: 105,
     status: "draft",
     createdAt: "2024-12-08",
     assignedClasses: [],
   },
   {
     id: 5,
-    title: "Bài 15 - Kiểm tra sau bài học",
-    type: "after_lesson",
-    level: "N5",
-    duration: 30,
-    questions: 20,
-    status: "inactive",
+    title: "Thi thử JLPT 2024-11-20",
+    type: "jlpt_mock",
+    level: "N1",
+    duration: 170,
+    questions: 110,
+    status: "published",
     createdAt: "2024-11-20",
-    assignedClasses: ["N5-A"],
+    assignedClasses: ["N1-A"],
+  },
+  {
+    id: 6,
+    title: "Thi thử JLPT 2024-10-15",
+    type: "jlpt_mock",
+    level: "N5",
+    duration: 90,
+    questions: 80,
+    status: "draft",
+    createdAt: "2024-10-15",
+    assignedClasses: [],
   },
 ];
 
@@ -137,7 +148,7 @@ interface EssayQuestion {
 const ExamManagement = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [levelFilter, setLevelFilter] = useState("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedExam, setSelectedExam] = useState<typeof mockExams[0] | null>(null);
@@ -157,13 +168,12 @@ const ExamManagement = () => {
 
   const filteredExams = mockExams.filter((exam) => {
     const matchesSearch = exam.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = typeFilter === "all" || exam.type === typeFilter;
-    return matchesSearch && matchesType;
+    const matchesLevel = levelFilter === "all" || exam.level === levelFilter;
+    return matchesSearch && matchesLevel;
   });
 
-  const activeExams = filteredExams.filter((e) => e.status === "active");
+  const publishedExams = filteredExams.filter((e) => e.status === "published");
   const draftExams = filteredExams.filter((e) => e.status === "draft");
-  const inactiveExams = filteredExams.filter((e) => e.status === "inactive");
 
   const totalQuestions = multipleChoiceQuestions.length + essayQuestions.length;
 
@@ -182,6 +192,30 @@ const ExamManagement = () => {
     });
     setShowCreateDialog(false);
     resetForm();
+  };
+
+  const handleEditExam = (exam: typeof mockExams[0]) => {
+    setFormData({
+      title: exam.title,
+      type: exam.type,
+      duration: exam.duration,
+      description: "Mô tả đề thi mẫu...", // Mock description since it's not in mockExams
+    });
+    // Create dummy questions based on exam.questions count to simulate editing data
+    const dummyMCQs = Array(Math.min(exam.questions, 5)).fill(null).map((_, i) => ({
+      id: i + 1,
+      content: `Câu hỏi mẫu ${i + 1} của mã đề ${exam.id}`,
+      answers: ["Lựa chọn A", "Lựa chọn B", "Lựa chọn C", "Lựa chọn D"],
+      correctAnswer: 0,
+      explanation: "Giải thích mẫu..."
+    }));
+
+    setMultipleChoiceQuestions(dummyMCQs);
+    setEssayQuestions([]); // Reset or mock essay questions
+
+    setSelectedExam(exam);
+    setIsEditing(true);
+    setShowCreateDialog(true);
   };
 
   const resetForm = () => {
@@ -252,43 +286,36 @@ const ExamManagement = () => {
     }
   };
 
-  const handleImportExcel = () => {
-    toast({
-      title: "Import Excel",
-      description: "Chức năng import đề thi từ Excel sẽ được mở.",
-    });
-  };
+
 
   const ExamRow = ({ exam }: { exam: typeof mockExams[0] }) => (
     <TableRow
       className="cursor-pointer hover:bg-muted/50"
-      onClick={() => navigate(`/admin/exams/${exam.id}`)}
+      onClick={() => navigate(`/student/exam/${exam.id}`)}
     >
       <TableCell>
-        <div>
-          <p className="font-medium">{exam.title}</p>
-          <p className="text-xs text-muted-foreground">Tạo: {exam.createdAt}</p>
-        </div>
-      </TableCell>
-      <TableCell>
-        <Badge variant="outline">{typeLabels[exam.type]}</Badge>
+        <p className="font-medium">{exam.title}</p>
       </TableCell>
       <TableCell>
         <Badge variant="secondary">{exam.level}</Badge>
       </TableCell>
-      <TableCell>{exam.duration} phút</TableCell>
-      <TableCell>{exam.questions} câu</TableCell>
+      <TableCell>
+        {exam.createdAt}
+      </TableCell>
       <TableCell>
         <Badge
           variant={
-            exam.status === "active"
-              ? "default"
-              : exam.status === "draft"
-                ? "secondary"
-                : "outline"
+            exam.status === "published"
+              ? "default" // Green/Default for Published
+              : "secondary" // Gray for Draft
+          }
+          className={
+            exam.status === "published"
+              ? "bg-green-600 hover:bg-green-700" // Custom green for published
+              : ""
           }
         >
-          {exam.status === "active" ? "Đang mở" : exam.status === "draft" ? "Nháp" : "Đã đóng"}
+          {exam.status === "published" ? "Đã xuất bản" : "Nháp"}
         </Badge>
       </TableCell>
       <TableCell>
@@ -296,8 +323,16 @@ const ExamManagement = () => {
           <Button
             variant="ghost"
             size="icon"
-            title="Xem chi tiết"
+            title="Chỉnh sửa"
             onClick={() => navigate(`/admin/exams/${exam.id}`)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Xem dưới dạng học sinh"
+            onClick={() => navigate(`/student/exam/${exam.id}`)}
           >
             <Eye className="h-4 w-4" />
           </Button>
@@ -313,58 +348,25 @@ const ExamManagement = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
-              Quản lý đề thi
+              Thi thử JLPT
             </h1>
             <p className="text-muted-foreground mt-1">
               Tạo và quản lý đề thi tiếng Nhật
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleImportExcel}>
-              <FileSpreadsheet className="h-4 w-4 mr-2" />
-              Import Excel
-            </Button>
-            <Button onClick={() => navigate("/admin/exams/create")}>
-              <Plus className="h-4 w-4 mr-2" />
-              Tạo đề thi
-            </Button>
+
+            <div className="flex gap-2">
+
+              <Button onClick={() => navigate("/admin/exams/create")}>
+                <Plus className="h-4 w-4 mr-2" />
+                Tạo đề thi
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-          {examTypes.map((type) => {
-            const count = mockExams.filter((e) => e.type === type.value).length;
-            return (
-              <Card key={type.value}>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <type.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{count}</p>
-                      <p className="text-xs text-muted-foreground">{type.label}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-500/10 rounded-lg">
-                  <FileText className="h-5 w-5 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{mockExams.length}</p>
-                  <p className="text-xs text-muted-foreground">Tổng đề thi</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+
 
         {/* Filters */}
         <Card>
@@ -379,16 +381,17 @@ const ExamManagement = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <Select value={levelFilter} onValueChange={setLevelFilter}>
                 <SelectTrigger className="w-full lg:w-48">
-                  <SelectValue placeholder="Loại đề thi" />
+                  <SelectValue placeholder="Chọn cấp độ" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tất cả loại</SelectItem>
-                  <SelectItem value="after_lesson">Sau bài học</SelectItem>
-                  <SelectItem value="after_5_lessons">Sau 5 bài</SelectItem>
-                  <SelectItem value="final">Cuối khóa</SelectItem>
-                  <SelectItem value="jlpt_mock">Thi thử JLPT</SelectItem>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value="N5">N5</SelectItem>
+                  <SelectItem value="N4">N4</SelectItem>
+                  <SelectItem value="N3">N3</SelectItem>
+                  <SelectItem value="N2">N2</SelectItem>
+                  <SelectItem value="N1">N1</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -396,14 +399,13 @@ const ExamManagement = () => {
         </Card>
 
         {/* Exam Tabs */}
-        <Tabs defaultValue="active" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="active">Đang mở ({activeExams.length})</TabsTrigger>
+        <Tabs defaultValue="published" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="published">Đã xuất bản ({publishedExams.length})</TabsTrigger>
             <TabsTrigger value="draft">Nháp ({draftExams.length})</TabsTrigger>
-            <TabsTrigger value="inactive">Đã đóng ({inactiveExams.length})</TabsTrigger>
           </TabsList>
 
-          {["active", "draft", "inactive"].map((status) => (
+          {["published", "draft"].map((status) => (
             <TabsContent key={status} value={status} className="mt-4">
               <Card>
                 <CardContent className="p-0">
@@ -411,21 +413,17 @@ const ExamManagement = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Tên đề thi</TableHead>
-                          <TableHead>Loại</TableHead>
-                          <TableHead>Level</TableHead>
-                          <TableHead>Thời gian</TableHead>
-                          <TableHead>Số câu</TableHead>
+                          <TableHead>Tên bài thi</TableHead>
+                          <TableHead>Cấp độ</TableHead>
+                          <TableHead>Ngày thi</TableHead>
                           <TableHead>Trạng thái</TableHead>
                           <TableHead>Hành động</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {(status === "active"
-                          ? activeExams
-                          : status === "draft"
-                            ? draftExams
-                            : inactiveExams
+                        {(status === "published"
+                          ? publishedExams
+                          : draftExams
                         ).map((exam) => (
                           <ExamRow key={exam.id} exam={exam} />
                         ))}
@@ -514,10 +512,7 @@ const ExamManagement = () => {
                   <h4 className="font-medium text-lg">
                     Câu hỏi ({multipleChoiceQuestions.length} trắc nghiệm, {essayQuestions.length} tự luận)
                   </h4>
-                  <Button variant="outline" size="sm" onClick={handleImportExcel}>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Import từ Excel
-                  </Button>
+
                 </div>
 
                 <Tabs value={questionTab} onValueChange={setQuestionTab} className="w-full">

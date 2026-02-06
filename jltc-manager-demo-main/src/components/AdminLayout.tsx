@@ -29,7 +29,7 @@ const menuItems = [
   { icon: UserCog, label: "Giáo viên", path: "/admin/teachers" },
   { icon: Calendar, label: "Xếp lịch dạy", path: "/admin/schedule" },
   { icon: BookOpen, label: "Quản lý lớp", path: "/admin/classes" },
-  { icon: GraduationCap, label: "Quản lý đề thi", path: "/admin/exams" },
+  { icon: GraduationCap, label: "Thi thử JLPT", path: "/admin/exams" },
   { icon: BarChart3, label: "Báo cáo", path: "/admin/reports" },
   { icon: Settings, label: "Cài đặt hệ thống", path: "/admin/settings" },
 ];
