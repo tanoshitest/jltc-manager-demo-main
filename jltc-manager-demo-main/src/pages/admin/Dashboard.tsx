@@ -8,6 +8,7 @@ import {
   CheckCircle,
   GraduationCap,
   Trophy,
+  Briefcase,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,6 +20,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const nearCompletionStudents = [
   { id: "HV001", name: "Nguyễn Văn A", avatar: "", class: "N4-01", progress: 95, completionDate: "15/12/2024" },
@@ -216,11 +219,25 @@ const Dashboard = () => {
     }
   };
 
+  const navigate = useNavigate();
+
   return (
     <AdminLayout>
-      <div className="space-y-3">
+      <div className="space-y-6">
+        {/* Quick Actions */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground">Tổng quan hệ thống quản lý trung tâm</p>
+          </div>
+          <Button onClick={() => navigate("/admin/tasks")} className="bg-primary hover:bg-primary/90">
+            <Briefcase className="mr-2 h-4 w-4" />
+            Giao việc mới
+          </Button>
+        </div>
+
         {/* Student Stats */}
-        <div>
+        <div className="space-y-3">
           <h2 className="text-base font-semibold mb-1.5 text-foreground">Thống kê học viên</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <StatsCard

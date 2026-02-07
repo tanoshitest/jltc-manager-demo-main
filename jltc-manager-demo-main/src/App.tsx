@@ -16,6 +16,9 @@ import Reports from "./pages/admin/Reports";
 import Settings from "./pages/admin/Settings";
 import ExamManagement from "./pages/admin/ExamManagement";
 import ExamDetail from "./pages/admin/ExamDetail";
+import AdminCreateJLPTExam from "./pages/admin/CreateJLPTExam";
+import TaskManagement from "./pages/admin/TaskManagement";
+
 import TeacherDashboard from "./pages/teacher/Dashboard";
 import TeacherStudents from "./pages/teacher/Students";
 import TeacherStudentDetail from "./pages/teacher/StudentDetail";
@@ -25,7 +28,8 @@ import ClassManagement from "./pages/teacher/ClassManagement";
 import TeacherExamManagement from "./pages/teacher/ExamManagement";
 import TeacherExamDetail from "./pages/teacher/ExamDetail";
 import CreateJLPTExam from "./pages/teacher/CreateJLPTExam";
-import AdminCreateJLPTExam from "./pages/admin/CreateJLPTExam";
+import TeacherTaskBoard from "./pages/teacher/TaskBoard";
+
 import StudentDashboard from "./pages/student/Dashboard";
 import StudentExams from "./pages/student/Exams";
 import ExamTaking from "./pages/student/ExamTaking";
@@ -52,20 +56,24 @@ const App = () => (
           <Route path="/admin/classes" element={<Classes />} />
           <Route path="/admin/classes/:id" element={<ClassDetail />} />
           <Route path="/admin/schedule" element={<Schedule />} />
+          <Route path="/admin/tasks" element={<TaskManagement />} />
           <Route path="/admin/reports" element={<Reports />} />
           <Route path="/admin/exams" element={<ExamManagement />} />
           <Route path="/admin/exams/create" element={<AdminCreateJLPTExam />} />
           <Route path="/admin/exams/:id" element={<ExamDetail />} />
           <Route path="/admin/settings" element={<Settings />} />
+
           <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
           <Route path="/teacher/students" element={<TeacherStudents />} />
           <Route path="/teacher/students/:id" element={<TeacherStudentDetail />} />
           <Route path="/teacher/classes" element={<TeacherClasses />} />
           <Route path="/teacher/schedule" element={<TeacherSchedule />} />
+          <Route path="/teacher/tasks" element={<TeacherTaskBoard />} />
           <Route path="/teacher/exams" element={<TeacherExamManagement />} />
           <Route path="/teacher/exams/create" element={<CreateJLPTExam />} />
           <Route path="/teacher/exams/:id" element={<TeacherExamDetail />} />
           <Route path="/teacher/class/:id" element={<ClassManagement />} />
+
           {/* Student Routes */}
           <Route path="/student/dashboard" element={<StudentDashboard />} />
           <Route path="/student/exams" element={<StudentExams />} />
@@ -73,6 +81,7 @@ const App = () => (
           <Route path="/student/result/:id" element={<ExamResult />} />
           <Route path="/student/history" element={<StudentHistory />} />
           <Route path="/student/goals" element={<StudentGoals />} />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

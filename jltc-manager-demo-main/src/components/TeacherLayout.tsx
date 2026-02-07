@@ -10,7 +10,11 @@ import {
   BarChart3,
   BookOpen,
   FileText,
+  ClipboardList,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   Sheet,
@@ -27,25 +31,35 @@ const menuItems = [
   { icon: Users, label: "Học viên", path: "/teacher/students" },
   { icon: BookOpen, label: "Quản lý Lớp", path: "/teacher/classes" },
   { icon: FileText, label: "Quản lý Đề thi", path: "/teacher/exams" },
+  { icon: ClipboardList, label: "Công việc được giao", path: "/teacher/tasks" },
   { icon: Calendar, label: "Lịch dạy tuần này", path: "/teacher/schedule" },
 ];
 
-const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
+const Sidebar = ({ onLogout, collapsed, toggleCollapse }: { onLogout: () => void, collapsed?: boolean, toggleCollapse?: () => void }) => {
   const location = useLocation();
 
   return (
-    <div className="flex flex-col h-full bg-card border-r border-border">
-      <div className="p-6 border-b border-border">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="w-8 h-8 text-primary" />
-          <div>
-            <h2 className="font-bold text-lg">IKIGAI CENTER</h2>
-            <p className="text-xs text-muted-foreground">Teacher Portal</p>
+    <div className={cn("flex flex-col h-full bg-card border-r border-border transition-all duration-300", collapsed ? "w-16" : "w-64")}>
+      <div className={cn("p-4 border-b border-border flex items-center justify-between", collapsed ? "justify-center" : "")}>
+        {!collapsed && (
+          <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap">
+            <GraduationCap className="w-8 h-8 text-primary shrink-0" />
+            <div>
+              <h2 className="font-bold text-lg truncate">IKIGAI CENTER</h2>
+              <p className="text-xs text-muted-foreground truncate">Teacher Portal</p>
+            </div>
           </div>
-        </div>
+        )}
+        {collapsed && <GraduationCap className="w-8 h-8 text-primary shrink-0" />}
+
+        {toggleCollapse && (
+          <Button variant="ghost" size="icon" className="h-6 w-6 hidden lg:flex" onClick={toggleCollapse}>
+            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </Button>
+        )}
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-2 space-y-2 overflow-x-hidden">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
           return (
@@ -53,23 +67,25 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
               key={item.path}
               to={item.path}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg transition-all",
+                "flex items-center gap-3 px-3 py-3 rounded-lg transition-all",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-md"
-                  : "hover:bg-accent text-foreground"
+                  : "hover:bg-accent text-foreground",
+                collapsed ? "justify-center" : ""
               )}
+              title={collapsed ? item.label : undefined}
             >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
+              <item.icon className="w-5 h-5 shrink-0" />
+              {!collapsed && <span className="font-medium truncate">{item.label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-border">
-        <Button variant="outline" className="w-full" onClick={onLogout}>
-          <LogOut className="w-4 h-4 mr-2" />
-          Đăng xuất
+      <div className="p-2 border-t border-border">
+        <Button variant="outline" className={cn("w-full flex items-center gap-2", collapsed ? "justify-center px-0" : "")} onClick={onLogout} title={collapsed ? "Đăng xuất" : undefined}>
+          <LogOut className="w-4 h-4 shrink-0" />
+          {!collapsed && "Đăng xuất"}
         </Button>
       </div>
     </div>
@@ -78,13 +94,14 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
 
 const TeacherLayout = ({ children }: TeacherLayoutProps) => {
   const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
   const handleLogout = () => navigate("/");
 
   return (
     <div className="flex h-screen overflow-hidden bg-muted">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block w-64 h-full">
-        <Sidebar onLogout={handleLogout} />
+      <aside className={cn("hidden lg:block h-full transition-all duration-300", collapsed ? "w-16" : "w-64")}>
+        <Sidebar onLogout={handleLogout} collapsed={collapsed} toggleCollapse={() => setCollapsed(!collapsed)} />
       </aside>
 
       {/* Mobile Header */}

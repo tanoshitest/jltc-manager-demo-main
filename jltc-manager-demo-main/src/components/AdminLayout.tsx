@@ -13,6 +13,7 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
+  Briefcase,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -31,6 +32,7 @@ const menuItems = [
   { icon: Users, label: "Học viên", path: "/admin/students" },
   { icon: UserCog, label: "Giáo viên", path: "/admin/teachers" },
   { icon: Calendar, label: "Xếp lịch dạy", path: "/admin/schedule" },
+  { icon: Briefcase, label: "Quản lý công việc", path: "/admin/tasks" },
   { icon: BookOpen, label: "Quản lý lớp", path: "/admin/classes" },
   { icon: GraduationCap, label: "Thi thử JLPT", path: "/admin/exams" },
   { icon: BarChart3, label: "Bảng điểm", path: "/admin/reports" },
