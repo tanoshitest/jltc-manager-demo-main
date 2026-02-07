@@ -521,22 +521,24 @@ const Schedule = () => {
               <div className="h-6 w-px bg-border hidden md:block" />
 
               {/* Filters */}
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-muted-foreground" />
-                <Select value={filterTeacher} onValueChange={setFilterTeacher}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Giáo viên" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả GV</SelectItem>
-                    {allTeachers.map((teacher) => (
-                      <SelectItem key={teacher} value={teacher}>
-                        {teacher}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {viewMode === 'excel' && (
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <Select value={filterTeacher} onValueChange={setFilterTeacher}>
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue placeholder="Giáo viên" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tất cả GV</SelectItem>
+                      {allTeachers.map((teacher) => (
+                        <SelectItem key={teacher} value={teacher}>
+                          {teacher}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-muted-foreground" />
                 <Select value={filterSubject} onValueChange={setFilterSubject}>

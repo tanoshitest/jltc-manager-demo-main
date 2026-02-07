@@ -250,14 +250,14 @@ const ClassDetail = () => {
         const seed = student.id.charCodeAt(student.id.length - 1) + idx;
         let status: AttendanceRecord["status"] = "present";
         let reason: string | undefined;
-        
+
         if (seed % 10 === 0) {
           status = "absent_unexcused";
         } else if (seed % 8 === 0) {
           status = "absent_excused";
           reason = "Bệnh";
         }
-        
+
         data[student.id][date.toISOString()] = { status, reason };
       });
     });
@@ -364,13 +364,9 @@ const ClassDetail = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="attendance" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
-            <TabsTrigger value="attendance">Điểm danh</TabsTrigger>
-            <TabsTrigger value="grades">Bảng điểm</TabsTrigger>
-          </TabsList>
+        <div className="w-full">
 
-          <TabsContent value="attendance" className="space-y-4">
+          <div className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Bảng điểm danh</CardTitle>
@@ -433,99 +429,10 @@ const ClassDetail = () => {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="grades" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Bảng điểm</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="max-w-xs">
-                  <Label htmlFor="test-type">Loại kiểm tra</Label>
-                  <Select value={testType} onValueChange={setTestType}>
-                    <SelectTrigger id="test-type">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="after_lesson">Kiểm tra sau từng bài</SelectItem>
-                      <SelectItem value="after_5_lessons">Kiểm tra sau 5 bài</SelectItem>
-                      <SelectItem value="final">Kiểm tra cuối khóa</SelectItem>
-                      <SelectItem value="jlpt_mock">Thi thử JLPT</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
 
-                <div className="space-y-4">
-                  {selectedClass.studentList.map((student) => (
-                    <Card key={student.id} className="overflow-hidden">
-                      <CardContent className="p-4">
-                        <div className="flex flex-col lg:flex-row gap-4">
-                          {/* Student Info */}
-                          <div className="flex items-center gap-3 min-w-[200px]">
-                            <Avatar>
-                              <AvatarImage src={student.avatar} />
-                              <AvatarFallback>{student.name[0]}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <p className="font-medium">{student.name}</p>
-                              <p className="text-sm text-muted-foreground">{student.id}</p>
-                            </div>
-                          </div>
-
-                          {/* Score Display */}
-                          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                            {gradeFields.map((field) => (
-                              <div key={field.key} className="space-y-1">
-                                <Label className="text-xs">{field.label}</Label>
-                                <div className="h-9 px-3 py-2 bg-muted rounded-md text-sm font-medium">
-                                  {grades[student.id]?.scores[field.key] || 0}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Result */}
-                          <div className="flex items-center gap-3 min-w-[120px]">
-                            {grades[student.id]?.total > 0 && (
-                              <div className="flex items-center gap-2">
-                                <div className="text-center">
-                                  <p className="text-2xl font-bold">{grades[student.id].total}</p>
-                                  <p className="text-xs text-muted-foreground">Điểm TB</p>
-                                </div>
-                                {grades[student.id].passed ? (
-                                  <Badge className="bg-success flex items-center gap-1">
-                                    <CheckCircle className="h-3 w-3" />
-                                    Đậu
-                                  </Badge>
-                                ) : (
-                                  <Badge variant="destructive" className="flex items-center gap-1">
-                                    <XCircle className="h-3 w-3" />
-                                    Rớt
-                                  </Badge>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Comment */}
-                        {grades[student.id]?.comment && (
-                          <div className="mt-3 pt-3 border-t">
-                            <Label className="text-xs">Nhận xét</Label>
-                            <p className="mt-1 text-sm text-muted-foreground bg-muted p-2 rounded-md">
-                              {grades[student.id].comment}
-                            </p>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        </div>
       </div>
     </AdminLayout>
   );
