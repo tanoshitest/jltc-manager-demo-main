@@ -2,7 +2,7 @@ import AdminLayout from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, MapPin, Clock, Edit, User, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, MapPin, Clock, Edit, User, BookOpen, ChevronLeft, ChevronRight, LayoutList, Grip } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -34,6 +34,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "@/hooks/use-toast";
 import ExcelScheduleTable from "@/components/admin/ExcelScheduleTable";
+import OverviewScheduleTable from "@/components/admin/OverviewScheduleTable";
 
 
 const timeSlots = [
@@ -122,6 +123,7 @@ const Schedule = () => {
   const [selectedMonth, setSelectedMonth] = useState(12);
   const [selectedYear, setSelectedYear] = useState(2024);
   const [schedule, setSchedule] = useState<ScheduleData>(initialSchedule);
+  const [viewMode, setViewMode] = useState<'excel' | 'overview'>('excel');
 
   const [selectedClass, setSelectedClass] = useState<ClassItem & { day: string; timeSlot: string } | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -464,14 +466,29 @@ const Schedule = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Xếp lịch dạy</h1>
-
+            <p className="text-muted-foreground">Quản lý lịch dạy và phòng học</p>
+          </div>
+          <div className="flex bg-muted p-1 rounded-lg">
+            <Button
+              variant={viewMode === 'excel' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('excel')}
+              className="text-sm"
+            >
+              <LayoutList className="w-4 h-4 mr-2" />
+              Chi tiết
+            </Button>
+            <Button
+              variant={viewMode === 'overview' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('overview')}
+              className="text-sm"
+            >
+              <Grip className="w-4 h-4 mr-2" />
+              Tổng quan
+            </Button>
           </div>
         </div>
-
-
-
-
-
         {/* Schedule Grid */}
         <Card>
           <CardHeader className="pb-4">
@@ -479,7 +496,6 @@ const Schedule = () => {
               {/* Week navigation */}
               <div className="flex items-center gap-2">
                 <Button
-                  variant="outline"
                   size="icon"
                   onClick={handlePrevWeek}
                 >
@@ -568,13 +584,29 @@ const Schedule = () => {
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <ExcelScheduleTable
-                schedule={filteredSchedule}
-                timeSlots={timeSlots}
-                days={days}
-                onCellClick={handleCellClick}
-                onRoomClick={handleRoomClick}
-              />
+              {viewMode === 'excel' ? (
+                <ExcelScheduleTable
+                  schedule={filteredSchedule}
+                  timeSlots={timeSlots}
+                  days={days}
+                  onCellClick={handleCellClick}
+                  onRoomClick={handleRoomClick}
+                />
+              ) : (
+                <OverviewScheduleTable
+                  schedule={filteredSchedule}
+                  timeSlots={timeSlots}
+                  days={days}
+                  onClassClick={(day, slot, className) => {
+                    // Optional: Handle click on Overview cell to open edit dialog?
+                    // For now, let's just use the same form opening logic if needed,
+                    // but Overview might be read-only or we can map it.
+                    // Let's find the class item and open form.
+                    const item = schedule[day as keyof ScheduleData]?.find(c => c.slot === slot && c.class === className);
+                    handleCellClick(day, slot, className, item);
+                  }}
+                />
+              )}
             </div>
           </CardContent>
         </Card>
