@@ -11,6 +11,8 @@ import {
   Menu,
   GraduationCap,
   BookOpen,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -18,6 +20,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useState } from "react";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -30,50 +33,65 @@ const menuItems = [
   { icon: Calendar, label: "Xếp lịch dạy", path: "/admin/schedule" },
   { icon: BookOpen, label: "Quản lý lớp", path: "/admin/classes" },
   { icon: GraduationCap, label: "Thi thử JLPT", path: "/admin/exams" },
-  { icon: BarChart3, label: "Báo cáo", path: "/admin/reports" },
+  { icon: BarChart3, label: "Bảng điểm", path: "/admin/reports" },
   { icon: Settings, label: "Cài đặt hệ thống", path: "/admin/settings" },
 ];
 
-const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
+const Sidebar = ({ onLogout, isCollapsed, onToggle }: { onLogout: () => void, isCollapsed?: boolean, onToggle?: () => void }) => {
   const location = useLocation();
 
   return (
-    <div className="flex flex-col h-full bg-card border-r border-border">
-      <div className="p-6 border-b border-border">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="w-8 h-8 text-primary" />
-          <div>
-            <h2 className="font-bold text-lg">IKIGAI CENTER</h2>
-            <p className="text-xs text-muted-foreground">Admin Panel</p>
-          </div>
+    <div className={cn(
+      "flex flex-col h-full bg-card border-r border-border transition-all duration-300",
+      isCollapsed ? "w-16" : "w-64"
+    )}>
+      <div className={cn(
+        "p-6 border-b border-border flex items-center justify-between",
+        isCollapsed && "p-4 justify-center"
+      )}>
+        <div className="flex items-center gap-2 overflow-hidden">
+          <GraduationCap className={cn("w-8 h-8 text-primary flex-shrink-0", isCollapsed && "w-6 h-6")} />
+          {!isCollapsed && (
+            <div className="whitespace-nowrap">
+              <h2 className="font-bold text-lg">IKIGAI CENTER</h2>
+              <p className="text-xs text-muted-foreground">Admin Panel</p>
+            </div>
+          )}
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-2 space-y-2 overflow-y-auto overflow-x-hidden">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
           return (
             <Link
               key={item.path}
               to={item.path}
+              title={isCollapsed ? item.label : ""}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-all",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-md"
-                  : "hover:bg-accent text-foreground"
+                  : "hover:bg-accent text-foreground",
+                isCollapsed && "justify-center px-2"
               )}
             >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
+              <item.icon className="w-5 h-5 flex-shrink-0" />
+              {!isCollapsed && <span className="font-medium whitespace-nowrap">{item.label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-border">
-        <Button variant="outline" className="w-full" onClick={onLogout}>
-          <LogOut className="w-4 h-4 mr-2" />
-          Đăng xuất
+      <div className="p-4 border-t border-border space-y-2">
+        {onToggle && (
+          <Button variant="ghost" className={cn("w-full mb-2", isCollapsed && "px-0")} onClick={onToggle}>
+            {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <div className="flex items-center w-full"><ChevronLeft className="w-5 h-5 mr-2" /> Thu gọn</div>}
+          </Button>
+        )}
+        <Button variant="outline" className={cn("w-full", isCollapsed && "px-0")} onClick={onLogout} title={isCollapsed ? "Đăng xuất" : ""}>
+          <LogOut className={cn("w-4 h-4", !isCollapsed && "mr-2")} />
+          {!isCollapsed && "Đăng xuất"}
         </Button>
       </div>
     </div>
@@ -82,13 +100,14 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigate = useNavigate();
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const handleLogout = () => navigate("/");
 
   return (
     <div className="flex h-screen overflow-hidden bg-muted">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block w-64 h-full">
-        <Sidebar onLogout={handleLogout} />
+      <aside className={cn("hidden lg:block h-full transition-all duration-300", isCollapsed ? "w-16" : "w-64")}>
+        <Sidebar onLogout={handleLogout} isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
       </aside>
 
       {/* Mobile Header */}

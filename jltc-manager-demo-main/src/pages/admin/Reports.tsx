@@ -17,116 +17,157 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Download, FileText, Printer } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { Download, Printer, Filter, Search, FileText } from "lucide-react";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
-// Attendance data by class
-const attendanceData = [
-  { class: "N5-01", total: 15, present: 14, absent: 1, rate: 93 },
-  { class: "N5-02", total: 16, present: 15, absent: 1, rate: 94 },
-  { class: "N4-01", total: 14, present: 13, absent: 1, rate: 93 },
-  { class: "N4-02", total: 18, present: 17, absent: 1, rate: 94 },
-  { class: "N3-01", total: 12, present: 11, absent: 1, rate: 92 },
-  { class: "N2-01", total: 10, present: 10, absent: 0, rate: 100 },
+// Mock Data for Scoreboard
+interface ScoreRecord {
+  id: number;
+  studentName: string;
+  studentId: string;
+  className: string;
+  examName: string;
+  examType: 'lesson' | 'summary' | 'jlpt';
+  score: number;
+  maxScore: number;
+  date: string;
+  details?: {
+    vocab: number;
+    grammar: number;
+    reading: number;
+    listening: number;
+    speaking?: number;
+  };
+}
+
+const mockScores: ScoreRecord[] = [
+  {
+    id: 1, studentName: "Nguyễn Văn A", studentId: "HV001", className: "N5-01", examName: "Bài 16 - Kiểm tra sau bài học", examType: "lesson", score: 85, maxScore: 100, date: "2024-11-15",
+    details: { vocab: 90, grammar: 80, reading: 85, listening: 85, speaking: 85 }
+  },
+  {
+    id: 2, studentName: "Trần Thị B", studentId: "HV002", className: "N5-01", examName: "Bài 16 - Kiểm tra sau bài học", examType: "lesson", score: 45, maxScore: 100, date: "2024-11-15",
+    details: { vocab: 40, grammar: 50, reading: 45, listening: 45, speaking: 45 }
+  },
+  {
+    id: 3, studentName: "Lê Văn C", studentId: "HV003", className: "N5-01", examName: "Kiểm tra 5 bài (Bài 11-15)", examType: "summary", score: 78, maxScore: 100, date: "2024-11-10",
+    details: { vocab: 80, grammar: 75, reading: 78, listening: 78, speaking: 79 }
+  },
+  {
+    id: 4, studentName: "Phạm Thị D", studentId: "HV004", className: "N4-01", examName: "Thi thử JLPT N4", examType: "jlpt", score: 95, maxScore: 180, date: "2024-12-01",
+    details: { vocab: 30, grammar: 35, reading: 0, listening: 30 }
+  },
+  {
+    id: 5, studentName: "Hoàng Văn E", studentId: "HV005", className: "N3-01", examName: "Thi thử JLPT N3", examType: "jlpt", score: 140, maxScore: 180, date: "2024-12-01",
+    details: { vocab: 50, grammar: 45, reading: 0, listening: 45 }
+  },
+  {
+    id: 6, studentName: "Nguyễn Văn A", studentId: "HV001", className: "N5-01", examName: "Thi thử JLPT N5", examType: "jlpt", score: 160, maxScore: 180, date: "2024-12-05",
+    details: { vocab: 55, grammar: 50, reading: 0, listening: 55 }
+  },
+  {
+    id: 7, studentName: "Vũ Thị F", studentId: "HV006", className: "N5-02", examName: "Bài 10 - Kiểm tra sau bài học", examType: "lesson", score: 65, maxScore: 100, date: "2024-10-20",
+    details: { vocab: 70, grammar: 60, reading: 65, listening: 65, speaking: 65 }
+  },
+  {
+    id: 8, studentName: "Đặng Văn G", studentId: "HV007", className: "N2-01", examName: "Kiểm tra tổng hợp giữa khóa", examType: "summary", score: 92, maxScore: 100, date: "2024-11-25",
+    details: { vocab: 95, grammar: 90, reading: 92, listening: 92, speaking: 91 }
+  },
+  {
+    id: 9, studentName: "Bùi Thị H", studentId: "HV008", className: "N4-01", examName: "Bài 25 - Kiểm tra sau bài học", examType: "lesson", score: 30, maxScore: 100, date: "2024-11-30",
+    details: { vocab: 25, grammar: 35, reading: 30, listening: 30, speaking: 30 }
+  },
+  {
+    id: 10, studentName: "Nguyễn Thị I", studentId: "HV009", className: "N5-01", examName: "Bài 16 - Kiểm tra sau bài học", examType: "lesson", score: 90, maxScore: 100, date: "2024-11-15",
+    details: { vocab: 92, grammar: 88, reading: 90, listening: 90, speaking: 90 }
+  },
 ];
 
-// Fee data
-const feeData = [
-  { id: 1, name: "Nguyễn Văn A", class: "N5-01", total: 5000000, paid: 5000000, debt: 0, status: "paid" },
-  { id: 2, name: "Trần Thị B", class: "N5-01", total: 5000000, paid: 3000000, debt: 2000000, status: "debt" },
-  { id: 3, name: "Lê Văn C", class: "N4-01", total: 6000000, paid: 6000000, debt: 0, status: "paid" },
-  { id: 4, name: "Phạm Thị D", class: "N4-02", total: 6000000, paid: 4000000, debt: 2000000, status: "debt" },
-  { id: 5, name: "Hoàng Văn E", class: "N3-01", total: 7000000, paid: 7000000, debt: 0, status: "paid" },
-  { id: 6, name: "Vũ Thị F", class: "N5-02", total: 5000000, paid: 2000000, debt: 3000000, status: "debt" },
-  { id: 7, name: "Đặng Văn G", class: "N2-01", total: 8000000, paid: 8000000, debt: 0, status: "paid" },
-  { id: 8, name: "Bùi Thị H", class: "N4-01", total: 6000000, paid: 5000000, debt: 1000000, status: "debt" },
-];
-
-// Performance data (monthly evaluation)
-const performanceData = [
-  { id: 1, name: "Nguyễn Văn A", class: "N5-01", month: "11/2024", score: 85, result: "pass" },
-  { id: 2, name: "Trần Thị B", class: "N5-01", month: "11/2024", score: 45, result: "fail" },
-  { id: 3, name: "Lê Văn C", class: "N4-01", month: "11/2024", score: 78, result: "pass" },
-  { id: 4, name: "Phạm Thị D", class: "N4-02", month: "11/2024", score: 52, result: "fail" },
-  { id: 5, name: "Hoàng Văn E", class: "N3-01", month: "11/2024", score: 92, result: "pass" },
-  { id: 6, name: "Vũ Thị F", class: "N5-02", month: "11/2024", score: 68, result: "pass" },
-  { id: 7, name: "Đặng Văn G", class: "N2-01", month: "11/2024", score: 38, result: "fail" },
-  { id: 8, name: "Bùi Thị H", class: "N4-01", month: "11/2024", score: 75, result: "pass" },
-];
-
-const feeChartData = [
-  { month: "T8", collected: 32000000, pending: 8000000 },
-  { month: "T9", collected: 28000000, pending: 12000000 },
-  { month: "T10", collected: 30000000, pending: 10000000 },
-  { month: "T11", collected: 35000000, pending: 5000000 },
-];
+const examTypeLabels = {
+  lesson: "Kiểm tra theo bài",
+  summary: "Kiểm tra tổng (1-2 bài/tháng)",
+  jlpt: "Thi thử JLPT",
+};
 
 const Reports = () => {
-  const [reportType, setReportType] = useState("attendance");
-  const [classFilter, setClassFilter] = useState("all");
-  const [feeFilter, setFeeFilter] = useState("all");
-  const [performanceFilter, setPerformanceFilter] = useState("all");
+  const [selectedClass, setSelectedClass] = useState("all");
+  const [selectedExamType, setSelectedExamType] = useState("all");
+  const [selectedRanking, setSelectedRanking] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const classes = ["N5-01", "N5-02", "N4-01", "N4-02", "N3-01", "N2-01"];
+  const classes = Array.from(new Set(mockScores.map(s => s.className))).sort();
 
-  const filteredAttendance = classFilter === "all" 
-    ? attendanceData 
-    : attendanceData.filter(item => item.class === classFilter);
+  // Helper function to calculate ranking
+  const getRanking = (score: number, maxScore: number) => {
+    const percentage = (score / maxScore) * 100;
+    if (percentage >= 85) return "Giỏi";
+    if (percentage >= 70) return "Khá";
+    if (percentage >= 50) return "Trung bình";
+    return "Chưa đạt";
+  };
 
-  const filteredFee = feeFilter === "all" 
-    ? feeData 
-    : feeData.filter(item => item.status === feeFilter);
+  const getRankingColor = (ranking: string) => {
+    switch (ranking) {
+      case "Giỏi": return "bg-green-500 hover:bg-green-600";
+      case "Khá": return "bg-blue-500 hover:bg-blue-600";
+      case "Trung bình": return "bg-yellow-500 hover:bg-yellow-600";
+      case "Chưa đạt": return "bg-destructive hover:bg-destructive/90";
+      default: return "bg-primary";
+    }
+  };
 
-  const filteredPerformance = performanceFilter === "all" 
-    ? performanceData 
-    : performanceData.filter(item => item.result === performanceFilter);
+  const filteredScores = mockScores.filter((record) => {
+    const ranking = getRanking(record.score, record.maxScore);
+
+    const matchesClass = selectedClass === "all" || record.className === selectedClass;
+    const matchesType = selectedExamType === "all" || record.examType === selectedExamType;
+    const matchesRanking = selectedRanking === "all" || ranking === selectedRanking;
+    const matchesSearch =
+      record.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.studentId.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return matchesClass && matchesType && matchesRanking && matchesSearch;
+  });
+
+  const isJLPTOnly = selectedExamType === "jlpt";
+  const isLessonOrSummary = selectedExamType === "lesson" || selectedExamType === "summary";
 
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Báo cáo</h1>
-            <p className="text-muted-foreground">Thống kê và báo cáo tổng hợp</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Bảng điểm</h1>
+            <p className="text-muted-foreground">Chi tiết điểm số và xếp loại học viên</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline">
               <Download className="w-4 h-4 mr-2" />
-              Excel
-            </Button>
-            <Button variant="outline">
-              <FileText className="w-4 h-4 mr-2" />
-              PDF
+              Xuất Excel
             </Button>
             <Button variant="outline">
               <Printer className="w-4 h-4 mr-2" />
-              In
+              In bảng điểm
             </Button>
           </div>
         </div>
 
         {/* Filters */}
         <Card>
-          <CardHeader>
-            <CardTitle>Bộ lọc</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Filter className="w-5 h-5" />
+              Bộ lọc
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap items-center gap-4">
-              <Select value={reportType} onValueChange={setReportType}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Loại báo cáo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="attendance">Chuyên cần</SelectItem>
-                  <SelectItem value="fee">Học phí</SelectItem>
-                  <SelectItem value="performance">Năng lực</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {reportType === "attendance" && (
-                <Select value={classFilter} onValueChange={setClassFilter}>
-                  <SelectTrigger className="w-[180px]">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Class Filter */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Lớp học</label>
+                <Select value={selectedClass} onValueChange={setSelectedClass}>
+                  <SelectTrigger>
                     <SelectValue placeholder="Chọn lớp" />
                   </SelectTrigger>
                   <SelectContent>
@@ -136,219 +177,199 @@ const Reports = () => {
                     ))}
                   </SelectContent>
                 </Select>
-              )}
+              </div>
 
-              {reportType === "fee" && (
-                <Select value={feeFilter} onValueChange={setFeeFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Trạng thái" />
+              {/* Exam Type Filter */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Loại bài kiểm tra</label>
+                <Select value={selectedExamType} onValueChange={setSelectedExamType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn loại" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
-                    <SelectItem value="paid">Đã thanh toán</SelectItem>
-                    <SelectItem value="debt">Còn công nợ</SelectItem>
+                    <SelectItem value="lesson">Kiểm tra theo bài</SelectItem>
+                    <SelectItem value="summary">Kiểm tra tổng</SelectItem>
+                    <SelectItem value="jlpt">Thi thử JLPT</SelectItem>
                   </SelectContent>
                 </Select>
-              )}
+              </div>
 
-              {reportType === "performance" && (
-                <Select value={performanceFilter} onValueChange={setPerformanceFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Kết quả" />
+              {/* Ranking Filter */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Xếp loại</label>
+                <Select value={selectedRanking} onValueChange={setSelectedRanking}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn xếp loại" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
-                    <SelectItem value="pass">Đạt</SelectItem>
-                    <SelectItem value="fail">Không đạt</SelectItem>
+                    <SelectItem value="Giỏi">Giỏi</SelectItem>
+                    <SelectItem value="Khá">Khá</SelectItem>
+                    <SelectItem value="Trung bình">Trung bình</SelectItem>
+                    <SelectItem value="Chưa đạt">Chưa đạt</SelectItem>
                   </SelectContent>
                 </Select>
-              )}
+              </div>
+
+              {/* Search */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Tìm kiếm</label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Mã HV, Tên..."
+                    className="pl-8"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Attendance Report */}
-        {reportType === "attendance" && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Báo cáo chuyên cần theo lớp</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Lớp</TableHead>
-                      <TableHead>Tổng số HV</TableHead>
-                      <TableHead>Có mặt</TableHead>
-                      <TableHead>Vắng</TableHead>
-                      <TableHead>Tỷ lệ (%)</TableHead>
-                      <TableHead>Đánh giá</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredAttendance.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">{item.class}</TableCell>
-                        <TableCell>{item.total}</TableCell>
-                        <TableCell className="text-success font-semibold">{item.present}</TableCell>
-                        <TableCell className="text-destructive font-semibold">{item.absent}</TableCell>
-                        <TableCell className="font-bold">{item.rate}%</TableCell>
-                        <TableCell>
-                          <Badge className={item.rate >= 95 ? "bg-success" : item.rate >= 90 ? "bg-primary" : "bg-warning"}>
-                            {item.rate >= 95 ? "Xuất sắc" : item.rate >= 90 ? "Tốt" : "Khá"}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Score Table */}
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px] whitespace-nowrap border-r">STT</TableHead>
 
-        {/* Fee Report */}
-        {reportType === "fee" && (
-          <>
-            <Card>
-              <CardHeader>
-                <CardTitle>Báo cáo học phí</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Họ tên</TableHead>
-                        <TableHead>Lớp</TableHead>
-                        <TableHead>Tổng học phí</TableHead>
-                        <TableHead>Đã thanh toán</TableHead>
-                        <TableHead>Công nợ</TableHead>
-                        <TableHead>Trạng thái</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredFee.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell className="font-medium">{item.name}</TableCell>
-                          <TableCell>{item.class}</TableCell>
-                          <TableCell>{item.total.toLocaleString()}đ</TableCell>
-                          <TableCell className="text-success font-semibold">{item.paid.toLocaleString()}đ</TableCell>
-                          <TableCell className="text-destructive font-semibold">{item.debt.toLocaleString()}đ</TableCell>
-                          <TableCell>
-                            <Badge className={item.status === "paid" ? "bg-success" : "bg-warning"}>
-                              {item.status === "paid" ? "Đã thanh toán" : "Còn công nợ"}
+                    <TableHead className="whitespace-nowrap border-r">Họ tên</TableHead>
+                    <TableHead className="whitespace-nowrap border-r">Lớp</TableHead>
+                    <TableHead className="w-[200px] whitespace-nowrap border-r">Tên bài thi</TableHead>
+
+
+                    {/* Dynamic Columns based on Exam Type */}
+                    {(isLessonOrSummary || selectedExamType === 'all') && (
+                      <>
+                        <TableHead className="text-center w-[80px] whitespace-nowrap border-r">Từ vựng</TableHead>
+                        <TableHead className="text-center w-[80px] whitespace-nowrap border-r">Ngữ pháp</TableHead>
+                        <TableHead className="text-center w-[80px] whitespace-nowrap border-r">Nghe hiểu</TableHead>
+                        <TableHead className="text-center w-[80px] whitespace-nowrap border-r">Đọc hiểu</TableHead>
+                        <TableHead className="text-center w-[80px] whitespace-nowrap border-r">Nói</TableHead>
+                      </>
+                    )}
+                    {isJLPTOnly && (
+                      <>
+                        <TableHead className="text-center w-[100px] whitespace-nowrap border-r">Từ vựng</TableHead>
+                        <TableHead className="text-center w-[100px] whitespace-nowrap border-r">Ngữ pháp</TableHead>
+                        <TableHead className="text-center w-[100px] whitespace-nowrap border-r">Nghe hiểu</TableHead>
+                      </>
+                    )}
+
+                    <TableHead className="text-center whitespace-nowrap border-r">Tổng điểm</TableHead>
+                    <TableHead className="text-center whitespace-nowrap border-r">Xếp loại</TableHead>
+                    <TableHead className="text-right whitespace-nowrap">Ngày thi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredScores.length > 0 ? (
+                    filteredScores.map((record, index) => {
+                      const ranking = getRanking(record.score, record.maxScore);
+                      const isDetailVisible = (isLessonOrSummary && (record.examType === 'lesson' || record.examType === 'summary')) || (isJLPTOnly && record.examType === 'jlpt') || selectedExamType === 'all';
+
+                      // Helper to render score cell with conditional formatting
+                      const ScoreCell = ({ score }: { score?: number }) => {
+                        if (score === undefined) return <TableCell className="text-center text-muted-foreground border-r">-</TableCell>;
+                        return (
+                          <TableCell className={`text-center font-medium border-r ${score < 50 ? 'text-destructive font-bold' : ''}`}>
+                            {score}
+                          </TableCell>
+                        );
+                      };
+
+                      return (
+                        <TableRow key={record.id}>
+                          <TableCell className="font-medium whitespace-nowrap border-r">{index + 1}</TableCell>
+
+                          <TableCell className="font-medium whitespace-nowrap border-r">{record.studentName}</TableCell>
+                          <TableCell className="whitespace-nowrap border-r">
+                            <Badge variant="outline">{record.className}</Badge>
+                          </TableCell>
+                          <TableCell className="max-w-[300px] truncate whitespace-nowrap border-r" title={record.examName}>{record.examName}</TableCell>
+
+
+                          {/* Dynamic Cells */}
+                          {(isLessonOrSummary || selectedExamType === 'all') && (
+                            <>
+                              <ScoreCell score={record.details?.vocab} />
+                              <ScoreCell score={record.details?.grammar} />
+                              <ScoreCell score={record.details?.listening} />
+                              <ScoreCell score={record.details?.reading} />
+                              <ScoreCell score={record.details?.speaking} />
+                            </>
+                          )}
+                          {isJLPTOnly && (
+                            <>
+                              <ScoreCell score={record.details?.vocab} />
+                              <ScoreCell score={record.details?.grammar} />
+                              <ScoreCell score={record.details?.listening} />
+                            </>
+                          )}
+
+                          <TableCell className="text-center font-bold border-r">
+                            {record.score}/{record.maxScore}
+                          </TableCell>
+                          <TableCell className="text-center border-r">
+                            <Badge className={getRankingColor(ranking)}>
+                              {ranking}
                             </Badge>
                           </TableCell>
+                          <TableCell className="text-right text-muted-foreground whitespace-nowrap">
+                            {record.date}
+                          </TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Biểu đồ thu học phí</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={feeChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="collected" fill="hsl(var(--success))" name="Đã thu" />
-                    <Bar dataKey="pending" fill="hsl(var(--warning))" name="Chưa thu" />
-                  </BarChart>
-                </ResponsiveContainer>
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground">Tổng đã thu</p>
-                    <p className="text-2xl font-bold text-success">
-                      {filteredFee.reduce((acc, item) => acc + item.paid, 0).toLocaleString()}đ
-                    </p>
-                  </div>
-                  <div className="p-4 bg-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground">Tổng công nợ</p>
-                    <p className="text-2xl font-bold text-warning">
-                      {filteredFee.reduce((acc, item) => acc + item.debt, 0).toLocaleString()}đ
-                    </p>
-                  </div>
-                  <div className="p-4 bg-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground">Tỷ lệ thu</p>
-                    <p className="text-2xl font-bold text-primary">
-                      {Math.round((filteredFee.reduce((acc, item) => acc + item.paid, 0) / filteredFee.reduce((acc, item) => acc + item.total, 0)) * 100)}%
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </>
-        )}
-
-        {/* Performance Report */}
-        {reportType === "performance" && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Báo cáo đánh giá năng lực theo tháng</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
+                      );
+                    })
+                  ) : (
                     <TableRow>
-                      <TableHead>Họ tên</TableHead>
-                      <TableHead>Lớp</TableHead>
-                      <TableHead>Tháng</TableHead>
-                      <TableHead>Điểm</TableHead>
-                      <TableHead>Kết quả</TableHead>
+                      <TableCell colSpan={12} className="text-center h-24 text-muted-foreground">
+                        Không tìm thấy kết quả nào phù hợp
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredPerformance.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.name}</TableCell>
-                        <TableCell>{item.class}</TableCell>
-                        <TableCell>{item.month}</TableCell>
-                        <TableCell className="font-bold">{item.score}</TableCell>
-                        <TableCell>
-                          <Badge className={item.result === "pass" ? "bg-success" : "bg-destructive"}>
-                            {item.result === "pass" ? "Đạt" : "Không đạt"}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Summary (Optional) */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Tổng bài thi</p>
+                <p className="text-2xl font-bold">{filteredScores.length}</p>
               </div>
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground">Tổng học viên</p>
-                  <p className="text-2xl font-bold text-foreground">{filteredPerformance.length}</p>
-                </div>
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground">Đạt</p>
-                  <p className="text-2xl font-bold text-success">
-                    {filteredPerformance.filter(p => p.result === "pass").length}
-                  </p>
-                </div>
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground">Không đạt</p>
-                  <p className="text-2xl font-bold text-destructive">
-                    {filteredPerformance.filter(p => p.result === "fail").length}
-                  </p>
-                </div>
-              </div>
+              <FileText className="h-8 w-8 text-muted-foreground/20" />
             </CardContent>
           </Card>
-        )}
+          <Card>
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Điểm TB</p>
+                <p className="text-2xl font-bold">
+                  {filteredScores.length > 0
+                    ? (filteredScores.reduce((acc, curr) => acc + (curr.score / curr.maxScore) * 100, 0) / filteredScores.length).toFixed(1)
+                    : 0}%
+                </p>
+              </div>
+              <Badge variant="secondary" className="h-8 w-8 flex items-center justify-center rounded-full">
+                %
+              </Badge>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </AdminLayout>
   );
 };
 
 export default Reports;
+

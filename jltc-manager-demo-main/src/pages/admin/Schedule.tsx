@@ -2,7 +2,7 @@ import AdminLayout from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, MapPin, Clock, GripVertical, Edit, User, BookOpen, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, MapPin, Clock, Edit, User, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -33,23 +33,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "@/hooks/use-toast";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-} from "@dnd-kit/core";
-import {
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ExcelScheduleTable from "@/components/admin/ExcelScheduleTable";
+
 
 const timeSlots = [
   "08:00-09:00", "09:00-10:00", "10:30-11:30",
@@ -114,67 +99,7 @@ const allSlots = timeSlots;
 
 import { ScheduleData, ClassItem } from "@/types/schedule";
 
-const DraggableClassCard = ({
-  classData,
-  day,
-  slotIndex,
-  onClick
-}: {
-  classData: ClassItem;
-  day: string;
-  slotIndex: number;
-  onClick: () => void;
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: `${day}-${slotIndex}` });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={cn(
-        "p-3 rounded-lg border-2 transition-all min-h-[80px] bg-primary/5 border-primary hover:bg-primary/10 cursor-pointer",
-        isDragging && "ring-2 ring-primary"
-      )}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      {...attributes}
-      {...listeners}
-    >
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <GripVertical className="w-3 h-3 text-muted-foreground" />
-            <Badge className="bg-primary text-xs">{classData.class}</Badge>
-          </div>
-          <Badge variant="outline" className="text-xs">
-            <MapPin className="w-3 h-3 mr-1" />
-            {classData.room}
-          </Badge>
-        </div>
-        <p className="text-xs font-medium">{classData.teacher}-sensei</p>
-        <p className="text-xs text-muted-foreground flex items-center gap-1">
-          <Users className="w-3 h-3" />
-          {classData.students} HV
-        </p>
-      </div>
-    </div>
-  );
-};
 
 const formSchema = z.object({
   class: z.string().min(1, "Vui lòng nhập tên lớp"),
@@ -187,18 +112,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const quickScheduleSchema = z.object({
-  teacherName: z.string().min(1, "Vui lòng chọn giáo viên"),
-  subject: z.string().min(1, "Vui lòng nhập môn dạy"),
-  classLevel: z.string().min(1, "Vui lòng chọn lớp"),
-  day: z.string().min(1, "Vui lòng chọn ngày"),
-  timeSlot: z.string().min(1, "Vui lòng chọn tiết dạy"),
-  room: z.string().min(1, "Vui lòng nhập phòng dạy"),
-  month: z.string().min(1, "Vui lòng chọn tháng"),
-  year: z.string().min(1, "Vui lòng chọn năm"),
-});
 
-type QuickScheduleFormValues = z.infer<typeof quickScheduleSchema>;
 
 const Schedule = () => {
   const [searchParams] = useSearchParams();
@@ -208,15 +122,20 @@ const Schedule = () => {
   const [selectedMonth, setSelectedMonth] = useState(12);
   const [selectedYear, setSelectedYear] = useState(2024);
   const [schedule, setSchedule] = useState<ScheduleData>(initialSchedule);
-  const [activeId, setActiveId] = useState<string | null>(null);
+
   const [selectedClass, setSelectedClass] = useState<ClassItem & { day: string; timeSlot: string } | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formDialogOpen, setFormDialogOpen] = useState(false);
-  const [quickScheduleDialogOpen, setQuickScheduleDialogOpen] = useState(false);
+
   const [editMode, setEditMode] = useState<{ day: string; slot: number } | null>(null);
   const [filterTeacher, setFilterTeacher] = useState<string>("all");
   const [filterSubject, setFilterSubject] = useState<string>("all");
-  const [filterClassLevel, setFilterClassLevel] = useState<string>("all");
+
+
+
+  // Room editing state
+  const [roomDialogOpen, setRoomDialogOpen] = useState(false);
+  const [editingRoom, setEditingRoom] = useState<{ day: string, class: string, room: string, startSlot: number, endSlot: number } | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -230,109 +149,24 @@ const Schedule = () => {
     },
   });
 
-  const quickScheduleForm = useForm<QuickScheduleFormValues>({
-    resolver: zodResolver(quickScheduleSchema),
-    defaultValues: {
-      teacherName: teacherFromUrl,
-      subject: "",
-      classLevel: "",
-      day: "monday",
-      timeSlot: "",
-      room: "",
-      month: String(selectedMonth),
-      year: String(selectedYear),
-    },
+  const roomForm = useForm<{ room: string }>({
+    defaultValues: { room: "" }
   });
+
+
 
   // Pre-select teacher filter if teacher is passed from URL
   useEffect(() => {
     if (teacherFromUrl) {
       // Set filter to the teacher from URL (even if not in existing schedule, for new scheduling)
       setFilterTeacher(teacherFromUrl);
-      // Also set the teacher name in the quick schedule form for when user creates new schedule
-      quickScheduleForm.setValue("teacherName", teacherFromUrl);
+
     }
   }, [teacherFromUrl]);
 
-  const handleOpenQuickSchedule = (day: string, slot: number) => {
-    quickScheduleForm.reset({
-      teacherName: teacherFromUrl || "",
-      subject: "",
-      classLevel: "",
-      day: day,
-      timeSlot: String(slot),
-      room: "",
-      month: String(selectedMonth),
-      year: String(selectedYear),
-    });
-    setQuickScheduleDialogOpen(true);
-  };
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor)
-  );
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-  };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-
-    if (!over) return;
-
-    const activeId = active.id as string;
-    const overId = over.id as string;
-
-    if (activeId === overId) return;
-
-    const [activeDay, activeSlot] = activeId.split("-");
-    const [overDay, overSlot] = overId.split("-");
-
-    setSchedule((prev) => {
-      const newSchedule = { ...prev };
-
-      // Find the class being dragged
-      const activeDaySchedule = newSchedule[activeDay as keyof ScheduleData];
-      const activeClassIndex = activeDaySchedule.findIndex(
-        (c) => c.slot === parseInt(activeSlot)
-      );
-
-      if (activeClassIndex === -1) return prev;
-
-      const activeClass = { ...activeDaySchedule[activeClassIndex] };
-
-      // Find if there's already a class in the target slot
-      const overDaySchedule = newSchedule[overDay as keyof ScheduleData];
-      const overClassIndex = overDaySchedule.findIndex(
-        (c) => c.slot === parseInt(overSlot)
-      );
-
-      // Remove from original position
-      newSchedule[activeDay as keyof ScheduleData] = activeDaySchedule.filter(
-        (_, index) => index !== activeClassIndex
-      );
-
-      // If target slot has a class, swap them
-      if (overClassIndex !== -1) {
-        const overClass = { ...overDaySchedule[overClassIndex] };
-        overClass.slot = parseInt(activeSlot);
-        newSchedule[activeDay as keyof ScheduleData].push(overClass);
-
-        newSchedule[overDay as keyof ScheduleData] = overDaySchedule.filter(
-          (_, index) => index !== overClassIndex
-        );
-      }
-
-      // Add to new position
-      activeClass.slot = parseInt(overSlot);
-      newSchedule[overDay as keyof ScheduleData].push(activeClass);
-
-      return newSchedule;
-    });
-  };
 
   // Helper function to get weeks in a month
   const getWeeksInMonth = (month: number, year: number) => {
@@ -445,6 +279,48 @@ const Schedule = () => {
     setFormDialogOpen(true);
   };
 
+  const getSessionSlots = (slot: number) => {
+    if (slot >= 0 && slot <= 2) return [0, 1, 2];
+    if (slot >= 3 && slot <= 5) return [3, 4, 5];
+    if (slot >= 6 && slot <= 8) return [6, 7, 8];
+    return [];
+  };
+
+  const handleCellClick = (day: string, slot: number, className: string, existingClass?: ClassItem) => {
+    setEditMode({ day, slot });
+    // If existing class, fill form
+    if (existingClass) {
+      form.reset({
+        class: existingClass.class,
+        teacher: existingClass.teacher,
+        // Use existing class room or default to empty if not set
+        room: existingClass.room || "",
+        students: existingClass.students || 0,
+        lessonContent: existingClass.lessonContent || "", // Assuming ClassItem has lessonContent
+        notes: existingClass.notes || "",
+      });
+    } else {
+      // New class entry for this slot
+      // Find default room from other slots in the same session for this class
+      const daySchedule = schedule[day as keyof ScheduleData] || [];
+      const sessionSlots = getSessionSlots(slot);
+      const existingSessionItem = daySchedule.find(
+        (c) => c.class === className && sessionSlots.includes(c.slot) && c.room
+      );
+      const defaultRoom = existingSessionItem ? existingSessionItem.room : "";
+
+      form.reset({
+        class: className,
+        teacher: "",
+        room: defaultRoom,
+        students: 15,
+        lessonContent: "",
+        notes: "",
+      });
+    }
+    setFormDialogOpen(true);
+  };
+
   const onSubmit = (data: FormValues) => {
     if (!editMode) return;
 
@@ -454,20 +330,28 @@ const Schedule = () => {
       teacher: data.teacher,
       room: data.room,
       students: data.students,
+      lessonContent: data.lessonContent,
+      notes: data.notes,
+      // Create a unique ID or use composite key if needed
     };
 
     const dayKey = editMode.day as keyof ScheduleData;
-    const existingClass = schedule[dayKey].find((c) => c.slot === editMode.slot);
-    const isEdit = !!existingClass;
 
     setSchedule((prev) => {
       const newSchedule = { ...prev };
       const daySchedule = [...newSchedule[dayKey]];
 
-      const existingIndex = daySchedule.findIndex((c) => c.slot === editMode.slot);
+      // Find if we are editing an existing item for THIS class in THIS slot
+      // We need to match by slot AND class name because multiple classes are in the same slot (in different rows)
+      const existingIndex = daySchedule.findIndex(
+        (c) => c.slot === editMode.slot && c.class === data.class
+      );
+
       if (existingIndex !== -1) {
-        daySchedule[existingIndex] = newClass;
+        // Update existing
+        daySchedule[existingIndex] = { ...daySchedule[existingIndex], ...newClass };
       } else {
+        // Add new
         daySchedule.push(newClass);
       }
 
@@ -476,7 +360,7 @@ const Schedule = () => {
     });
 
     toast({
-      title: isEdit ? "Đã cập nhật ca dạy" : "Đã tạo ca dạy mới",
+      title: "Đã cập nhật lịch dạy",
       description: `${data.class} - ${data.teacher}`,
     });
 
@@ -484,37 +368,46 @@ const Schedule = () => {
     setEditMode(null);
   };
 
-  const onQuickScheduleSubmit = (data: QuickScheduleFormValues) => {
-    const dayKey = data.day as keyof ScheduleData;
-    const slotIndex = parseInt(data.timeSlot);
+  const handleRoomClick = (day: string, className: string, currentRoom: string, startSlot: number, endSlot: number) => {
+    setEditingRoom({ day, class: className, room: currentRoom, startSlot, endSlot });
+    roomForm.reset({ room: currentRoom });
+    setRoomDialogOpen(true);
+  };
 
-    const newClass: ClassItem = {
-      slot: slotIndex,
-      class: data.subject,
-      teacher: data.teacherName,
-      room: data.room,
-      students: 15, // Default value
-      classLevel: data.classLevel,
-    };
+  const onRoomSubmit = (data: { room: string }) => {
+    if (!editingRoom) return;
+
+    const dayKey = editingRoom.day as keyof ScheduleData;
 
     setSchedule((prev) => {
       const newSchedule = { ...prev };
       const daySchedule = [...newSchedule[dayKey]];
+      let updatedCount = 0;
 
-      // Allow multiple classes in the same slot - just add the new class
-      daySchedule.push(newClass);
+      // Update all items for this class within the session range
+      for (let i = 0; i < daySchedule.length; i++) {
+        const item = daySchedule[i];
+        if (item.class === editingRoom.class && item.slot >= editingRoom.startSlot && item.slot <= editingRoom.endSlot) {
+          daySchedule[i] = { ...item, room: data.room };
+          updatedCount++;
+        }
+      }
+
+      // Use functional update to avoid stale closure if we were to rely on something else, but here we construct new array
       newSchedule[dayKey] = daySchedule;
       return newSchedule;
     });
 
     toast({
-      title: "Đã xếp lịch thành công",
-      description: `${data.teacherName} - ${data.subject} vào ${allSlots[slotIndex]}`,
+      title: "Đã cập nhật phòng học",
+      description: `Lớp ${editingRoom.class} - Phòng ${data.room}`,
     });
 
-    setQuickScheduleDialogOpen(false);
-    quickScheduleForm.reset();
+    setRoomDialogOpen(false);
+    setEditingRoom(null);
   };
+
+
 
   // Removed dateInfo as we now use weekRange
 
@@ -544,8 +437,7 @@ const Schedule = () => {
       filtered[dayKey] = schedule[dayKey].filter((classItem) => {
         const matchesTeacher = filterTeacher === "all" || classItem.teacher === filterTeacher;
         const matchesSubject = filterSubject === "all" || classItem.class.startsWith(filterSubject);
-        const matchesClassLevel = filterClassLevel === "all" || classItem.classLevel === filterClassLevel;
-        return matchesTeacher && matchesSubject && matchesClassLevel;
+        return matchesTeacher && matchesSubject;
       });
     });
 
@@ -566,716 +458,333 @@ const Schedule = () => {
 
   return (
     <AdminLayout>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="space-y-6">
 
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">Xếp lịch dạy</h1>
-              <p className="text-muted-foreground">Quản lý lịch dạy và phòng học</p>
-            </div>
+      <div className="space-y-6">
+
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Xếp lịch dạy</h1>
+
           </div>
-
-          <Tabs defaultValue="table" className="w-full">
-            <div className="flex items-center justify-between mb-4">
-              <TabsList>
-                <TabsTrigger value="calendar">Lịch biểu</TabsTrigger>
-                <TabsTrigger value="table">Dạng bảng (Excel)</TabsTrigger>
-              </TabsList>
-            </div>
-
-            <TabsContent value="calendar" className="space-y-6">
-              {/* Quick Schedule Form */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Xếp lịch</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Form {...quickScheduleForm}>
-                    <form onSubmit={quickScheduleForm.handleSubmit(onQuickScheduleSubmit)} className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <FormField
-                          control={quickScheduleForm.control}
-                          name="classLevel"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Lớp</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Chọn lớp" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="N5">N5</SelectItem>
-                                  <SelectItem value="N4">N4</SelectItem>
-                                  <SelectItem value="N3">N3</SelectItem>
-                                  <SelectItem value="N2">N2</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={quickScheduleForm.control}
-                          name="teacherName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Giáo viên</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Nhập tên giáo viên" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={quickScheduleForm.control}
-                          name="subject"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Môn dạy</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Ví dụ: N5-01" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={quickScheduleForm.control}
-                          name="room"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Phòng dạy</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Ví dụ: 201" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <FormField
-                          control={quickScheduleForm.control}
-                          name="timeSlot"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Tiết dạy</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Chọn tiết" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {timeSlots.map((slot, index) => (
-                                    <SelectItem key={index} value={String(index)}>
-                                      Tiết {index + 1}: {slot}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={quickScheduleForm.control}
-                          name="day"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Ngày</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Chọn ngày" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {Array.from({ length: 31 }, (_, i) => (
-                                    <SelectItem key={i + 1} value={String(i + 1)}>
-                                      {i + 1}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={quickScheduleForm.control}
-                          name="month"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Tháng</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Chọn tháng" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {Array.from({ length: 12 }, (_, i) => (
-                                    <SelectItem key={i + 1} value={String(i + 1)}>
-                                      Tháng {i + 1}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={quickScheduleForm.control}
-                          name="year"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Năm</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Chọn năm" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="2024">2024</SelectItem>
-                                  <SelectItem value="2025">2025</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <div className="flex justify-end">
-                        <Button type="submit" className="bg-primary hover:bg-primary-dark">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Xếp lịch
-                        </Button>
-                      </div>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-
-              {/* Schedule Grid */}
-              <Card>
-                <CardHeader className="pb-4">
-                  <div className="flex flex-wrap items-center gap-3">
-                    {/* Week navigation */}
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handlePrevWeek}
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                      </Button>
-                      <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
-                        <span className="text-sm font-medium">
-                          Tuần {selectedWeek} - Tháng {selectedMonth}/{selectedYear}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          ({formatDate(weekRange.monday)} - {formatDate(weekRange.sunday)})
-                        </span>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleNextWeek}
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </Button>
-                    </div>
-
-                    <div className="h-6 w-px bg-border hidden md:block" />
-
-                    {/* Filters */}
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-muted-foreground" />
-                      <Select value={filterTeacher} onValueChange={setFilterTeacher}>
-                        <SelectTrigger className="w-[140px]">
-                          <SelectValue placeholder="Giáo viên" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Tất cả GV</SelectItem>
-                          {allTeachers.map((teacher) => (
-                            <SelectItem key={teacher} value={teacher}>
-                              {teacher}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-muted-foreground" />
-                      <Select value={filterSubject} onValueChange={setFilterSubject}>
-                        <SelectTrigger className="w-[120px]">
-                          <SelectValue placeholder="Môn học" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Tất cả môn</SelectItem>
-                          {allSubjects.map((subject) => (
-                            <SelectItem key={subject} value={subject}>
-                              {subject}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Select value={filterClassLevel} onValueChange={setFilterClassLevel}>
-                        <SelectTrigger className="w-[120px]">
-                          <SelectValue placeholder="Lớp" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Tất cả lớp</SelectItem>
-                          <SelectItem value="N5">N5</SelectItem>
-                          <SelectItem value="N4">N4</SelectItem>
-                          <SelectItem value="N3">N3</SelectItem>
-                          <SelectItem value="N2">N2</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="h-6 w-px bg-border hidden md:block" />
-
-                    {/* Month/Year selectors */}
-                    <Select value={String(selectedMonth)} onValueChange={(val) => { setSelectedMonth(parseInt(val)); setSelectedWeek(1); }}>
-                      <SelectTrigger className="w-[110px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Array.from({ length: 12 }, (_, i) => (
-                          <SelectItem key={i + 1} value={String(i + 1)}>
-                            Tháng {i + 1}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={String(selectedYear)} onValueChange={(val) => { setSelectedYear(parseInt(val)); setSelectedWeek(1); }}>
-                      <SelectTrigger className="w-[90px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="2024">2024</SelectItem>
-                        <SelectItem value="2025">2025</SelectItem>
-                        <SelectItem value="2026">2026</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <div className="min-w-[1000px]">
-                      {/* Header */}
-                      <div className="grid grid-cols-8 gap-2 mb-2">
-                        <div className="font-medium text-sm text-muted-foreground p-2">Ca học</div>
-                        {days.map((day) => (
-                          <div key={day.key} className="font-medium text-center p-2 bg-muted rounded-lg">
-                            <div>{day.label}</div>
-                            <div className="text-xs text-muted-foreground">{day.date}/{day.month}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Time slots */}
-                      {allSlots.map((slot, slotIndex) => (
-                        <div key={slotIndex} className="grid grid-cols-8 gap-2 mb-2">
-                          <div
-                            className="p-3 rounded-lg text-sm font-medium flex items-center justify-center bg-primary/10 text-primary"
-                          >
-                            Tiết {slotIndex + 1}<br />{slot}
-                          </div>
-                          {days.map((day) => {
-                            const daySchedule = filteredSchedule[day.key as keyof typeof filteredSchedule] || [];
-                            const classesInSlot = daySchedule.filter((c) => c.slot === slotIndex);
-
-                            return (
-                              <div
-                                key={`${day.key}-${slotIndex}`}
-                                id={`${day.key}-${slotIndex}`}
-                                className={cn(
-                                  "rounded-lg border-2 border-dashed transition-all min-h-[80px]",
-                                  classesInSlot.length === 0 && "border-border hover:bg-muted/50 p-3 cursor-pointer flex items-center justify-center",
-                                  classesInSlot.length > 0 && "border-transparent p-1"
-                                )}
-                                onClick={() => {
-                                  if (classesInSlot.length === 0) {
-                                    handleOpenQuickSchedule(day.key, slotIndex);
-                                  }
-                                }}
-                              >
-                                {classesInSlot.length > 0 ? (
-                                  <div className="space-y-1 max-h-[200px] overflow-y-auto">
-                                    {classesInSlot.map((classData, idx) => (
-                                      <div
-                                        key={`${day.key}-${slotIndex}-${idx}`}
-                                        className="p-2 rounded-lg border bg-primary/5 border-primary/30 hover:bg-primary/10 cursor-pointer transition-all"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setSelectedClass({
-                                            ...classData,
-                                            day: day.label,
-                                            timeSlot: allSlots[slotIndex]
-                                          });
-                                          setDialogOpen(true);
-                                        }}
-                                      >
-                                        <div className="flex items-center justify-between gap-1">
-                                          <Badge className="bg-primary text-[10px] px-1.5 py-0">{classData.class}</Badge>
-                                          <Badge variant="outline" className="text-[10px] px-1 py-0">
-                                            <MapPin className="w-2.5 h-2.5 mr-0.5" />
-                                            {classData.room}
-                                          </Badge>
-                                        </div>
-                                        <p className="text-[11px] font-medium mt-1">{classData.teacher}</p>
-                                        <p className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                                          <Users className="w-2.5 h-2.5" />
-                                          {classData.students} HV
-                                        </p>
-                                      </div>
-                                    ))}
-                                    <div
-                                      className="p-1.5 rounded border border-dashed border-muted-foreground/30 hover:bg-muted/50 cursor-pointer flex items-center justify-center"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleOpenQuickSchedule(day.key, slotIndex);
-                                      }}
-                                    >
-                                      <Plus className="w-3 h-3 text-muted-foreground mr-1" />
-                                      <span className="text-[10px] text-muted-foreground">Thêm</span>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground">+ Thêm ca dạy</span>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="table">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Bảng lịch dạy tổng hợp</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ExcelScheduleTable schedule={schedule} timeSlots={allSlots} days={days} />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
         </div>
 
-        {/* Class Detail Dialog */}
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-2xl">Chi tiết ca dạy</DialogTitle>
-            </DialogHeader>
-            {selectedClass && (
-              <div className="space-y-6">
-                {/* Basic Info */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Lớp học</p>
-                    <Badge className="text-base">{selectedClass.class}</Badge>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Giáo viên</p>
-                    <p className="font-medium">{selectedClass.teacher}-sensei</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Phòng học</p>
-                    <p className="font-medium flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      Phòng {selectedClass.room}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Thời gian</p>
-                    <p className="font-medium flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {selectedClass.day} - {selectedClass.timeSlot}
-                    </p>
-                  </div>
+
+
+
+
+        {/* Schedule Grid */}
+        <Card>
+          <CardHeader className="pb-4">
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Week navigation */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handlePrevWeek}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
+                  <span className="text-sm font-medium">
+                    Tuần {selectedWeek} - Tháng {selectedMonth}/{selectedYear}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    ({formatDate(weekRange.monday)} - {formatDate(weekRange.sunday)})
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleNextWeek}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <div className="h-6 w-px bg-border hidden md:block" />
+
+              {/* Filters */}
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-muted-foreground" />
+                <Select value={filterTeacher} onValueChange={setFilterTeacher}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Giáo viên" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả GV</SelectItem>
+                    {allTeachers.map((teacher) => (
+                      <SelectItem key={teacher} value={teacher}>
+                        {teacher}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-muted-foreground" />
+                <Select value={filterSubject} onValueChange={setFilterSubject}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Lớp" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả các lớp</SelectItem>
+                    {allSubjects.map((subject) => (
+                      <SelectItem key={subject} value={subject}>
+                        {subject}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+
+              <div className="h-6 w-px bg-border hidden md:block" />
+
+              {/* Month/Year selectors */}
+              <Select value={String(selectedMonth)} onValueChange={(val) => { setSelectedMonth(parseInt(val)); setSelectedWeek(1); }}>
+                <SelectTrigger className="w-[110px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <SelectItem key={i + 1} value={String(i + 1)}>
+                      Tháng {i + 1}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={String(selectedYear)} onValueChange={(val) => { setSelectedYear(parseInt(val)); setSelectedWeek(1); }}>
+                <SelectTrigger className="w-[90px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2024">2024</SelectItem>
+                  <SelectItem value="2025">2025</SelectItem>
+                  <SelectItem value="2026">2026</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <ExcelScheduleTable
+                schedule={filteredSchedule}
+                timeSlots={timeSlots}
+                days={days}
+                onCellClick={handleCellClick}
+                onRoomClick={handleRoomClick}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+      </div>
+
+      {/* Class Detail Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Chi tiết ca dạy</DialogTitle>
+          </DialogHeader>
+          {selectedClass && (
+            <div className="space-y-6">
+              {/* Basic Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Lớp học</p>
+                  <Badge className="text-base">{selectedClass.class}</Badge>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Giáo viên</p>
+                  <p className="font-medium">{selectedClass.teacher}-sensei</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Phòng học</p>
+                  <p className="font-medium flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    Phòng {selectedClass.room}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Thời gian</p>
+                  <p className="font-medium flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    {selectedClass.day} - {selectedClass.timeSlot}
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <div className="space-y-2 mb-4">
+                  <p className="text-sm text-muted-foreground">Số học viên</p>
+                  <p className="font-medium flex items-center gap-1">
+                    <Users className="w-4 h-4" />
+                    {selectedClass.students} học viên
+                  </p>
                 </div>
 
-                <div className="border-t pt-4">
-                  <div className="space-y-2 mb-4">
-                    <p className="text-sm text-muted-foreground">Số học viên</p>
-                    <p className="font-medium flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      {selectedClass.students} học viên
-                    </p>
-                  </div>
-
-                  {/* Student List */}
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Danh sách học viên</p>
-                    <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
-                      {Array.from({ length: selectedClass.students }, (_, i) => (
-                        <div key={i} className="p-2 border border-border rounded text-sm">
-                          Học viên {i + 1}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Lesson Content */}
-                <div className="border-t pt-4 space-y-2">
-                  <p className="text-sm font-medium">Nội dung bài học</p>
-                  <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-sm">Bài {15 + selectedClass.slot}: Ngữ pháp cơ bản và luyện tập hội thoại</p>
-                  </div>
-                </div>
-
-                {/* Additional Info */}
-                <div className="border-t pt-4 space-y-2">
-                  <p className="text-sm font-medium">Ghi chú</p>
-                  <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground">
-                      Chuẩn bị tài liệu học tập. Kiểm tra máy chiếu và loa trước giờ học.
-                    </p>
+                {/* Student List */}
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Danh sách học viên</p>
+                  <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                    {Array.from({ length: selectedClass.students }, (_, i) => (
+                      <div key={i} className="p-2 border border-border rounded text-sm">
+                        Học viên {i + 1}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            )}
-          </DialogContent>
-        </Dialog>
 
-        {/* Quick Schedule Dialog */}
-        <Dialog open={quickScheduleDialogOpen} onOpenChange={setQuickScheduleDialogOpen}>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle className="text-2xl">Thêm ca dạy mới</DialogTitle>
-            </DialogHeader>
-            <Form {...quickScheduleForm}>
-              <form onSubmit={quickScheduleForm.handleSubmit(onQuickScheduleSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={quickScheduleForm.control}
-                    name="teacherName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tên giáo viên</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Chọn giáo viên" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Yamada">Yamada</SelectItem>
-                            <SelectItem value="Tanaka">Tanaka</SelectItem>
-                            <SelectItem value="Suzuki">Suzuki</SelectItem>
-                            <SelectItem value="Sato">Sato</SelectItem>
-                            <SelectItem value="Watanabe">Watanabe</SelectItem>
-                            <SelectItem value="Ito">Ito</SelectItem>
-                            <SelectItem value="Kobayashi">Kobayashi</SelectItem>
-                            <SelectItem value="Nakamura">Nakamura</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={quickScheduleForm.control}
-                    name="subject"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Môn dạy</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Ví dụ: N5-01" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={quickScheduleForm.control}
-                    name="room"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phòng dạy</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Ví dụ: 201" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={quickScheduleForm.control}
-                    name="day"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Thứ</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Chọn thứ" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="monday">Thứ 2</SelectItem>
-                            <SelectItem value="tuesday">Thứ 3</SelectItem>
-                            <SelectItem value="wednesday">Thứ 4</SelectItem>
-                            <SelectItem value="thursday">Thứ 5</SelectItem>
-                            <SelectItem value="friday">Thứ 6</SelectItem>
-                            <SelectItem value="saturday">Thứ 7</SelectItem>
-                            <SelectItem value="sunday">Chủ nhật</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={quickScheduleForm.control}
-                    name="timeSlot"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tiết dạy</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Chọn tiết" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {timeSlots.map((slot, index) => (
-                              <SelectItem key={index} value={String(index)}>
-                                Tiết {index + 1}: {slot}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={quickScheduleForm.control}
-                    name="day"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Ngày</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Chọn ngày" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Array.from({ length: 31 }, (_, i) => (
-                              <SelectItem key={i + 1} value={String(i + 1)}>
-                                {i + 1}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={quickScheduleForm.control}
-                    name="month"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tháng</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Chọn tháng" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Array.from({ length: 12 }, (_, i) => (
-                              <SelectItem key={i + 1} value={String(i + 1)}>
-                                Tháng {i + 1}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={quickScheduleForm.control}
-                    name="year"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Năm</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Chọn năm" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="2024">2024</SelectItem>
-                            <SelectItem value="2025">2025</SelectItem>
-                            <SelectItem value="2026">2026</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              {/* Lesson Content */}
+              <div className="border-t pt-4 space-y-2">
+                <p className="text-sm font-medium">Nội dung bài học</p>
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm">Bài {15 + selectedClass.slot}: Ngữ pháp cơ bản và luyện tập hội thoại</p>
                 </div>
+              </div>
 
+              {/* Additional Info */}
+              <div className="border-t pt-4 space-y-2">
+                <p className="text-sm font-medium">Ghi chú</p>
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    Chuẩn bị tài liệu học tập. Kiểm tra máy chiếu và loa trước giờ học.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+
+
+      {/* Edit Class Dialog (Form) */}
+      <Dialog open={formDialogOpen} onOpenChange={setFormDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Cập nhật lịch dạy</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="class"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Lớp</FormLabel>
+                    <FormControl>
+                      <Input {...field} readOnly className="bg-muted" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="teacher"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Giáo viên</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Tên giáo viên" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="room"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phòng</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Phòng học" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="lessonContent"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nội dung giảng dạy</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Nhập nội dung bài học..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ghi chú</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Ghi chú thêm..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setFormDialogOpen(false)}>Hủy</Button>
+                <Button type="submit">Lưu thay đổi</Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Room Edit Dialog */}
+      <Dialog open={roomDialogOpen} onOpenChange={setRoomDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Cập nhật Phòng học</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground mb-4">
+              Thiết lập phòng cho lớp <span className="font-bold text-foreground">{editingRoom?.class}</span> vào buổi này.
+            </p>
+            <Form {...roomForm}>
+              <form onSubmit={roomForm.handleSubmit(onRoomSubmit)} className="space-y-4">
+                <FormField
+                  control={roomForm.control}
+                  name="room"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tên Phòng</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ví dụ: 201" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setQuickScheduleDialogOpen(false)}>
-                    Hủy
-                  </Button>
-                  <Button type="submit" className="bg-primary hover:bg-primary-dark">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Xếp lịch
-                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setRoomDialogOpen(false)}>Hủy</Button>
+                  <Button type="submit">Lưu</Button>
                 </div>
               </form>
             </Form>
-          </DialogContent>
-        </Dialog>
-      </DndContext>
-    </AdminLayout>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+    </AdminLayout >
   );
 };
 

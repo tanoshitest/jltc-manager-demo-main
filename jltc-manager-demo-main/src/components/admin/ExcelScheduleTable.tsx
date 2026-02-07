@@ -1,11 +1,13 @@
 import React from "react";
-import { ScheduleData, ClassItem, DayInfo } from "@/types/schedule";
+import { ScheduleData, DayInfo, ClassItem } from "@/types/schedule";
 import { cn } from "@/lib/utils";
 
 interface ExcelScheduleTableProps {
     schedule: ScheduleData;
     timeSlots: string[];
     days: DayInfo[];
+    onCellClick: (dayKey: string, slotIndex: number, className: string, existingClass?: ClassItem) => void;
+    onRoomClick: (dayKey: string, className: string, currentRoom: string, sessionStart: number, sessionEnd: number) => void;
 }
 
 const SESSIONS = [
@@ -17,13 +19,14 @@ const SESSIONS = [
         name: "CHIỀU",
         slots: [3, 4, 5], // 13:00, 14:15, 15:30
     },
+    // Hide Evening session if not needed, but keep for completeness if data exists
     {
         name: "TỐI",
         slots: [6, 7, 8], // 18:00, 19:15, 20:30
     },
 ];
 
-const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeSlots, days }) => {
+const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeSlots, days, onCellClick, onRoomClick }) => {
     // 1. Get unique classes
     const allClasses = new Set<string>();
     Object.values(schedule).forEach((dayItems) => {
@@ -32,7 +35,7 @@ const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeS
         });
     });
 
-    // Sort classes (maybe custom sort needed later, for now alphabetical)
+    // Sort classes
     const sortedClasses = Array.from(allClasses).sort();
 
     // Helper to find class item for a specific day and slot and class name
@@ -44,20 +47,27 @@ const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeS
 
     return (
         <div className="overflow-x-auto border rounded-md shadow-sm">
-            <table className="w-full border-collapse min-w-[1000px] text-sm">
+            <table className="w-full border-collapse min-w-[1200px] text-sm">
                 <thead>
-                    <tr className="bg-[#FFEB9C] text-center font-bold text-black border-b-2 border-black/20">
-                        <th className="border p-2 w-[80px] align-middle" rowSpan={2}>BUỔI</th>
-                        <th className="border p-2 w-[150px] align-middle" rowSpan={2}>TIẾT</th>
+                    <tr className="bg-muted/50 text-center font-bold text-muted-foreground border-b border-border">
+                        {/* LỚP Header - Spanning 2 rows */}
+                        <th className="border p-2 w-[120px] align-middle bg-muted/80 text-foreground" rowSpan={2}>LỚP</th>
+                        {/* BUỔI Header - Spanning 2 rows */}
+                        <th className="border p-2 w-[80px] align-middle bg-muted/80 text-foreground" rowSpan={2}>BUỔI</th>
+                        {/* TIẾT Header - Spanning 2 rows */}
+                        <th className="border p-2 w-[150px] align-middle bg-muted/80 text-foreground" rowSpan={2}>TIẾT</th>
+
+                        {/* Days Headers - Row 1 */}
                         {days.map((day) => (
-                            <th key={day.key} className="border p-1 bg-[#FFEB9C] min-w-[120px]">
+                            <th key={day.key} className="border p-1 bg-muted/50 min-w-[120px] text-foreground">
                                 {day.label}
                             </th>
                         ))}
                     </tr>
-                    <tr className="bg-[#FFEB9C] text-center font-bold text-black border-b-2 border-black/20">
+                    <tr className="bg-muted/50 text-center font-bold text-muted-foreground border-b-2 border-border">
+                        {/* Days Headers - Row 2 (Dates) */}
                         {days.map((day) => (
-                            <th key={day.key} className="border p-1 bg-[#FFEB9C] text-xs">
+                            <th key={day.key} className="border p-1 bg-muted/30 text-xs text-muted-foreground">
                                 {String(day.date).padStart(2, '0')}/{String(day.month).padStart(2, '0')}
                             </th>
                         ))}
@@ -71,15 +81,18 @@ const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeS
                                 // Calculate total rows for this session: room row (1) + period rows
                                 const sessionRows = 1 + session.slots.length;
 
+                                // Calculate total rows for class: sum of all session rows
+                                const classRows = SESSIONS.reduce((acc, s) => acc + s.slots.length + 1, 0);
+
                                 return (
                                     <React.Fragment key={session.name}>
-                                        {/* 1. ROOM ROW */}
+                                        {/* 1. ROOM ROW (Start of Session Block) */}
                                         <tr key={`${className}-${session.name}-room`}>
-                                            {/* Render Class Name Cell only once per Class block */}
+                                            {/* Render Class Name Cell only once per Class block (at the very first session) */}
                                             {sessionIndex === 0 && (
                                                 <td
-                                                    className="border p-4 align-middle text-center font-bold text-xl bg-[#FFC000] text-black"
-                                                    rowSpan={SESSIONS.reduce((acc, s) => acc + s.slots.length + 1, 0)}
+                                                    className="border p-4 align-middle text-center font-bold text-xl bg-card text-primary"
+                                                    rowSpan={classRows}
                                                 >
                                                     {className}
                                                 </td>
@@ -87,32 +100,20 @@ const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeS
 
                                             {/* Render Session Name Cell only once per Session block */}
                                             <td
-                                                className="border p-2 align-middle text-center font-bold bg-[#FFF2CC]"
+                                                className="border p-2 align-middle text-center font-bold bg-muted/20 text-muted-foreground"
                                                 rowSpan={sessionRows}
                                             >
                                                 {session.name}
                                             </td>
 
-                                            {/* Room Row Title */}
-                                            {/* Since the image doesn't show a "Room" title column, we can merge or leave it blank.
-                                               The image shows the Date headers are aligned. 
-                                               Let's use a subtle label or background for this row in the Period column.
-                                            */}
-                                            <td className="border p-2 font-bold bg-white text-center text-xs text-muted-foreground">
+                                            {/* Room Row Title in TIẾT Column */}
+                                            <td className="border p-2 font-bold bg-muted/10 text-center text-xs text-muted-foreground">
                                                 PHÒNG
                                             </td>
 
                                             {/* Room Cells for each Day */}
                                             {days.map((day) => {
-                                                // Find the room for this session on this day.
-                                                // We look at the first slot of the session.
-                                                // If multiple rooms exist in the same session, we might just pick the first one found or list unique.
-                                                // For "Teacher Schedule", typically one room per session.
-                                                const firstSlot = session.slots[0];
-                                                const classItem = findClassItem(day.key as keyof ScheduleData, firstSlot, className);
-
-                                                // Also check other slots in this session if the first one is empty? 
-                                                // Let's iterate all slots in session to find the first non-null room.
+                                                // Logic to find room: check first slot of session
                                                 let room = "";
                                                 for (const slot of session.slots) {
                                                     const item = findClassItem(day.key as keyof ScheduleData, slot, className);
@@ -122,9 +123,16 @@ const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeS
                                                     }
                                                 }
 
+                                                const sessionStart = session.slots[0];
+                                                const sessionEnd = session.slots[session.slots.length - 1];
+
                                                 return (
-                                                    <td key={`${day.key}-room`} className="border p-1 text-center font-bold bg-white">
-                                                        {room}
+                                                    <td
+                                                        key={`${day.key}-room`}
+                                                        className="border p-1 text-center font-bold bg-muted/5 text-sm cursor-pointer hover:bg-muted/20 transition-colors"
+                                                        onClick={() => onRoomClick(day.key, className, room, sessionStart, sessionEnd)}
+                                                    >
+                                                        {room || <span className="text-muted-foreground/30 text-xs">+ Phòng</span>}
                                                     </td>
                                                 );
                                             })}
@@ -134,25 +142,36 @@ const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeS
                                         {session.slots.map((slotIndex, slotIdxInSession) => (
                                             <tr key={`${className}-${slotIndex}`} className="hover:bg-slate-50 transition-colors">
                                                 {/* Period Cell */}
-                                                <td className="border p-2 font-medium bg-white">
-                                                    Tiết {slotIndex + 1} <span className="text-xs text-muted-foreground block font-normal">({timeSlots[slotIndex]})</span>
+                                                <td className="border p-2 font-medium bg-white text-center">
+                                                    <div>Tiết {slotIndex + 1}</div>
+
                                                 </td>
 
                                                 {/* Day Cells (Teachers) */}
                                                 {days.map((day) => {
                                                     const classItem = findClassItem(day.key as keyof ScheduleData, slotIndex, className);
                                                     return (
-                                                        <td key={`${day.key}-${slotIndex}`} className="border p-1 relative text-center">
+                                                        <td
+                                                            key={`${day.key}-${slotIndex}`}
+                                                            className={cn(
+                                                                "border p-1 relative text-center cursor-pointer hover:bg-muted/50 transition-colors",
+                                                                !classItem && "hover:bg-muted/30"
+                                                            )}
+                                                            onClick={() => onCellClick(day.key, slotIndex, className, classItem)}
+                                                        >
                                                             {classItem ? (
                                                                 <div className={cn(
-                                                                    "p-2 h-full w-full rounded flex flex-col items-center justify-center gap-1",
-                                                                    // Colors based on teacher could be added here
-                                                                    "bg-orange-100/50 text-orange-900" // Simple color for now
+                                                                    "p-1 h-full w-full rounded flex flex-col items-center justify-center gap-0.5",
+                                                                    // Simple coloring for teacher cells
+                                                                    "bg-primary/5 text-primary"
                                                                 )}>
-                                                                    <span className="font-bold">{classItem.teacher}</span>
+                                                                    <span className="font-bold text-sm">{classItem.teacher}</span>
+                                                                    {/* Could add subject here if available */}
                                                                 </div>
                                                             ) : (
-                                                                <div className="h-full w-full bg-white"></div>
+                                                                <div className="h-full w-full bg-transparent min-h-[30px] flex items-center justify-center text-xs text-muted-foreground/30 hover:text-muted-foreground">
+                                                                    +
+                                                                </div>
                                                             )}
                                                         </td>
                                                     );
@@ -162,16 +181,17 @@ const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeS
                                     </React.Fragment>
                                 );
                             })}
-                            {/* Separator row between classes */}
-                            <tr className="h-2 bg-gray-100 border-t-2 border-black/20">
-                                <td colSpan={3 + days.length} className="border-0"></td>
+
+                            {/* Separator row between classes (optional, already handled by borders) */}
+                            <tr className="h-2 bg-muted/10 border-t-2 border-border">
+                                <td colSpan={3 + days.length} className="border-0 p-0"></td>
                             </tr>
                         </React.Fragment>
                     ))}
 
                     {sortedClasses.length === 0 && (
                         <tr>
-                            <td colSpan={2 + days.length} className="p-8 text-center text-muted-foreground">
+                            <td colSpan={3 + days.length} className="p-8 text-center text-muted-foreground">
                                 Không có dữ liệu lớp học nào được tìm thấy trong lịch.
                             </td>
                         </tr>

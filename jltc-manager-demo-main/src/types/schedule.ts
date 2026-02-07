@@ -7,6 +7,8 @@ export interface ClassItem {
     classLevel?: string;
     day?: string;      // Added optional props used in Schedule.tsx state
     timeSlot?: string; // Added optional props used in Schedule.tsx state
+    lessonContent?: string;
+    notes?: string;
 }
 
 export interface ScheduleData {
