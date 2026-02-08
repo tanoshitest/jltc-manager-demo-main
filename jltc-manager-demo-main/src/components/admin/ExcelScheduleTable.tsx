@@ -1,6 +1,7 @@
 import React from "react";
 import { ScheduleData, DayInfo, ClassItem } from "@/types/schedule";
 import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 
 interface ExcelScheduleTableProps {
     schedule: ScheduleData;
@@ -8,6 +9,7 @@ interface ExcelScheduleTableProps {
     days: DayInfo[];
     onCellClick: (dayKey: string, slotIndex: number, className: string, existingClass?: ClassItem) => void;
     onRoomClick: (dayKey: string, className: string, currentRoom: string, sessionStart: number, sessionEnd: number) => void;
+    onDeleteTeacher?: (dayKey: string, slotIndex: number, className: string) => void;
 }
 
 const SESSIONS = [
@@ -26,7 +28,7 @@ const SESSIONS = [
     },
 ];
 
-const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeSlots, days, onCellClick, onRoomClick }) => {
+const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeSlots, days, onCellClick, onRoomClick, onDeleteTeacher }) => {
     // 1. Get unique classes
     const allClasses = new Set<string>();
     Object.values(schedule).forEach((dayItems) => {
@@ -154,22 +156,39 @@ const ExcelScheduleTable: React.FC<ExcelScheduleTableProps> = ({ schedule, timeS
                                                         <td
                                                             key={`${day.key}-${slotIndex}`}
                                                             className={cn(
-                                                                "border p-1 relative text-center cursor-pointer hover:bg-muted/50 transition-colors",
+                                                                "border p-1 relative text-center group transition-colors",
+                                                                classItem && "cursor-pointer hover:bg-muted/50",
                                                                 !classItem && "hover:bg-muted/30"
                                                             )}
-                                                            onClick={() => onCellClick(day.key, slotIndex, className, classItem)}
                                                         >
                                                             {classItem ? (
-                                                                <div className={cn(
-                                                                    "p-1 h-full w-full rounded flex flex-col items-center justify-center gap-0.5",
-                                                                    // Simple coloring for teacher cells
-                                                                    "bg-primary/5 text-primary"
-                                                                )}>
+                                                                <div
+                                                                    className={cn(
+                                                                        "p-1 h-full w-full rounded flex flex-col items-center justify-center gap-0.5 relative",
+                                                                        "bg-primary/5 text-primary"
+                                                                    )}
+                                                                    onClick={() => onCellClick(day.key, slotIndex, className, classItem)}
+                                                                >
                                                                     <span className="font-bold text-sm">{classItem.teacher}</span>
-                                                                    {/* Could add subject here if available */}
+                                                                    {/* Delete button */}
+                                                                    {onDeleteTeacher && (
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                onDeleteTeacher(day.key, slotIndex, className);
+                                                                            }}
+                                                                            className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground rounded-full p-0.5 hover:bg-destructive/90"
+                                                                            title="Xóa giáo viên"
+                                                                        >
+                                                                            <X className="w-3 h-3" />
+                                                                        </button>
+                                                                    )}
                                                                 </div>
                                                             ) : (
-                                                                <div className="h-full w-full bg-transparent min-h-[30px] flex items-center justify-center text-xs text-muted-foreground/30 hover:text-muted-foreground">
+                                                                <div
+                                                                    className="h-full w-full bg-transparent min-h-[30px] flex items-center justify-center text-xs text-muted-foreground/30 hover:text-muted-foreground cursor-pointer"
+                                                                    onClick={() => onCellClick(day.key, slotIndex, className, classItem)}
+                                                                >
                                                                     +
                                                                 </div>
                                                             )}

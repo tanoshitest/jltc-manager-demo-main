@@ -31,7 +31,7 @@ const menuItems = [
   { icon: BarChart3, label: "Dashboard", path: "/admin/dashboard" },
   { icon: Users, label: "Học viên", path: "/admin/students" },
   { icon: UserCog, label: "Giáo viên", path: "/admin/teachers" },
-  { icon: Calendar, label: "Xếp lịch dạy", path: "/admin/schedule" },
+  { icon: Calendar, label: "Quản lý lịch dạy", path: "/admin/schedule" },
   { icon: Briefcase, label: "Quản lý công việc", path: "/admin/tasks" },
   { icon: BookOpen, label: "Quản lý lớp", path: "/admin/classes" },
   { icon: GraduationCap, label: "Thi thử JLPT", path: "/admin/exams" },
@@ -85,12 +85,7 @@ const Sidebar = ({ onLogout, isCollapsed, onToggle }: { onLogout: () => void, is
         })}
       </nav>
 
-      <div className="p-4 border-t border-border space-y-2">
-        {onToggle && (
-          <Button variant="ghost" className={cn("w-full mb-2", isCollapsed && "px-0")} onClick={onToggle}>
-            {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <div className="flex items-center w-full"><ChevronLeft className="w-5 h-5 mr-2" /> Thu gọn</div>}
-          </Button>
-        )}
+      <div className="p-4 border-t border-border">
         <Button variant="outline" className={cn("w-full", isCollapsed && "px-0")} onClick={onLogout} title={isCollapsed ? "Đăng xuất" : ""}>
           <LogOut className={cn("w-4 h-4", !isCollapsed && "mr-2")} />
           {!isCollapsed && "Đăng xuất"}

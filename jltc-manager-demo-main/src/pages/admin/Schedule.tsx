@@ -467,6 +467,28 @@ const Schedule = () => {
     setEditingRoom(null);
   };
 
+  const handleDeleteTeacher = (dayKey: string, slotIndex: number, className: string) => {
+    const dayScheduleKey = dayKey as keyof ScheduleData;
+
+    setSchedule((prev) => {
+      const newSchedule = { ...prev };
+      const daySchedule = [...newSchedule[dayScheduleKey]];
+
+      // Remove the item matching the slot and class
+      const filtered = daySchedule.filter(
+        (item) => !(item.slot === slotIndex && item.class === className)
+      );
+
+      newSchedule[dayScheduleKey] = filtered;
+      return newSchedule;
+    });
+
+    toast({
+      title: "Đã xóa giáo viên",
+      description: `Đã xóa giáo viên khỏi tiết ${slotIndex + 1}`,
+    });
+  };
+
 
 
   // Removed dateInfo as we now use weekRange
@@ -533,31 +555,9 @@ const Schedule = () => {
 
       <div className="space-y-6">
 
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Quản lý công việc</h1>
-            <p className="text-muted-foreground">Phân công và theo dõi tiến độ công việc của giảng viên</p>
-          </div>
-          <div className="flex bg-muted p-1 rounded-lg">
-            <Button
-              variant={ganttViewMode === 'table' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setGanttViewMode('table')}
-              className="text-sm"
-            >
-              <LayoutList className="w-4 h-4 mr-2" />
-              Danh sách
-            </Button>
-            <Button
-              variant={ganttViewMode === 'timeline' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setGanttViewMode('timeline')}
-              className="text-sm"
-            >
-              <BarChart2 className="w-4 h-4 mr-2" />
-              Timeline
-            </Button>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Quản lý lịch dạy</h1>
+          <p className="text-muted-foreground">Phân công và theo dõi lịch dạy của giảng viên</p>
         </div>
 
         {/* Timeline View - Gantt Chart */}
@@ -749,6 +749,7 @@ const Schedule = () => {
                       days={days}
                       onCellClick={handleCellClick}
                       onRoomClick={handleRoomClick}
+                      onDeleteTeacher={handleDeleteTeacher}
                     />
                   ) : (
                     <OverviewScheduleTable

@@ -176,7 +176,8 @@ const TaskManagement = () => {
         const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             task.assigneeName?.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = filterStatus === "all" || task.status === filterStatus;
-        return matchesSearch && matchesStatus;
+        const matchesTeacher = selectedTeacher === "all" || task.assigneeId === selectedTeacher;
+        return matchesSearch && matchesStatus && matchesTeacher;
     });
 
     // Gantt chart helpers
@@ -292,8 +293,8 @@ const TaskManagement = () => {
                 {ganttViewMode === 'list' && (
                     <>
                         {/* Filters */}
-                        <div className="flex items-center gap-4">
-                            <div className="relative flex-1 max-w-sm">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <div className="relative flex-1 min-w-[200px] max-w-sm">
                                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     placeholder="Tìm kiếm công việc..."
@@ -302,6 +303,21 @@ const TaskManagement = () => {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                             </div>
+                            <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Giảng viên" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Tất cả giảng viên</SelectItem>
+                                    <SelectItem value="huong">Hường</SelectItem>
+                                    <SelectItem value="khoi">Khôi</SelectItem>
+                                    <SelectItem value="linh">Linh</SelectItem>
+                                    <SelectItem value="man">Mẫn</SelectItem>
+                                    <SelectItem value="mai">Mai</SelectItem>
+                                    <SelectItem value="hung">Hùng</SelectItem>
+                                    <SelectItem value="lan">Lan</SelectItem>
+                                </SelectContent>
+                            </Select>
                             <Select value={filterStatus} onValueChange={setFilterStatus}>
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Trạng thái" />
@@ -342,14 +358,14 @@ const TaskManagement = () => {
                                             </TableRow>
                                         ) : (
                                             filteredTasks.map((task) => (
-                                                <TableRow key={task.id}>
-                                                    <TableCell>
-                                                        <div className="flex flex-col">
+                                                <TableRow key={task.id} className="hover:bg-muted/50">
+                                                    <TableCell className="py-4">
+                                                        <div className="flex flex-col gap-1">
                                                             <span className="font-medium">{task.title}</span>
                                                             <span className="text-xs text-muted-foreground line-clamp-1">{task.description}</span>
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell>
+                                                    <TableCell className="py-4">
                                                         <div className="flex items-center gap-2">
                                                             <Avatar className="w-6 h-6">
                                                                 <AvatarFallback>{task.assigneeName?.[0]}</AvatarFallback>
@@ -357,20 +373,20 @@ const TaskManagement = () => {
                                                             <span>{task.assigneeName}</span>
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell>
+                                                    <TableCell className="py-4">
                                                         <div className="flex items-center gap-2" title={`Priority: ${task.priority}`}>
                                                             {getPriorityIcon(task.priority)}
                                                             <span className="capitalize text-sm">{task.priority === 'high' ? 'Cao' : task.priority === 'medium' ? 'Trung bình' : 'Thấp'}</span>
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell>{getStatusBadge(task.status)}</TableCell>
-                                                    <TableCell>
+                                                    <TableCell className="py-4">{getStatusBadge(task.status)}</TableCell>
+                                                    <TableCell className="py-4">
                                                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                                             <Calendar className="w-3 h-3" />
                                                             {format(new Date(task.dueDate), "dd/MM/yyyy")}
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell className="text-right">
+                                                    <TableCell className="text-right py-4">
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <Button variant="ghost" size="icon">
