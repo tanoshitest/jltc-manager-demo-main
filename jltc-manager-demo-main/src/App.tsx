@@ -18,6 +18,8 @@ import ExamManagement from "./pages/admin/ExamManagement";
 import ExamDetail from "./pages/admin/ExamDetail";
 import AdminCreateJLPTExam from "./pages/admin/CreateJLPTExam";
 import TaskManagement from "./pages/admin/TaskManagement";
+import StudentListByClass from "./pages/admin/StudentListByClass";
+import AttendanceAggregated from "./pages/admin/AttendanceAggregated";
 
 import TeacherDashboard from "./pages/teacher/Dashboard";
 import TeacherStudents from "./pages/teacher/Students";
@@ -56,6 +58,8 @@ const App = () => (
           <Route path="/admin/classes" element={<Classes />} />
           <Route path="/admin/classes/:id" element={<ClassDetail />} />
           <Route path="/admin/schedule" element={<Schedule />} />
+          <Route path="/admin/attendance" element={<AttendanceAggregated />} />
+          <Route path="/admin/students-by-class" element={<StudentListByClass />} />
           <Route path="/admin/tasks" element={<TaskManagement />} />
           <Route path="/admin/reports" element={<Reports />} />
           <Route path="/admin/exams" element={<ExamManagement />} />

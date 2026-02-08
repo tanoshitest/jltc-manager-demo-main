@@ -12,7 +12,7 @@ const Login = () => {
 
       <div className="flex flex-col gap-4 w-full max-w-xs">
         <Button
-          onClick={() => navigate("/admin/dashboard")}
+          onClick={() => navigate("/admin/students")}
           className="w-full h-12 text-lg bg-white text-primary hover:bg-white/90"
           size="lg"
         >

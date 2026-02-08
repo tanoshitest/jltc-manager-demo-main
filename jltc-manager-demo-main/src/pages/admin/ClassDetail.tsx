@@ -16,10 +16,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface AttendanceRecord {
-  status: "present" | "absent_excused" | "absent_unexcused";
-  reason?: string;
-}
+import { classData, generateCourseDates, generateAttendanceData, AttendanceRecord } from "@/utils/mockData";
 
 interface StudentGrade {
   scores: Record<string, number>;
@@ -32,179 +29,7 @@ const ClassDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Demo data for classes
-  const classData: Record<string, {
-    id: string;
-    name: string;
-    level: string;
-    room: string;
-    course: string;
-    teacher: string;
-    studentCount: number;
-    startDate: string;
-    endDate: string;
-    schedule: string;
-    progress: string;
-    studentList: Array<{ id: string; name: string; avatar: string }>;
-  }> = {
-    "N5-01": {
-      id: "N5-01",
-      name: "Lớp N5-01",
-      level: "N5",
-      room: "201",
-      course: "K46",
-      teacher: "Yamada",
-      studentCount: 15,
-      startDate: "2024-01-15",
-      endDate: "2024-06-15",
-      schedule: "T2, T4, T6 - Tiết 1",
-      progress: "Bài 15/25",
-      studentList: [
-        { id: "HV001", name: "Nguyễn Văn A", avatar: "https://i.pravatar.cc/150?img=1" },
-        { id: "HV002", name: "Trần Thị B", avatar: "https://i.pravatar.cc/150?img=2" },
-        { id: "HV003", name: "Lê Văn C", avatar: "https://i.pravatar.cc/150?img=3" },
-        { id: "HV004", name: "Phạm Thị D", avatar: "https://i.pravatar.cc/150?img=4" },
-        { id: "HV005", name: "Hoàng Văn E", avatar: "https://i.pravatar.cc/150?img=5" },
-      ]
-    },
-    "N5-02": {
-      id: "N5-02",
-      name: "Lớp N5-02",
-      level: "N5",
-      room: "202",
-      course: "K46",
-      teacher: "Sato",
-      studentCount: 16,
-      startDate: "2024-01-15",
-      endDate: "2024-06-15",
-      schedule: "T2, T4, T6 - Tiết 2",
-      progress: "Bài 12/25",
-      studentList: [
-        { id: "HV006", name: "Đặng Văn F", avatar: "https://i.pravatar.cc/150?img=6" },
-        { id: "HV007", name: "Vũ Thị G", avatar: "https://i.pravatar.cc/150?img=7" },
-        { id: "HV008", name: "Bùi Văn H", avatar: "https://i.pravatar.cc/150?img=8" },
-      ]
-    },
-    "N4-01": {
-      id: "N4-01",
-      name: "Lớp N4-01",
-      level: "N4",
-      room: "203",
-      course: "K45",
-      teacher: "Watanabe",
-      studentCount: 14,
-      startDate: "2024-02-01",
-      endDate: "2024-07-01",
-      schedule: "T3, T5 - Tiết 4",
-      progress: "Bài 20/30",
-      studentList: [
-        { id: "HV009", name: "Ngô Văn I", avatar: "https://i.pravatar.cc/150?img=9" },
-        { id: "HV010", name: "Dương Thị K", avatar: "https://i.pravatar.cc/150?img=10" },
-      ]
-    },
-    "N4-02": {
-      id: "N4-02",
-      name: "Lớp N4-02",
-      level: "N4",
-      room: "204",
-      course: "K45",
-      teacher: "Tanaka",
-      studentCount: 18,
-      startDate: "2024-01-20",
-      endDate: "2024-06-20",
-      schedule: "T2, T4 - Tiết 3",
-      progress: "Bài 18/30",
-      studentList: [
-        { id: "HV011", name: "Trương Văn K", avatar: "https://i.pravatar.cc/150?img=11" },
-        { id: "HV012", name: "Mai Thị L", avatar: "https://i.pravatar.cc/150?img=12" },
-      ]
-    },
-    "N3-01": {
-      id: "N3-01",
-      name: "Lớp N3-01",
-      level: "N3",
-      room: "301",
-      course: "K44",
-      teacher: "Suzuki",
-      studentCount: 12,
-      startDate: "2024-01-10",
-      endDate: "2024-06-10",
-      schedule: "T2, T4, T6 - Tiết 6",
-      progress: "Bài 18/35",
-      studentList: [
-        { id: "HV013", name: "Lý Văn M", avatar: "https://i.pravatar.cc/150?img=13" },
-        { id: "HV014", name: "Hồ Thị N", avatar: "https://i.pravatar.cc/150?img=14" },
-      ]
-    },
-    "N3-02": {
-      id: "N3-02",
-      name: "Lớp N3-02",
-      level: "N3",
-      room: "302",
-      course: "K44",
-      teacher: "Nakamura",
-      studentCount: 13,
-      startDate: "2024-02-15",
-      endDate: "2024-07-15",
-      schedule: "T3, T5 - Tiết 5",
-      progress: "Bài 15/35",
-      studentList: [
-        { id: "HV015", name: "Cao Văn O", avatar: "https://i.pravatar.cc/150?img=15" },
-        { id: "HV016", name: "Đinh Thị P", avatar: "https://i.pravatar.cc/150?img=16" },
-      ]
-    },
-    "N2-01": {
-      id: "N2-01",
-      name: "Lớp N2-01",
-      level: "N2",
-      room: "401",
-      course: "K43",
-      teacher: "Ito",
-      studentCount: 10,
-      startDate: "2024-03-01",
-      endDate: "2024-08-01",
-      schedule: "T5 - Tiết 6",
-      progress: "Bài 10/40",
-      studentList: [
-        { id: "HV017", name: "Phan Văn Q", avatar: "https://i.pravatar.cc/150?img=17" },
-        { id: "HV018", name: "Võ Thị R", avatar: "https://i.pravatar.cc/150?img=18" },
-      ]
-    },
-    "N5-03": {
-      id: "N5-03",
-      name: "Lớp N5-03",
-      level: "N5",
-      room: "205",
-      course: "K47",
-      teacher: "Kobayashi",
-      studentCount: 14,
-      startDate: "2024-04-01",
-      endDate: "2024-09-01",
-      schedule: "T7 - Tiết 1,2",
-      progress: "Bài 0/25",
-      studentList: [
-        { id: "HV019", name: "Lương Văn S", avatar: "https://i.pravatar.cc/150?img=19" },
-        { id: "HV020", name: "Tạ Thị T", avatar: "https://i.pravatar.cc/150?img=20" },
-      ]
-    },
-    "N4-03": {
-      id: "N4-03",
-      name: "Lớp N4-03",
-      level: "N4",
-      room: "206",
-      course: "K43",
-      teacher: "Sasaki",
-      studentCount: 15,
-      startDate: "2023-06-01",
-      endDate: "2023-12-01",
-      schedule: "CN - Tiết 3,4",
-      progress: "Bài 30/30",
-      studentList: [
-        { id: "HV021", name: "Đỗ Văn U", avatar: "https://i.pravatar.cc/150?img=21" },
-        { id: "HV022", name: "Ngô Thị V", avatar: "https://i.pravatar.cc/150?img=22" },
-      ]
-    }
-  };
+
 
   const selectedClass = classData[id as string];
 
@@ -222,49 +47,9 @@ const ClassDetail = () => {
 
   const [testType, setTestType] = useState<string>("after_lesson");
 
-  // Generate dates for attendance table
-  const generateCourseDates = () => {
-    const dates = [];
-    const start = new Date(selectedClass.startDate);
-    const end = new Date(selectedClass.endDate);
-    const current = new Date(start);
+  const courseDates = generateCourseDates(selectedClass.startDate, selectedClass.endDate);
 
-    while (current <= end) {
-      const day = current.getDay();
-      if (day === 1 || day === 3 || day === 5) {
-        dates.push(new Date(current));
-      }
-      current.setDate(current.getDate() + 1);
-    }
-    return dates.slice(0, 36);
-  };
-
-  const courseDates = generateCourseDates();
-
-  // Demo attendance data
-  const generateAttendanceData = (): Record<string, Record<string, AttendanceRecord>> => {
-    const data: Record<string, Record<string, AttendanceRecord>> = {};
-    selectedClass.studentList.forEach(student => {
-      data[student.id] = {};
-      courseDates.forEach((date, idx) => {
-        const seed = student.id.charCodeAt(student.id.length - 1) + idx;
-        let status: AttendanceRecord["status"] = "present";
-        let reason: string | undefined;
-
-        if (seed % 10 === 0) {
-          status = "absent_unexcused";
-        } else if (seed % 8 === 0) {
-          status = "absent_excused";
-          reason = "Bệnh";
-        }
-
-        data[student.id][date.toISOString()] = { status, reason };
-      });
-    });
-    return data;
-  };
-
-  const attendanceData = generateAttendanceData();
+  const attendanceData = generateAttendanceData(selectedClass);
 
   // Demo grade data
   const generateGradeData = (): Record<string, StudentGrade> => {
@@ -325,14 +110,20 @@ const ClassDetail = () => {
   const gradeFields = getGradeFields();
   const grades = generateGradeData();
 
+  // Pagination for Attendance
+  const [page, setPage] = useState(0);
+  const ITEMS_PER_PAGE = 7;
+  const totalPages = Math.ceil(courseDates.length / ITEMS_PER_PAGE);
+  const visibleDates = courseDates.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE);
+
   const getAttendanceIcon = (record: AttendanceRecord) => {
     switch (record.status) {
       case "present":
-        return <Check className="h-4 w-4 text-success" />;
+        return <Check className="h-3 w-3 text-success" />;
       case "absent_excused":
-        return <span className="text-warning font-medium text-xs">P</span>;
+        return <span className="text-warning font-medium text-[10px]">P</span>;
       case "absent_unexcused":
-        return <X className="h-4 w-4 text-destructive" />;
+        return <X className="h-3 w-3 text-destructive" />;
     }
   };
 
@@ -345,6 +136,13 @@ const ClassDetail = () => {
       case "absent_unexcused":
         return "bg-destructive/10";
     }
+  };
+
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
   };
 
   return (
@@ -365,48 +163,128 @@ const ClassDetail = () => {
         </div>
 
         <div className="w-full">
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <CardTitle>Bảng điểm danh</CardTitle>
+                </div>
 
-          <div className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Bảng điểm danh</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="sticky left-0 bg-background z-10 min-w-[200px]">Học viên</TableHead>
-                        {courseDates.map((date, idx) => (
-                          <TableHead key={idx} className="text-center min-w-[100px]">
-                            {date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}
+                <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                  <div className="flex items-center gap-2 text-sm ml-auto sm:ml-0">
+                    <span className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-success/20 border border-success/50"></div>
+                      Có mặt
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-warning/20 border border-warning/50"></div>
+                      Có phép
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-destructive/20 border border-destructive/50"></div>
+                      Vắng
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1 border rounded-md p-1 ml-auto sm:ml-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      disabled={page === 0}
+                      onClick={() => setPage(p => Math.max(0, p - 1))}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-xs font-medium px-2 min-w-[60px] text-center">
+                      Tuần {page + 1}/{totalPages}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      disabled={page >= totalPages - 1}
+                      onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto border rounded-md max-w-[calc(100vw-40px)] lg:max-w-full">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="sticky left-0 top-0 z-30 bg-background min-w-[200px] w-[200px] border-r">
+                        Học viên
+                      </TableHead>
+                      <TableHead className="sticky left-[200px] top-0 z-30 bg-background min-w-[80px] w-[80px] text-center border-r">
+                        Số tiết
+                      </TableHead>
+                      <TableHead className="sticky left-[280px] top-0 z-30 bg-background min-w-[80px] w-[80px] text-center border-r shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                        % Có mặt
+                      </TableHead>
+                      {visibleDates.map((date, idx) => {
+                        const today = isToday(date);
+                        return (
+                          <TableHead key={idx} className={`text-center min-w-[60px] p-2 border-r last:border-r-0 ${today ? 'bg-primary/10' : ''}`}>
+                            <div className="flex flex-col items-center justify-center">
+                              <span className={`text-[10px] uppercase ${today ? 'font-bold text-primary' : 'font-normal text-muted-foreground'}`}>
+                                {date.toLocaleDateString("vi-VN", { weekday: 'short' })}
+                              </span>
+                              <span className={`text-xs ${today ? 'font-bold text-primary' : 'font-bold'}`}>
+                                {date.toLocaleDateString("vi-VN", { day: '2-digit', month: '2-digit' })}
+                              </span>
+                            </div>
                           </TableHead>
-                        ))}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {selectedClass.studentList.map((student) => (
-                        <TableRow key={student.id}>
-                          <TableCell className="sticky left-0 bg-background z-10">
+                        );
+                      })}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedClass.studentList.map((student) => {
+                      // Calculate Stats (Total, not just visible)
+                      let presentCount = 0;
+                      const totalSessions = courseDates.length;
+                      courseDates.forEach(date => {
+                        const record = attendanceData[student.id]?.[date.toISOString()];
+                        if (record?.status === 'present') presentCount++;
+                      });
+                      const attendancePercent = totalSessions > 0 ? Math.round((presentCount / totalSessions) * 100) : 0;
+
+                      return (
+                        <TableRow key={student.id} className="hover:bg-muted/50">
+                          <TableCell className="sticky left-0 z-20 bg-background py-3 border-r">
                             <div className="flex items-center gap-3">
-                              <Avatar className="h-8 w-8">
+                              <Avatar className="h-8 w-8 border">
                                 <AvatarImage src={student.avatar} />
                                 <AvatarFallback>{student.name[0]}</AvatarFallback>
                               </Avatar>
-                              <div>
-                                <p className="font-medium">{student.name}</p>
-                                <p className="text-sm text-muted-foreground">{student.id}</p>
+                              <div className="flex flex-col">
+                                <span className="font-medium text-sm">{student.name}</span>
+                                <span className="text-xs text-muted-foreground">{student.id}</span>
                               </div>
                             </div>
                           </TableCell>
-                          {courseDates.map((date, idx) => {
+                          <TableCell className="sticky left-[200px] z-20 bg-background text-center font-medium border-r">
+                            {presentCount}/{totalSessions}
+                          </TableCell>
+                          <TableCell className="sticky left-[280px] z-20 bg-background text-center border-r shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                            <Badge variant={attendancePercent < 80 ? "destructive" : "secondary"}>
+                              {attendancePercent}%
+                            </Badge>
+                          </TableCell>
+                          {visibleDates.map((date, idx) => {
                             const record = attendanceData[student.id]?.[date.toISOString()] || { status: "present" as const };
+                            const today = isToday(date);
                             return (
-                              <TableCell key={idx} className="text-center p-1">
+                              <TableCell key={idx} className={`text-center p-1 border-r last:border-r-0 ${today ? 'bg-primary/5' : ''}`}>
                                 {record.status === "absent_excused" && record.reason ? (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <div className={`w-10 h-10 flex items-center justify-center rounded mx-auto cursor-help ${getAttendanceBg(record)}`}>
+                                      <div className={`w-6 h-6 flex items-center justify-center rounded-md mx-auto cursor-help transition-colors ${getAttendanceBg(record)}`}>
                                         {getAttendanceIcon(record)}
                                       </div>
                                     </TooltipTrigger>
@@ -415,7 +293,7 @@ const ClassDetail = () => {
                                     </TooltipContent>
                                   </Tooltip>
                                 ) : (
-                                  <div className={`w-10 h-10 flex items-center justify-center rounded mx-auto ${getAttendanceBg(record)}`}>
+                                  <div className={`w-6 h-6 flex items-center justify-center rounded-md mx-auto transition-colors ${getAttendanceBg(record)}`}>
                                     {getAttendanceIcon(record)}
                                   </div>
                                 )}
@@ -423,15 +301,13 @@ const ClassDetail = () => {
                             );
                           })}
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </AdminLayout>

@@ -28,14 +28,14 @@ interface AdminLayoutProps {
 }
 
 const menuItems = [
-  { icon: BarChart3, label: "Dashboard", path: "/admin/dashboard" },
-  { icon: Users, label: "Học viên", path: "/admin/students" },
-  { icon: UserCog, label: "Giáo viên", path: "/admin/teachers" },
+
+  { icon: Users, label: "Quản lý học viên", path: "/admin/students" },
+  { icon: UserCog, label: "Quản lý giáo viên", path: "/admin/teachers" },
+  { icon: BookOpen, label: "Quản lý lớp", path: "/admin/classes" },
   { icon: Calendar, label: "Quản lý lịch dạy", path: "/admin/schedule" },
   { icon: Briefcase, label: "Quản lý công việc", path: "/admin/tasks" },
-  { icon: BookOpen, label: "Quản lý lớp", path: "/admin/classes" },
-  { icon: GraduationCap, label: "Thi thử JLPT", path: "/admin/exams" },
-  { icon: BarChart3, label: "Bảng điểm", path: "/admin/reports" },
+  { icon: GraduationCap, label: "Quản lý đề thi", path: "/admin/exams" },
+  { icon: BarChart3, label: "Báo Cáo", path: "/admin/reports" },
   { icon: Settings, label: "Cài đặt hệ thống", path: "/admin/settings" },
 ];
 
@@ -97,7 +97,7 @@ const Sidebar = ({ onLogout, isCollapsed, onToggle }: { onLogout: () => void, is
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigate = useNavigate();
-  const [isCollapsed, setIsCollapsed] = useState(true); // Auto-collapse sidebar by default
+  const [isCollapsed, setIsCollapsed] = useState(false); // Expanded sidebar by default
   const handleLogout = () => navigate("/");
 
   return (
@@ -127,8 +127,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden pt-14 lg:pt-0">
-        <div className="h-full overflow-hidden">
-          <div className="container mx-auto p-3 lg:p-4 h-full">{children}</div>
+        <div className="h-full overflow-y-auto">
+          <div className="container mx-auto p-3 lg:p-4 min-h-full">{children}</div>
         </div>
       </main>
     </div>
