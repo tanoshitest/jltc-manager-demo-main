@@ -33,6 +33,92 @@ const CURRENT_TEACHER_ID = "t1"; // Yamada
 
 // Mock Initial Tasks (Same as Admin for consistency, focusing on Yamada)
 const INITIAL_TASKS: Task[] = [
+    // January 2026 tasks
+    {
+        id: "TASK-001-JAN",
+        title: "Lập kế hoạch giảng dạy quý 1",
+        description: "Xây dựng kế hoạch giảng dạy chi tiết cho quý 1 năm 2026.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "high",
+        dueDate: "2026-01-15",
+        createdAt: "2026-01-01",
+        startDate: "2026-01-05",
+        progress: 100,
+    },
+    {
+        id: "TASK-002-JAN",
+        title: "Đánh giá học viên cuối năm 2025",
+        description: "Hoàn thiện báo cáo đánh giá kết quả học tập của học viên.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "high",
+        dueDate: "2026-01-10",
+        createdAt: "2025-12-28",
+        startDate: "2026-01-03",
+        progress: 100,
+    },
+    {
+        id: "TASK-003-JAN",
+        title: "Tổ chức lớp học thử miễn phí",
+        description: "Chuẩn bị và tổ chức buổi học thử cho học viên mới.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "medium",
+        dueDate: "2026-01-20",
+        createdAt: "2026-01-08",
+        startDate: "2026-01-12",
+        progress: 100,
+    },
+    {
+        id: "TASK-004-JAN",
+        title: "Cập nhật tài liệu N4 mới",
+        description: "Chỉnh sửa và bổ sung tài liệu giảng dạy N4 theo đề thi mới.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "in_progress",
+        priority: "medium",
+        dueDate: "2026-01-25",
+        createdAt: "2026-01-10",
+        startDate: "2026-01-15",
+        progress: 60,
+    },
+    {
+        id: "TASK-005-JAN",
+        title: "Họp phụ huynh đầu năm",
+        description: "Tổ chức buổi họp phụ huynh giới thiệu chương trình năm mới.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "high",
+        dueDate: "2026-01-18",
+        createdAt: "2026-01-05",
+        startDate: "2026-01-10",
+        progress: 100,
+    },
+    {
+        id: "TASK-006-JAN",
+        title: "Soạn đề kiểm tra đầu vào",
+        description: "Chuẩn bị bộ đề kiểm tra đầu vào cho học viên mới.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "pending",
+        priority: "medium",
+        dueDate: "2026-01-28",
+        createdAt: "2026-01-18",
+        startDate: "2026-01-22",
+        progress: 0,
+    },
+    // February 2026 tasks
     {
         id: "TASK-001",
         title: "Soạn test tổng nghe (5 bài/lần)",
@@ -173,10 +259,330 @@ const INITIAL_TASKS: Task[] = [
         startDate: "2026-02-12",
         progress: 0,
     },
+    {
+        id: "TASK-011",
+        title: "Soạn bài giảng tháng 3",
+        description: "Chuẩn bị nội dung bài giảng cho tháng tới.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "not_started",
+        priority: "low",
+        dueDate: "2026-02-28",
+        createdAt: "2026-02-05",
+        startDate: "2026-02-25",
+        progress: 0,
+    },
+    {
+        id: "TASK-012",
+        title: "Tổ chức thi thử JLPT N3",
+        description: "Chuẩn bị đề thi và tổ chức kỳ thi thử cho học viên.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "pending",
+        priority: "high",
+        dueDate: "2026-03-15",
+        createdAt: "2026-02-10",
+        startDate: "2026-02-20",
+        progress: 0,
+    },
+    {
+        id: "TASK-013",
+        title: "Họp phụ huynh tháng 3",
+        description: "Tổng kết tiến độ học tập và báo cáo kết quả.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "in_progress",
+        priority: "medium",
+        dueDate: "2026-03-20",
+        createdAt: "2026-02-15",
+        startDate: "2026-02-28",
+        progress: 30,
+    },
+    {
+        id: "TASK-014",
+        title: "Cập nhật giáo trình mới",
+        description: "Nghiên cứu và cập nhật tài liệu giảng dạy theo chương trình mới.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "not_started",
+        priority: "low",
+        dueDate: "2026-03-31",
+        createdAt: "2026-02-20",
+        startDate: "2026-02-26",
+        progress: 0,
+    },
+    {
+        id: "TASK-015",
+        title: "Chấm bài kiểm tra giữa kỳ",
+        description: "Chấm và nhập điểm bài kiểm tra giữa kỳ vào hệ thống.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "pending",
+        priority: "high",
+        dueDate: "2026-03-10",
+        createdAt: "2026-03-01",
+        startDate: "2026-03-05",
+        progress: 0,
+    },
+    {
+        id: "TASK-016",
+        title: "Tổ chức hoạt động ngoại khóa",
+        description: "Chuẩn bị và tổ chức chuyến tham quan văn hóa Nhật Bản.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "in_progress",
+        priority: "medium",
+        dueDate: "2026-03-25",
+        createdAt: "2026-03-03",
+        startDate: "2026-03-12",
+        progress: 20,
+    },
+    // April 2026 tasks
+    {
+        id: "TASK-017",
+        title: "Chuẩn bị thi thử JLPT tháng 4",
+        description: "Tổ chức kỳ thi thử JLPT cho học viên chuẩn bị thi chính thức.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "pending",
+        priority: "high",
+        dueDate: "2026-04-18",
+        createdAt: "2026-04-01",
+        startDate: "2026-04-10",
+        progress: 0,
+    },
+    {
+        id: "TASK-018",
+        title: "Đánh giá tiến độ quý 1",
+        description: "Tổng hợp và đánh giá kết quả học tập quý 1.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "in_progress",
+        priority: "medium",
+        dueDate: "2026-04-25",
+        createdAt: "2026-04-05",
+        startDate: "2026-04-12",
+        progress: 35,
+    },
+    // May 2026 tasks
+    {
+        id: "TASK-019",
+        title: "Soạn giáo án tháng 5",
+        description: "Chuẩn bị giáo án chi tiết cho các lớp tháng 5.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "not_started",
+        priority: "medium",
+        dueDate: "2026-05-20",
+        createdAt: "2026-05-01",
+        startDate: "2026-05-08",
+        progress: 0,
+    },
+    {
+        id: "TASK-020",
+        title: "Tổ chức văn hóa tuần lễ Nhật Bản",
+        description: "Chuẩn bị và tổ chức các hoạt động văn hóa Nhật Bản.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "pending",
+        priority: "high",
+        dueDate: "2026-05-15",
+        createdAt: "2026-05-02",
+        startDate: "2026-05-05",
+        progress: 0,
+    },
+    // June 2026 tasks
+    {
+        id: "TASK-021",
+        title: "Ôn tập cuối kỳ",
+        description: "Tổ chức các buổi ôn tập tổng hợp cho kỳ thi cuối kỳ.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "pending",
+        priority: "high",
+        dueDate: "2026-06-22",
+        createdAt: "2026-06-05",
+        startDate: "2026-06-10",
+        progress: 0,
+    },
+    {
+        id: "TASK-022",
+        title: "Chấm bài thi cuối kỳ",
+        description: "Chấm và nhập điểm bài thi cuối kỳ vào hệ thống.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "not_started",
+        priority: "high",
+        dueDate: "2026-06-28",
+        createdAt: "2026-06-20",
+        startDate: "2026-06-24",
+        progress: 0,
+    },
+    // July 2026 tasks
+    {
+        id: "TASK-023",
+        title: "Lập kế hoạch hè",
+        description: "Xây dựng chương trình học hè cho học viên.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "pending",
+        priority: "medium",
+        dueDate: "2026-07-15",
+        createdAt: "2026-07-01",
+        startDate: "2026-07-05",
+        progress: 0,
+    },
+    {
+        id: "TASK-024",
+        title: "Báo cáo kết quả học kỳ 1",
+        description: "Hoàn thiện báo cáo tổng hợp kết quả học kỳ 1.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "in_progress",
+        priority: "high",
+        dueDate: "2026-07-20",
+        createdAt: "2026-07-08",
+        startDate: "2026-07-10",
+        progress: 25,
+    },
+];
+
+// Previous months tasks (Sep - Dec 2025)
+const PAST_TASKS: Task[] = [
+    // September 2025
+    {
+        id: "TASK-SEP-01",
+        title: "Khai giảng năm học mới",
+        description: "Tổ chức lễ khai giảng và định hướng năm học mới.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "high",
+        dueDate: "2025-09-10",
+        createdAt: "2025-09-01",
+        startDate: "2025-09-05",
+        progress: 100,
+    },
+    {
+        id: "TASK-SEP-02",
+        title: "Xếp lớp học viên mới",
+        description: "Tổ chức thi và xếp lớp cho học viên mới đăng ký.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "high",
+        dueDate: "2025-09-15",
+        createdAt: "2025-09-01",
+        startDate: "2025-09-08",
+        progress: 100,
+    },
+    // October 2025
+    {
+        id: "TASK-OCT-01",
+        title: "Kiểm tra giữa kỳ tháng 10",
+        description: "Tổ chức kiểm tra giữa kỳ cho tất cả các lớp.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "high",
+        dueDate: "2025-10-20",
+        createdAt: "2025-10-05",
+        startDate: "2025-10-15",
+        progress: 100,
+    },
+    {
+        id: "TASK-OCT-02",
+        title: "Cập nhật giáo trình N3",
+        description: "Chỉnh sửa và cập nhật tài liệu giảng dạy N3.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "medium",
+        dueDate: "2025-10-28",
+        createdAt: "2025-10-10",
+        startDate: "2025-10-18",
+        progress: 100,
+    },
+    // November 2025
+    {
+        id: "TASK-NOV-01",
+        title: "Chuẩn bị thi thử JLPT tháng 11",
+        description: "Tổ chức kỳ thi thử JLPT trước kỳ thi chính thức.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "high",
+        dueDate: "2025-11-15",
+        createdAt: "2025-11-01",
+        startDate: "2025-11-08",
+        progress: 100,
+    },
+    {
+        id: "TASK-NOV-02",
+        title: "Tư vấn đăng ký thi JLPT",
+        description: "Hướng dẫn học viên đăng ký thi JLPT chính thức.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "medium",
+        dueDate: "2025-11-25",
+        createdAt: "2025-11-10",
+        startDate: "2025-11-18",
+        progress: 100,
+    },
+    // December 2025
+    {
+        id: "TASK-DEC-01",
+        title: "Tổng kết năm 2025",
+        description: "Tổng kết và đánh giá kết quả công việc năm 2025.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "high",
+        dueDate: "2025-12-20",
+        createdAt: "2025-12-01",
+        startDate: "2025-12-10",
+        progress: 100,
+    },
+    {
+        id: "TASK-DEC-02",
+        title: "Tổ chức học kỳ nghỉ đông",
+        description: "Chuẩn bị lịch học và tài liệu cho lớp học kỳ nghỉ đông.",
+        assigneeId: "t1",
+        assigneeName: "Thầy Quỳnh",
+        assignerId: "admin1",
+        status: "completed",
+        priority: "medium",
+        dueDate: "2025-12-28",
+        createdAt: "2025-12-05",
+        startDate: "2025-12-15",
+        progress: 100,
+    },
 ];
 
 const TeacherTaskBoard = () => {
-    const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
+    const [tasks, setTasks] = useState<Task[]>([...PAST_TASKS, ...INITIAL_TASKS]);
     const [viewMode, setViewMode] = useState<"board" | "gantt">("board");
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [isReportOpen, setIsReportOpen] = useState(false);
@@ -356,73 +762,50 @@ const TeacherTaskBoard = () => {
                     </div>
 
                     {viewMode === "board" ? (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {/* Column 1: Todo */}
-                            <div className="bg-muted/30 p-4 rounded-lg border">
-                                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-yellow-400" />
-                                    Chờ thực hiện
-                                    <Badge variant="secondary" className="ml-auto">{pendingTasks.length}</Badge>
-                                </h3>
-                                <div className="space-y-3">
-                                    {pendingTasks.map(task => <TaskCard key={task.id} task={task} />)}
-                                    {pendingTasks.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Không có công việc chờ</p>}
+                        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {/* Column 1: Todo */}
+                                <div className="bg-muted/30 p-4 rounded-lg border">
+                                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                                        Chờ thực hiện
+                                        <Badge variant="secondary" className="ml-auto">{pendingTasks.length}</Badge>
+                                    </h3>
+                                    <div className="space-y-3">
+                                        {pendingTasks.map(task => <TaskCard key={task.id} task={task} />)}
+                                        {pendingTasks.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Không có công việc chờ</p>}
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Column 2: In Progress */}
-                            <div className="bg-muted/30 p-4 rounded-lg border">
-                                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-blue-500" />
-                                    Đang thực hiện
-                                    <Badge variant="secondary" className="ml-auto">{inProgressTasks.length}</Badge>
-                                </h3>
-                                <div className="space-y-3">
-                                    {inProgressTasks.map(task => <TaskCard key={task.id} task={task} />)}
-                                    {inProgressTasks.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Chưa có công việc đang làm</p>}
+                                {/* Column 2: In Progress */}
+                                <div className="bg-muted/30 p-4 rounded-lg border">
+                                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                        Đang thực hiện
+                                        <Badge variant="secondary" className="ml-auto">{inProgressTasks.length}</Badge>
+                                    </h3>
+                                    <div className="space-y-3">
+                                        {inProgressTasks.map(task => <TaskCard key={task.id} task={task} />)}
+                                        {inProgressTasks.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Chưa có công việc đang làm</p>}
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Column 3: Done */}
-                            <div className="bg-muted/30 p-4 rounded-lg border">
-                                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-green-500" />
-                                    Đã hoàn thành
-                                    <Badge variant="secondary" className="ml-auto">{completedTasks.length}</Badge>
-                                </h3>
-                                <div className="space-y-3">
-                                    {completedTasks.map(task => <TaskCard key={task.id} task={task} />)}
-                                    {completedTasks.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Chưa hoàn thành công việc nào</p>}
+                                {/* Column 3: Done */}
+                                <div className="bg-muted/30 p-4 rounded-lg border">
+                                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                                        Đã hoàn thành
+                                        <Badge variant="secondary" className="ml-auto">{completedTasks.length}</Badge>
+                                    </h3>
+                                    <div className="space-y-3">
+                                        {completedTasks.map(task => <TaskCard key={task.id} task={task} />)}
+                                        {completedTasks.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Chưa hoàn thành công việc nào</p>}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     ) : (
                         <div className="bg-card rounded-lg border p-4">
-                            <div className="mb-4 flex items-center justify-between">
-                                <h3 className="font-semibold">Tiến độ công việc</h3>
-                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="w-3 h-3 bg-red-100 border border-red-300 rounded" />
-                                        <span>Đã trễ</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="w-3 h-3 bg-blue-100 border border-blue-300 rounded" />
-                                        <span>Đang thực hiện</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="w-3 h-3 bg-green-100 border border-green-300 rounded" />
-                                        <span>Đã hoàn thành</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="w-3 h-3 bg-yellow-100 border border-yellow-300 rounded" />
-                                        <span>Chờ thực hiện</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <div className="w-3 h-3 bg-gray-100 border border-gray-300 rounded" />
-                                        <span>Chưa tới ngày</span>
-                                    </div>
-                                </div>
-                            </div>
                             <TaskGanttChart
                                 tasks={filteredTasks}
                                 startDate={startOfMonth(currentMonth)}
@@ -458,7 +841,7 @@ const TeacherTaskBoard = () => {
 
                 </div>
             </DebugErrorBoundary>
-        </TeacherLayout>
+        </TeacherLayout >
     );
 };
 

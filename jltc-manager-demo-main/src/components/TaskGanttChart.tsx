@@ -31,10 +31,16 @@ const TaskGanttChart = ({ tasks, startDate, endDate }: TaskGanttChartProps) => {
         // Duration is inclusive (end - start + 1)
         let durationDays = differenceInCalendarDays(taskEnd, taskStart) + 1;
 
-        // Clamp to view (optional, but good for rendering)
+        // Clamp to view - don't let tasks extend beyond view boundaries
         if (offsetDays < 0) {
             durationDays += offsetDays;
             offsetDays = 0;
+        }
+
+        // Clamp end to view end (NEW: prevent overflow to the right)
+        const maxDays = days.length - offsetDays;
+        if (durationDays > maxDays) {
+            durationDays = maxDays;
         }
 
         // Calculate progress based on today
@@ -53,8 +59,8 @@ const TaskGanttChart = ({ tasks, startDate, endDate }: TaskGanttChartProps) => {
         }
 
         return {
-            left: `${offsetDays * 30}px`, // 30px per day
-            width: `${Math.max(durationDays * 30, 30)}px`,
+            left: `${offsetDays * 36}px`, // 36px per day
+            width: `${Math.max(durationDays * 36, 36)}px`,
             progress: calculatedProgress
         };
     };
@@ -71,8 +77,14 @@ const TaskGanttChart = ({ tasks, startDate, endDate }: TaskGanttChartProps) => {
     };
 
     return (
-        <div className="border rounded-md bg-white shadow-sm overflow-auto h-[500px] relative">
-            <div className="min-w-max">
+        <div
+            className="border rounded-md bg-white shadow-sm overflow-y-auto overflow-x-hidden h-[500px] relative"
+            style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#cbd5e1 #f1f5f9'
+            }}
+        >
+            <div>
                 {/* Header - Dates */}
                 <div className="flex border-b bg-muted/95 z-30 sticky top-0">
                     <div className="w-[180px] min-w-[180px] p-3 font-semibold border-r border-b bg-muted/95 sticky left-0 z-40 shadow-[1px_0_5px_rgba(0,0,0,0.05)] text-sm">
@@ -85,7 +97,7 @@ const TaskGanttChart = ({ tasks, startDate, endDate }: TaskGanttChartProps) => {
                                 <div
                                     key={idx}
                                     className={cn(
-                                        "w-[30px] min-w-[30px] p-1 text-center text-xs border-r border-border/50 flex flex-col justify-center",
+                                        "w-[36px] min-w-[36px] p-1 text-center text-xs border-r border-border/50 flex flex-col justify-center",
                                         isToday ? "bg-blue-100 text-blue-700 font-bold border-blue-200" : ""
                                     )}
                                 >
@@ -97,6 +109,35 @@ const TaskGanttChart = ({ tasks, startDate, endDate }: TaskGanttChartProps) => {
                     </div>
                 </div>
 
+                {/* Legend Row */}
+                <div className="flex border-b bg-white z-20 sticky" style={{ top: '48px' }}>
+                    <div className="w-[180px] min-w-[180px] px-3 py-2 border-r bg-white sticky left-0 z-30 shadow-[1px_0_5px_rgba(0,0,0,0.05)]">
+                        <h3 className="font-semibold text-sm">Tiến độ công việc</h3>
+                    </div>
+                    <div className="flex items-center gap-4 px-4 py-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 bg-red-100 border border-red-300 rounded" />
+                            <span>Đã trễ</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 bg-blue-100 border border-blue-300 rounded" />
+                            <span>Đang thực hiện</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 bg-green-100 border border-green-300 rounded" />
+                            <span>Đã hoàn thành</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 bg-yellow-100 border border-yellow-300 rounded" />
+                            <span>Chờ thực hiện</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 bg-gray-100 border border-gray-300 rounded" />
+                            <span>Chưa tới ngày</span>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Body - Tasks relative container */}
                 <div className="relative">
                     {/* Background Grid - Absolute overlay */}
@@ -105,7 +146,7 @@ const TaskGanttChart = ({ tasks, startDate, endDate }: TaskGanttChartProps) => {
                             <div
                                 key={idx}
                                 className={cn(
-                                    "w-[30px] min-w-[30px] border-r border-border/60 h-full",
+                                    "w-[36px] min-w-[36px] border-r border-border/60 h-full",
                                     isSameDay(day, today) ? "bg-blue-50/50 border-x border-blue-200" : ""
                                 )}
                             />
@@ -126,20 +167,20 @@ const TaskGanttChart = ({ tasks, startDate, endDate }: TaskGanttChartProps) => {
                             return (
                                 <div key={task.id} className="flex border-b hover:bg-slate-50/80 group w-max">
                                     {/* Task Info Column - Sticky Left */}
-                                    <div className="w-[180px] min-w-[180px] p-3 border-r bg-white sticky left-0 z-20 flex flex-col justify-center shadow-[1px_0_5px_rgba(0,0,0,0.05)] group-hover:bg-slate-50/80 transition-colors">
+                                    <div className="w-[180px] min-w-[180px] px-3 py-2 border-r bg-white sticky left-0 z-20 flex flex-col justify-center shadow-[1px_0_5px_rgba(0,0,0,0.05)] group-hover:bg-slate-50/80 transition-colors">
                                         <div className="font-medium text-xs truncate" title={task.title}>{task.title}</div>
                                     </div>
 
                                     {/* Timeline Bar Space */}
-                                    <div className="flex relative h-12 pointer-events-none"> {/* Reduced height */}
+                                    <div className="flex relative h-9 pointer-events-none"> {/* Reduced height */}
                                         {/* Spacer to match grid width */}
-                                        <div style={{ width: `${days.length * 30}px` }} className="h-full relative pointer-events-auto">
+                                        <div style={{ width: `${days.length * 36}px` }} className="h-full relative pointer-events-auto">
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
                                                         <div
                                                             className={cn(
-                                                                "absolute top-3 h-6 rounded-sm shadow-sm border px-1 flex items-center overflow-hidden cursor-pointer hover:brightness-95 transition-all z-10",
+                                                                "absolute top-2 h-5 rounded-sm shadow-sm border px-1 flex items-center overflow-hidden cursor-pointer hover:brightness-95 transition-all z-10",
                                                                 isOverdue ? "bg-red-100 border-red-300" :
                                                                     task.status === "completed" || task.status === "verified" ? "bg-green-100 border-green-300" :
                                                                         task.status === "in_progress" ? "bg-blue-100 border-blue-300" :

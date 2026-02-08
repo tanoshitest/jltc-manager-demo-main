@@ -237,9 +237,9 @@ const Dashboard = () => {
         </div>
 
         {/* Student Stats */}
-        <div className="space-y-3">
-          <h2 className="text-base font-semibold mb-1.5 text-foreground">Thống kê học viên</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold mb-1 text-foreground">Thống kê học viên</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-1.5">
             <StatsCard
               title="Tổng số học viên"
               value={235}
@@ -286,9 +286,9 @@ const Dashboard = () => {
         </div>
 
         {/* Teacher Stats */}
-        <div>
-          <h2 className="text-base font-semibold mb-1.5 text-foreground">Thống kê giáo viên</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold mb-1 text-foreground">Thống kê giáo viên</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-1.5">
             <StatsCard
               title="Tổng giáo viên"
               value={allTeachers.length}
@@ -316,9 +316,9 @@ const Dashboard = () => {
         </div>
 
         {/* Class Stats */}
-        <div>
-          <h2 className="text-base font-semibold mb-1.5 text-foreground">Thống kê lớp học</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold mb-1 text-foreground">Thống kê lớp học</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-1.5">
             <StatsCard
               title="Tổng số lớp"
               value={18}

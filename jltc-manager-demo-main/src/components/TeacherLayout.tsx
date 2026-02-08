@@ -94,7 +94,7 @@ const Sidebar = ({ onLogout, collapsed, toggleCollapse }: { onLogout: () => void
 
 const TeacherLayout = ({ children }: TeacherLayoutProps) => {
   const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true); // Auto-collapse sidebar by default
   const handleLogout = () => navigate("/");
 
   return (
@@ -124,7 +124,7 @@ const TeacherLayout = ({ children }: TeacherLayoutProps) => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden pt-14 lg:pt-0">
-        <div className="h-full overflow-y-auto">
+        <div className="h-full">
           <div className="container mx-auto p-3 lg:p-4">{children}</div>
         </div>
       </main>

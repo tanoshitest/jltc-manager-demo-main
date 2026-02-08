@@ -35,6 +35,59 @@ import * as z from "zod";
 import { toast } from "@/hooks/use-toast";
 import ExcelScheduleTable from "@/components/admin/ExcelScheduleTable";
 import OverviewScheduleTable from "@/components/admin/OverviewScheduleTable";
+import TaskGanttChart from "@/components/TaskGanttChart";
+import { Task, TaskStatus, TaskPriority } from "@/types/task";
+import { format, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
+import { vi } from "date-fns/locale";
+import { BarChart2 } from "lucide-react";
+
+// Demo task data for 7 teachers
+const TEACHER_TASKS: Task[] = [
+  // Hường's tasks
+  { id: "T1-001", title: "Soạn giáo án N4", description: "Chuẩn bị giáo án chi tiết lớp N4.", assigneeId: "huong", assigneeName: "Hường", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2026-01-20", createdAt: "2026-01-05", startDate: "2026-01-08", progress: 100 },
+  { id: "T1-002", title: "Chấm bài kiểm tra giữa kỳ", description: "Chấm và nhập điểm vào hệ thống.", assigneeId: "huong", assigneeName: "Hường", assignerId: "admin1", status: "in_progress", priority: "high", dueDate: "2026-02-18", createdAt: "2026-02-05", startDate: "2026-02-10", progress: 60 },
+  { id: "T1-003", title: "Họp phụ huynh tháng 3", description: "Tổ chức buổi họp báo cáo tiến độ.", assigneeId: "huong", assigneeName: "Hường", assignerId: "admin1", status: "pending", priority: "medium", dueDate: "2026-03-25", createdAt: "2026-03-01", startDate: "2026-03-15", progress: 0 },
+  { id: "T1-004", title: "Cập nhật tài liệu tháng 4", description: "Bổ sung tài liệu mới theo chương trình.", assigneeId: "huong", assigneeName: "Hường", assignerId: "admin1", status: "not_started", priority: "low", dueDate: "2026-04-20", createdAt: "2026-04-05", startDate: "2026-04-10", progress: 0 },
+
+  // Khôi's tasks
+  { id: "T2-001", title: "Tổ chức thi thử N3", description: "Chuẩn bị đề thi và giám thi.", assigneeId: "khoi", assigneeName: "Khôi", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-12-15", createdAt: "2025-12-01", startDate: "2025-12-08", progress: 100 },
+  { id: "T2-002", title: "Đánh giá học viên cuối kỳ", description: "Tổng hợp kết quả học tập của học viên.", assigneeId: "khoi", assigneeName: "Khôi", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2026-01-25", createdAt: "2026-01-10", startDate: "2026-01-15", progress: 100 },
+  { id: "T2-003", title: "Soạn test tổng hợp", description: "Chuẩn bị bài test tổng hợp kỹ năng.", assigneeId: "khoi", assigneeName: "Khôi", assignerId: "admin1", status: "in_progress", priority: "medium", dueDate: "2026-02-28", createdAt: "2026-02-10", startDate: "2026-02-15", progress: 45 },
+  { id: "T2-004", title: "Quay video bài giảng", description: "Quay và dựng video cho khóa học online.", assigneeId: "khoi", assigneeName: "Khôi", assignerId: "admin1", status: "pending", priority: "medium", dueDate: "2026-03-30", createdAt: "2026-03-05", startDate: "2026-03-12", progress: 0 },
+  { id: "T2-005", title: "Tổ chức workshop văn hóa", description: "Chuẩn bị workshop về văn hóa Nhật Bản.", assigneeId: "khoi", assigneeName: "Khôi", assignerId: "admin1", status: "not_started", priority: "low", dueDate: "2026-05-15", createdAt: "2026-05-01", startDate: "2026-05-05", progress: 0 },
+
+  // Linh's tasks
+  { id: "T3-001", title: "Lập kế hoạch giảng dạy", description: "Xây dựng kế hoạch cho quý mới.", assigneeId: "linh", assigneeName: "Linh", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-09-20", createdAt: "2025-09-05", startDate: "2025-09-10", progress: 100 },
+  { id: "T3-002", title: "Cập nhật giáo trình N5", description: "Chỉnh sửa tài liệu theo phản hồi.", assigneeId: "linh", assigneeName: "Linh", assignerId: "admin1", status: "completed", priority: "medium", dueDate: "2025-11-30", createdAt: "2025-11-10", startDate: "2025-11-15", progress: 100 },
+  { id: "T3-003", title: "Tổ chức lớp học thử", description: "Chuẩn bị buổi học thử cho học viên mới.", assigneeId: "linh", assigneeName: "Linh", assignerId: "admin1", status: "in_progress", priority: "high", dueDate: "2026-02-25", createdAt: "2026-02-08", startDate: "2026-02-12", progress: 70 },
+  { id: "T3-004", title: "Đánh giá tiến độ tháng 4", description: "Báo cáo kết quả học tập của học viên.", assigneeId: "linh", assigneeName: "Linh", assignerId: "admin1", status: "pending", priority: "medium", dueDate: "2026-04-28", createdAt: "2026-04-10", startDate: "2026-04-18", progress: 0 },
+
+  // Mẫn's tasks
+  { id: "T4-001", title: "Soạn đề kiểm tra đầu vào", description: "Chuẩn bị bộ đề cho học viên mới.", assigneeId: "man", assigneeName: "Mẫn", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-10-25", createdAt: "2025-10-10", startDate: "2025-10-15", progress: 100 },
+  { id: "T4-002", title: "Xếp lớp học viên mới", description: "Phân lớp theo kết quả test đầu vào.", assigneeId: "man", assigneeName: "Mẫn", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2026-01-15", createdAt: "2026-01-05", startDate: "2026-01-08", progress: 100 },
+  { id: "T4-003", title: "Chuẩn bị tài liệu ôn thi", description: "Tổng hợp tài liệu ôn tập JLPT.", assigneeId: "man", assigneeName: "Mẫn", assignerId: "admin1", status: "in_progress", priority: "medium", dueDate: "2026-03-20", createdAt: "2026-02-20", startDate: "2026-02-25", progress: 30 },
+  { id: "T4-004", title: "Tổ chức thi thử tháng 6", description: "Chuẩn bị kỳ thi thử giữa năm.", assigneeId: "man", assigneeName: "Mẫn", assignerId: "admin1", status: "pending", priority: "high", dueDate: "2026-06-20", createdAt: "2026-06-05", startDate: "2026-06-10", progress: 0 },
+
+  // Mai's tasks
+  { id: "T5-001", title: "Hướng dẫn đăng ký thi JLPT", description: "Hỗ trợ học viên đăng ký thi chính thức.", assigneeId: "mai", assigneeName: "Mai", assignerId: "admin1", status: "completed", priority: "medium", dueDate: "2025-11-20", createdAt: "2025-11-05", startDate: "2025-11-10", progress: 100 },
+  { id: "T5-002", title: "Tổng kết năm 2025", description: "Báo cáo kết quả giảng dạy năm 2025.", assigneeId: "mai", assigneeName: "Mai", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-12-28", createdAt: "2025-12-10", startDate: "2025-12-15", progress: 100 },
+  { id: "T5-003", title: "Cập nhật danh sách lớp", description: "Điều chỉnh danh sách sau kỳ thi.", assigneeId: "mai", assigneeName: "Mai", assignerId: "admin1", status: "in_progress", priority: "low", dueDate: "2026-02-20", createdAt: "2026-02-05", startDate: "2026-02-10", progress: 80 },
+  { id: "T5-004", title: "Soạn bài giảng tháng 5", description: "Chuẩn bị nội dung bài giảng.", assigneeId: "mai", assigneeName: "Mai", assignerId: "admin1", status: "not_started", priority: "medium", dueDate: "2026-05-25", createdAt: "2026-05-10", startDate: "2026-05-15", progress: 0 },
+
+  // Hùng's tasks
+  { id: "T6-001", title: "Kiểm tra giữa kỳ tháng 10", description: "Tổ chức kiểm tra cho tất cả lớp.", assigneeId: "hung", assigneeName: "Hùng", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-10-20", createdAt: "2025-10-05", startDate: "2025-10-12", progress: 100 },
+  { id: "T6-002", title: "Cập nhật file điểm danh", description: "Nhập dữ liệu điểm danh vào hệ thống.", assigneeId: "hung", assigneeName: "Hùng", assignerId: "admin1", status: "completed", priority: "low", dueDate: "2026-01-30", createdAt: "2026-01-20", startDate: "2026-01-22", progress: 100 },
+  { id: "T6-003", title: "Soạn đề cương ôn tập", description: "Tổng hợp kiến thức cho kỳ thi.", assigneeId: "hung", assigneeName: "Hùng", assignerId: "admin1", status: "pending", priority: "medium", dueDate: "2026-03-15", createdAt: "2026-02-28", startDate: "2026-03-05", progress: 0 },
+  { id: "T6-004", title: "Chấm bài thi cuối kỳ", description: "Chấm và nhập điểm thi.", assigneeId: "hung", assigneeName: "Hùng", assignerId: "admin1", status: "not_started", priority: "high", dueDate: "2026-07-10", createdAt: "2026-07-01", startDate: "2026-07-05", progress: 0 },
+
+  // Lan's tasks
+  { id: "T7-001", title: "Khai giảng năm học mới", description: "Tổ chức lễ khai giảng.", assigneeId: "lan", assigneeName: "Lan", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-09-10", createdAt: "2025-09-01", startDate: "2025-09-05", progress: 100 },
+  { id: "T7-002", title: "Tổ chức hoạt động ngoại khóa", description: "Chuẩn bị chuyến tham quan văn hóa.", assigneeId: "lan", assigneeName: "Lan", assignerId: "admin1", status: "completed", priority: "medium", dueDate: "2025-12-20", createdAt: "2025-12-05", startDate: "2025-12-10", progress: 100 },
+  { id: "T7-003", title: "Cập nhật thông tin học viên", description: "Rà soát thông tin học viên cũ.", assigneeId: "lan", assigneeName: "Lan", assignerId: "admin1", status: "in_progress", priority: "low", dueDate: "2026-02-15", createdAt: "2026-02-01", startDate: "2026-02-05", progress: 50 },
+  { id: "T7-004", title: "Lập báo cáo quý 1", description: "Tổng hợp báo cáo kết quả quý 1.", assigneeId: "lan", assigneeName: "Lan", assignerId: "admin1", status: "pending", priority: "high", dueDate: "2026-04-05", createdAt: "2026-03-25", startDate: "2026-03-28", progress: 0 },
+  { id: "T7-005", title: "Chuẩn bị lớp học hè", description: "Xây dựng chương trình học hè.", assigneeId: "lan", assigneeName: "Lan", assignerId: "admin1", status: "not_started", priority: "medium", dueDate: "2026-06-30", createdAt: "2026-06-15", startDate: "2026-06-20", progress: 0 },
+];
+
 
 
 const timeSlots = [
@@ -132,6 +185,11 @@ const Schedule = () => {
   const [editMode, setEditMode] = useState<{ day: string; slot: number } | null>(null);
   const [filterTeacher, setFilterTeacher] = useState<string>("all");
   const [filterSubject, setFilterSubject] = useState<string>("all");
+
+  // Gantt chart state
+  const [ganttViewMode, setGanttViewMode] = useState<'table' | 'timeline'>('table');
+  const [selectedTeacher, setSelectedTeacher] = useState<string>("all");
+  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 1, 1)); // Default to Feb 2026
 
 
 
@@ -458,6 +516,18 @@ const Schedule = () => {
     { key: "sunday", label: "CN", date: weekRange.sunday.getDate(), month: weekRange.sunday.getMonth() + 1 },
   ];
 
+  // Gantt chart helpers
+  const handleMonthChange = (direction: 'prev' | 'next') => {
+    setCurrentMonth(prev => direction === 'prev' ? subMonths(prev, 1) : addMonths(prev, 1));
+  };
+
+  const getFilteredTasks = () => {
+    if (selectedTeacher === "all") {
+      return TEACHER_TASKS;
+    }
+    return TEACHER_TASKS.filter(task => task.assigneeId === selectedTeacher);
+  };
+
   return (
     <AdminLayout>
 
@@ -465,153 +535,241 @@ const Schedule = () => {
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Xếp lịch dạy</h1>
-            <p className="text-muted-foreground">Quản lý lịch dạy và phòng học</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Quản lý công việc</h1>
+            <p className="text-muted-foreground">Phân công và theo dõi tiến độ công việc của giảng viên</p>
           </div>
           <div className="flex bg-muted p-1 rounded-lg">
             <Button
-              variant={viewMode === 'excel' ? 'secondary' : 'ghost'}
+              variant={ganttViewMode === 'table' ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode('excel')}
+              onClick={() => setGanttViewMode('table')}
               className="text-sm"
             >
               <LayoutList className="w-4 h-4 mr-2" />
-              Chi tiết
+              Danh sách
             </Button>
             <Button
-              variant={viewMode === 'overview' ? 'secondary' : 'ghost'}
+              variant={ganttViewMode === 'timeline' ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode('overview')}
+              onClick={() => setGanttViewMode('timeline')}
               className="text-sm"
             >
-              <Grip className="w-4 h-4 mr-2" />
-              Tổng quan
+              <BarChart2 className="w-4 h-4 mr-2" />
+              Timeline
             </Button>
           </div>
         </div>
-        {/* Schedule Grid */}
-        <Card>
-          <CardHeader className="pb-4">
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Week navigation */}
-              <div className="flex items-center gap-2">
-                <Button
-                  size="icon"
-                  onClick={handlePrevWeek}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
-                  <span className="text-sm font-medium">
-                    Tuần {selectedWeek} - Tháng {selectedMonth}/{selectedYear}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    ({formatDate(weekRange.monday)} - {formatDate(weekRange.sunday)})
-                  </span>
+
+        {/* Timeline View - Gantt Chart */}
+        {ganttViewMode === 'timeline' && (
+          <Card>
+            <CardHeader className="pb-4">
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Month navigation */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="icon"
+                    onClick={() => handleMonthChange('prev')}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
+                    <span className="text-sm font-medium">
+                      {format(currentMonth, "MMMM yyyy", { locale: vi })}
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleMonthChange('next')}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
                 </div>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleNextWeek}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
 
-              <div className="h-6 w-px bg-border hidden md:block" />
+                <div className="h-6 w-px bg-border hidden md:block" />
 
-              {/* Filters */}
-              {viewMode === 'excel' && (
+                {/* Teacher Filter */}
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4 text-muted-foreground" />
-                  <Select value={filterTeacher} onValueChange={setFilterTeacher}>
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Giáo viên" />
+                  <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Chọn giảng viên" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Tất cả GV</SelectItem>
-                      {allTeachers.map((teacher) => (
-                        <SelectItem key={teacher} value={teacher}>
-                          {teacher}
+                      <SelectItem value="all">Tất cả giảng viên</SelectItem>
+                      <SelectItem value="huong">Hường</SelectItem>
+                      <SelectItem value="khoi">Khôi</SelectItem>
+                      <SelectItem value="linh">Linh</SelectItem>
+                      <SelectItem value="man">Mẫn</SelectItem>
+                      <SelectItem value="mai">Mai</SelectItem>
+                      <SelectItem value="hung">Hùng</SelectItem>
+                      <SelectItem value="lan">Lan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <TaskGanttChart
+                tasks={getFilteredTasks()}
+                startDate={startOfMonth(currentMonth)}
+                endDate={endOfMonth(currentMonth)}
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Table View - Schedule Grid */}
+        {ganttViewMode === 'table' && (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="flex bg-muted p-1 rounded-lg">
+                <Button
+                  variant={viewMode === 'excel' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('excel')}
+                  className="text-sm"
+                >
+                  <LayoutList className="w-4 h-4 mr-2" />
+                  Chi tiết
+                </Button>
+                <Button
+                  variant={viewMode === 'overview' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('overview')}
+                  className="text-sm"
+                >
+                  <Grip className="w-4 h-4 mr-2" />
+                  Tổng quan
+                </Button>
+              </div>
+            </div>
+            {/* Schedule Grid */}
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Week navigation */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="icon"
+                      onClick={handlePrevWeek}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
+                      <span className="text-sm font-medium">
+                        Tuần {selectedWeek} - Tháng {selectedMonth}/{selectedYear}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        ({formatDate(weekRange.monday)} - {formatDate(weekRange.sunday)})
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleNextWeek}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  <div className="h-6 w-px bg-border hidden md:block" />
+
+                  {/* Filters */}
+                  {viewMode === 'excel' && (
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-muted-foreground" />
+                      <Select value={filterTeacher} onValueChange={setFilterTeacher}>
+                        <SelectTrigger className="w-[140px]">
+                          <SelectValue placeholder="Giáo viên" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Tất cả GV</SelectItem>
+                          {allTeachers.map((teacher) => (
+                            <SelectItem key={teacher} value={teacher}>
+                              {teacher}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-muted-foreground" />
+                    <Select value={filterSubject} onValueChange={setFilterSubject}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Lớp" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tất cả các lớp</SelectItem>
+                        {allSubjects.map((subject) => (
+                          <SelectItem key={subject} value={subject}>
+                            {subject}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+
+                  <div className="h-6 w-px bg-border hidden md:block" />
+
+                  {/* Month/Year selectors */}
+                  <Select value={String(selectedMonth)} onValueChange={(val) => { setSelectedMonth(parseInt(val)); setSelectedWeek(1); }}>
+                    <SelectTrigger className="w-[110px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <SelectItem key={i + 1} value={String(i + 1)}>
+                          Tháng {i + 1}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  <Select value={String(selectedYear)} onValueChange={(val) => { setSelectedYear(parseInt(val)); setSelectedWeek(1); }}>
+                    <SelectTrigger className="w-[90px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2024">2024</SelectItem>
+                      <SelectItem value="2025">2025</SelectItem>
+                      <SelectItem value="2026">2026</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-muted-foreground" />
-                <Select value={filterSubject} onValueChange={setFilterSubject}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Lớp" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả các lớp</SelectItem>
-                    {allSubjects.map((subject) => (
-                      <SelectItem key={subject} value={subject}>
-                        {subject}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-
-              <div className="h-6 w-px bg-border hidden md:block" />
-
-              {/* Month/Year selectors */}
-              <Select value={String(selectedMonth)} onValueChange={(val) => { setSelectedMonth(parseInt(val)); setSelectedWeek(1); }}>
-                <SelectTrigger className="w-[110px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <SelectItem key={i + 1} value={String(i + 1)}>
-                      Tháng {i + 1}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={String(selectedYear)} onValueChange={(val) => { setSelectedYear(parseInt(val)); setSelectedWeek(1); }}>
-                <SelectTrigger className="w-[90px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2024">2024</SelectItem>
-                  <SelectItem value="2025">2025</SelectItem>
-                  <SelectItem value="2026">2026</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              {viewMode === 'excel' ? (
-                <ExcelScheduleTable
-                  schedule={filteredSchedule}
-                  timeSlots={timeSlots}
-                  days={days}
-                  onCellClick={handleCellClick}
-                  onRoomClick={handleRoomClick}
-                />
-              ) : (
-                <OverviewScheduleTable
-                  schedule={filteredSchedule}
-                  timeSlots={timeSlots}
-                  days={days}
-                  onClassClick={(day, slot, className) => {
-                    // Optional: Handle click on Overview cell to open edit dialog?
-                    // For now, let's just use the same form opening logic if needed,
-                    // but Overview might be read-only or we can map it.
-                    // Let's find the class item and open form.
-                    const item = schedule[day as keyof ScheduleData]?.find(c => c.slot === slot && c.class === className);
-                    handleCellClick(day, slot, className, item);
-                  }}
-                />
-              )}
-            </div>
-          </CardContent>
-        </Card>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  {viewMode === 'excel' ? (
+                    <ExcelScheduleTable
+                      schedule={filteredSchedule}
+                      timeSlots={timeSlots}
+                      days={days}
+                      onCellClick={handleCellClick}
+                      onRoomClick={handleRoomClick}
+                    />
+                  ) : (
+                    <OverviewScheduleTable
+                      schedule={filteredSchedule}
+                      timeSlots={timeSlots}
+                      days={days}
+                      onClassClick={(day, slot, className) => {
+                        // Optional: Handle click on Overview cell to open edit dialog?
+                        // For now, let's just use the same form opening logic if needed,
+                        // but Overview might be read-only or we can map it.
+                        // Let's find the class item and open form.
+                        const item = schedule[day as keyof ScheduleData]?.find(c => c.slot === slot && c.class === className);
+                        handleCellClick(day, slot, className, item);
+                      }}
+                    />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
 
       </div>
 

@@ -102,7 +102,7 @@ const Sidebar = ({ onLogout, isCollapsed, onToggle }: { onLogout: () => void, is
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigate = useNavigate();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true); // Auto-collapse sidebar by default
   const handleLogout = () => navigate("/");
 
   return (
@@ -132,8 +132,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden pt-14 lg:pt-0">
-        <div className="h-full overflow-y-auto">
-          <div className="container mx-auto p-3 lg:p-4">{children}</div>
+        <div className="h-full overflow-hidden">
+          <div className="container mx-auto p-3 lg:p-4 h-full">{children}</div>
         </div>
       </main>
     </div>

@@ -1,4 +1,4 @@
-export type TaskStatus = 'pending' | 'accepted' | 'in_progress' | 'completed' | 'verified';
+export type TaskStatus = 'pending' | 'accepted' | 'in_progress' | 'completed' | 'verified' | 'not_started';
 export type TaskPriority = 'low' | 'medium' | 'high';
 
 export interface Report {

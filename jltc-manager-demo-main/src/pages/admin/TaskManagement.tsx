@@ -35,56 +35,67 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
+import TaskGanttChart from "@/components/TaskGanttChart";
+import { startOfMonth, endOfMonth, addMonths, subMonths, format as formatDate } from "date-fns";
+import { vi } from "date-fns/locale";
+import { BarChart2, ChevronLeft, ChevronRight, User, LayoutList } from "lucide-react";
 
-// Mock Data
+// Mock Data - 7 Vietnamese Teachers
 const MOCK_TEACHERS = [
-    { id: "t1", name: "Yamada" },
-    { id: "t2", name: "Suzuki" },
-    { id: "t3", name: "Tanaka" },
-    { id: "t4", name: "Sato" },
+    { id: "huong", name: "Hường" },
+    { id: "khoi", name: "Khôi" },
+    { id: "linh", name: "Linh" },
+    { id: "man", name: "Mẫn" },
+    { id: "mai", name: "Mai" },
+    { id: "hung", name: "Hùng" },
+    { id: "lan", name: "Lan" },
 ];
 
+// Demo task data for 7 teachers
 const INITIAL_TASKS: Task[] = [
-    {
-        id: "TASK-001",
-        title: "Prepare N3 Grammar Slides",
-        description: "Create presentation for Chapter 15 grammar points.",
-        assigneeId: "t1",
-        assigneeName: "Yamada",
-        assignerId: "admin1",
-        status: "in_progress",
-        priority: "high",
-        dueDate: "2024-11-20",
-        createdAt: "2024-11-15",
-    },
-    {
-        id: "TASK-002",
-        title: "Grade N4 Mock Test",
-        description: "Review and grade test papers for class N4-02.",
-        assigneeId: "t2",
-        assigneeName: "Suzuki",
-        assignerId: "admin1",
-        status: "pending",
-        priority: "medium",
-        dueDate: "2024-11-22",
-        createdAt: "2024-11-18",
-    },
-    {
-        id: "TASK-003",
-        title: "Update Student Records",
-        description: "Verify attendance data for October.",
-        assigneeId: "t3",
-        assigneeName: "Tanaka",
-        assignerId: "admin1",
-        status: "completed",
-        priority: "low",
-        dueDate: "2024-11-10",
-        createdAt: "2024-11-01",
-        report: {
-            completedAt: "2024-11-09",
-            content: "All records updated and verified.",
-        }
-    },
+    // Hường's tasks
+    { id: "T1-001", title: "Soạn giáo án N4", description: "Chuẩn bị giáo án chi tiết lớp N4.", assigneeId: "huong", assigneeName: "Hường", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2026-01-20", createdAt: "2026-01-05", startDate: "2026-01-08", progress: 100 },
+    { id: "T1-002", title: "Chấm bài kiểm tra giữa kỳ", description: "Chấm và nhập điểm vào hệ thống.", assigneeId: "huong", assigneeName: "Hường", assignerId: "admin1", status: "in_progress", priority: "high", dueDate: "2026-02-18", createdAt: "2026-02-05", startDate: "2026-02-10", progress: 60 },
+    { id: "T1-003", title: "Họp phụ huynh tháng 3", description: "Tổ chức buổi họp báo cáo tiến độ.", assigneeId: "huong", assigneeName: "Hường", assignerId: "admin1", status: "pending", priority: "medium", dueDate: "2026-03-25", createdAt: "2026-03-01", startDate: "2026-03-15", progress: 0 },
+    { id: "T1-004", title: "Cập nhật tài liệu tháng 4", description: "Bổ sung tài liệu mới theo chương trình.", assigneeId: "huong", assigneeName: "Hường", assignerId: "admin1", status: "not_started", priority: "low", dueDate: "2026-04-20", createdAt: "2026-04-05", startDate: "2026-04-10", progress: 0 },
+
+    // Khôi's tasks
+    { id: "T2-001", title: "Tổ chức thi thử N3", description: "Chuẩn bị đề thi và giám thi.", assigneeId: "khoi", assigneeName: "Khôi", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-12-15", createdAt: "2025-12-01", startDate: "2025-12-08", progress: 100 },
+    { id: "T2-002", title: "Đánh giá học viên cuối kỳ", description: "Tổng hợp kết quả học tập của học viên.", assigneeId: "khoi", assigneeName: "Khôi", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2026-01-25", createdAt: "2026-01-10", startDate: "2026-01-15", progress: 100 },
+    { id: "T2-003", title: "Soạn test tổng hợp", description: "Chuẩn bị bài test tổng hợp kỹ năng.", assigneeId: "khoi", assigneeName: "Khôi", assignerId: "admin1", status: "in_progress", priority: "medium", dueDate: "2026-02-28", createdAt: "2026-02-10", startDate: "2026-02-15", progress: 45 },
+    { id: "T2-004", title: "Quay video bài giảng", description: "Quay và dựng video cho khóa học online.", assigneeId: "khoi", assigneeName: "Khôi", assignerId: "admin1", status: "pending", priority: "medium", dueDate: "2026-03-30", createdAt: "2026-03-05", startDate: "2026-03-12", progress: 0 },
+    { id: "T2-005", title: "Tổ chức workshop văn hóa", description: "Chuẩn bị workshop về văn hóa Nhật Bản.", assigneeId: "khoi", assigneeName: "Khôi", assignerId: "admin1", status: "not_started", priority: "low", dueDate: "2026-05-15", createdAt: "2026-05-01", startDate: "2026-05-05", progress: 0 },
+
+    // Linh's tasks
+    { id: "T3-001", title: "Lập kế hoạch giảng dạy", description: "Xây dựng kế hoạch cho quý mới.", assigneeId: "linh", assigneeName: "Linh", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-09-20", createdAt: "2025-09-05", startDate: "2025-09-10", progress: 100 },
+    { id: "T3-002", title: "Cập nhật giáo trình N5", description: "Chỉnh sửa tài liệu theo phản hồi.", assigneeId: "linh", assigneeName: "Linh", assignerId: "admin1", status: "completed", priority: "medium", dueDate: "2025-11-30", createdAt: "2025-11-10", startDate: "2025-11-15", progress: 100 },
+    { id: "T3-003", title: "Tổ chức lớp học thử", description: "Chuẩn bị buổi học thử cho học viên mới.", assigneeId: "linh", assigneeName: "Linh", assignerId: "admin1", status: "in_progress", priority: "high", dueDate: "2026-02-25", createdAt: "2026-02-08", startDate: "2026-02-12", progress: 70 },
+    { id: "T3-004", title: "Đánh giá tiến độ tháng 4", description: "Báo cáo kết quả học tập của học viên.", assigneeId: "linh", assigneeName: "Linh", assignerId: "admin1", status: "pending", priority: "medium", dueDate: "2026-04-28", createdAt: "2026-04-10", startDate: "2026-04-18", progress: 0 },
+
+    // Mẫn's tasks
+    { id: "T4-001", title: "Soạn đề kiểm tra đầu vào", description: "Chuẩn bị bộ đề cho học viên mới.", assigneeId: "man", assigneeName: "Mẫn", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-10-25", createdAt: "2025-10-10", startDate: "2025-10-15", progress: 100 },
+    { id: "T4-002", title: "Xếp lớp học viên mới", description: "Phân lớp theo kết quả test đầu vào.", assigneeId: "man", assigneeName: "Mẫn", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2026-01-15", createdAt: "2026-01-05", startDate: "2026-01-08", progress: 100 },
+    { id: "T4-003", title: "Chuẩn bị tài liệu ôn thi", description: "Tổng hợp tài liệu ôn tập JLPT.", assigneeId: "man", assigneeName: "Mẫn", assignerId: "admin1", status: "in_progress", priority: "medium", dueDate: "2026-03-20", createdAt: "2026-02-20", startDate: "2026-02-25", progress: 30 },
+    { id: "T4-004", title: "Tổ chức thi thử tháng 6", description: "Chuẩn bị kỳ thi thử giữa năm.", assigneeId: "man", assigneeName: "Mẫn", assignerId: "admin1", status: "pending", priority: "high", dueDate: "2026-06-20", createdAt: "2026-06-05", startDate: "2026-06-10", progress: 0 },
+
+    // Mai's tasks
+    { id: "T5-001", title: "Hướng dẫn đăng ký thi JLPT", description: "Hỗ trợ học viên đăng ký thi chính thức.", assigneeId: "mai", assigneeName: "Mai", assignerId: "admin1", status: "completed", priority: "medium", dueDate: "2025-11-20", createdAt: "2025-11-05", startDate: "2025-11-10", progress: 100 },
+    { id: "T5-002", title: "Tổng kết năm 2025", description: "Báo cáo kết quả giảng dạy năm 2025.", assigneeId: "mai", assigneeName: "Mai", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-12-28", createdAt: "2025-12-10", startDate: "2025-12-15", progress: 100 },
+    { id: "T5-003", title: "Cập nhật danh sách lớp", description: "Điều chỉnh danh sách sau kỳ thi.", assigneeId: "mai", assigneeName: "Mai", assignerId: "admin1", status: "in_progress", priority: "low", dueDate: "2026-02-20", createdAt: "2026-02-05", startDate: "2026-02-10", progress: 80 },
+    { id: "T5-004", title: "Soạn bài giảng tháng 5", description: "Chuẩn bị nội dung bài giảng.", assigneeId: "mai", assigneeName: "Mai", assignerId: "admin1", status: "not_started", priority: "medium", dueDate: "2026-05-25", createdAt: "2026-05-10", startDate: "2026-05-15", progress: 0 },
+
+    // Hùng's tasks
+    { id: "T6-001", title: "Kiểm tra giữa kỳ tháng 10", description: "Tổ chức kiểm tra cho tất cả lớp.", assigneeId: "hung", assigneeName: "Hùng", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-10-20", createdAt: "2025-10-05", startDate: "2025-10-12", progress: 100 },
+    { id: "T6-002", title: "Cập nhật file điểm danh", description: "Nhập dữ liệu điểm danh vào hệ thống.", assigneeId: "hung", assigneeName: "Hùng", assignerId: "admin1", status: "completed", priority: "low", dueDate: "2026-01-30", createdAt: "2026-01-20", startDate: "2026-01-22", progress: 100 },
+    { id: "T6-003", title: "Soạn đề cương ôn tập", description: "Tổng hợp kiến thức cho kỳ thi.", assigneeId: "hung", assigneeName: "Hùng", assignerId: "admin1", status: "pending", priority: "medium", dueDate: "2026-03-15", createdAt: "2026-02-28", startDate: "2026-03-05", progress: 0 },
+    { id: "T6-004", title: "Chấm bài thi cuối kỳ", description: "Chấm và nhập điểm thi.", assigneeId: "hung", assigneeName: "Hùng", assignerId: "admin1", status: "not_started", priority: "high", dueDate: "2026-07-10", createdAt: "2026-07-01", startDate: "2026-07-05", progress: 0 },
+
+    // Lan's tasks
+    { id: "T7-001", title: "Khai giảng năm học mới", description: "Tổ chức lễ khai giảng.", assigneeId: "lan", assigneeName: "Lan", assignerId: "admin1", status: "completed", priority: "high", dueDate: "2025-09-10", createdAt: "2025-09-01", startDate: "2025-09-05", progress: 100 },
+    { id: "T7-002", title: "Tổ chức hoạt động ngoại khóa", description: "Chuẩn bị chuyến tham quan văn hóa.", assigneeId: "lan", assigneeName: "Lan", assignerId: "admin1", status: "completed", priority: "medium", dueDate: "2025-12-20", createdAt: "2025-12-05", startDate: "2025-12-10", progress: 100 },
+    { id: "T7-003", title: "Cập nhật thông tin học viên", description: "Rà soát thông tin học viên cũ.", assigneeId: "lan", assigneeName: "Lan", assignerId: "admin1", status: "in_progress", priority: "low", dueDate: "2026-02-15", createdAt: "2026-02-01", startDate: "2026-02-05", progress: 50 },
+    { id: "T7-004", title: "Lập báo cáo quý 1", description: "Tổng hợp báo cáo kết quả quý 1.", assigneeId: "lan", assigneeName: "Lan", assignerId: "admin1", status: "pending", priority: "high", dueDate: "2026-04-05", createdAt: "2026-03-25", startDate: "2026-03-28", progress: 0 },
+    { id: "T7-005", title: "Chuẩn bị lớp học hè", description: "Xây dựng chương trình học hè.", assigneeId: "lan", assigneeName: "Lan", assignerId: "admin1", status: "not_started", priority: "medium", dueDate: "2026-06-30", createdAt: "2026-06-15", startDate: "2026-06-20", progress: 0 },
 ];
 
 const TaskManagement = () => {
@@ -93,6 +104,11 @@ const TaskManagement = () => {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null); // For viewing details
     const [filterStatus, setFilterStatus] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState("");
+
+    // Gantt chart state
+    const [ganttViewMode, setGanttViewMode] = useState<'list' | 'timeline'>('list');
+    const [selectedTeacher, setSelectedTeacher] = useState<string>("all");
+    const [currentMonth, setCurrentMonth] = useState(new Date(2026, 1, 1)); // Default to Feb 2026
 
     // Create Form State
     const [newTask, setNewTask] = useState({
@@ -163,6 +179,18 @@ const TaskManagement = () => {
         return matchesSearch && matchesStatus;
     });
 
+    // Gantt chart helpers
+    const handleMonthChange = (direction: 'prev' | 'next') => {
+        setCurrentMonth(prev => direction === 'prev' ? subMonths(prev, 1) : addMonths(prev, 1));
+    };
+
+    const getFilteredTasksForGantt = () => {
+        if (selectedTeacher === "all") {
+            return tasks;
+        }
+        return tasks.filter(task => task.assigneeId === selectedTeacher);
+    };
+
     return (
         <AdminLayout>
             <div className="space-y-6">
@@ -171,117 +199,205 @@ const TaskManagement = () => {
                         <h1 className="text-3xl font-bold tracking-tight">Quản lý công việc</h1>
                         <p className="text-muted-foreground">Phân công và theo dõi tiến độ công việc của giảng viên</p>
                     </div>
-                    <Button onClick={() => setIsCreateOpen(true)}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Giao việc mới
-                    </Button>
-                </div>
-
-                {/* Filters */}
-                <div className="flex items-center gap-4">
-                    <div className="relative flex-1 max-w-sm">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Tìm kiếm công việc..."
-                            className="pl-8"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+                    <div className="flex items-center gap-3">
+                        {/* View Toggle */}
+                        <div className="flex bg-muted p-1 rounded-lg">
+                            <Button
+                                variant={ganttViewMode === 'list' ? 'secondary' : 'ghost'}
+                                size="sm"
+                                onClick={() => setGanttViewMode('list')}
+                                className="text-sm"
+                            >
+                                <LayoutList className="w-4 h-4 mr-2" />
+                                Danh sách
+                            </Button>
+                            <Button
+                                variant={ganttViewMode === 'timeline' ? 'secondary' : 'ghost'}
+                                size="sm"
+                                onClick={() => setGanttViewMode('timeline')}
+                                className="text-sm"
+                            >
+                                <BarChart2 className="w-4 h-4 mr-2" />
+                                Timeline
+                            </Button>
+                        </div>
+                        <Button onClick={() => setIsCreateOpen(true)}>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Giao việc mới
+                        </Button>
                     </div>
-                    <Select value={filterStatus} onValueChange={setFilterStatus}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Trạng thái" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                            <SelectItem value="pending">Chờ nhận</SelectItem>
-                            <SelectItem value="in_progress">Đang thực hiện</SelectItem>
-                            <SelectItem value="completed">Hoàn thành</SelectItem>
-                        </SelectContent>
-                    </Select>
                 </div>
 
-                {/* Task List */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Danh sách công việc</CardTitle>
-                        <CardDescription>Hiển thị {filteredTasks.length} tác vụ</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[300px]">Công việc</TableHead>
-                                    <TableHead>Người thực hiện</TableHead>
-                                    <TableHead>Độ ưu tiên</TableHead>
-                                    <TableHead>Trạng thái</TableHead>
-                                    <TableHead>Hạn chót</TableHead>
-                                    <TableHead className="text-right">Hành động</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredTasks.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
-                                            Không có công việc nào
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    filteredTasks.map((task) => (
-                                        <TableRow key={task.id}>
-                                            <TableCell>
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium">{task.title}</span>
-                                                    <span className="text-xs text-muted-foreground line-clamp-1">{task.description}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className="w-6 h-6">
-                                                        <AvatarFallback>{task.assigneeName?.[0]}</AvatarFallback>
-                                                    </Avatar>
-                                                    <span>{task.assigneeName}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2" title={`Priority: ${task.priority}`}>
-                                                    {getPriorityIcon(task.priority)}
-                                                    <span className="capitalize text-sm">{task.priority === 'high' ? 'Cao' : task.priority === 'medium' ? 'Trung bình' : 'Thấp'}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>{getStatusBadge(task.status)}</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                                    <Calendar className="w-3 h-3" />
-                                                    {format(new Date(task.dueDate), "dd/MM/yyyy")}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon">
-                                                            <MoreHorizontal className="w-4 h-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                                                        <DropdownMenuItem onClick={() => setSelectedTask(task)}>
-                                                            Example Chi tiết
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuItem className="text-destructive">
-                                                            Hủy công việc
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
+                {/* Timeline View - Gantt Chart */}
+                {ganttViewMode === 'timeline' && (
+                    <Card>
+                        <CardHeader className="pb-4">
+                            <div className="flex flex-wrap items-center gap-3">
+                                {/* Month navigation */}
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        size="icon"
+                                        onClick={() => handleMonthChange('prev')}
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </Button>
+                                    <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
+                                        <span className="text-sm font-medium">
+                                            {formatDate(currentMonth, "MMMM yyyy", { locale: vi })}
+                                        </span>
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => handleMonthChange('next')}
+                                    >
+                                        <ChevronRight className="w-4 h-4" />
+                                    </Button>
+                                </div>
+
+                                <div className="h-6 w-px bg-border hidden md:block" />
+
+                                {/* Teacher Filter */}
+                                <div className="flex items-center gap-2">
+                                    <User className="w-4 h-4 text-muted-foreground" />
+                                    <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Chọn giảng viên" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">Tất cả giảng viên</SelectItem>
+                                            <SelectItem value="huong">Hường</SelectItem>
+                                            <SelectItem value="khoi">Khôi</SelectItem>
+                                            <SelectItem value="linh">Linh</SelectItem>
+                                            <SelectItem value="man">Mẫn</SelectItem>
+                                            <SelectItem value="mai">Mai</SelectItem>
+                                            <SelectItem value="hung">Hùng</SelectItem>
+                                            <SelectItem value="lan">Lan</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <TaskGanttChart
+                                tasks={getFilteredTasksForGantt()}
+                                startDate={startOfMonth(currentMonth)}
+                                endDate={endOfMonth(currentMonth)}
+                            />
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Task List View */}
+                {ganttViewMode === 'list' && (
+                    <>
+                        {/* Filters */}
+                        <div className="flex items-center gap-4">
+                            <div className="relative flex-1 max-w-sm">
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Tìm kiếm công việc..."
+                                    className="pl-8"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            <Select value={filterStatus} onValueChange={setFilterStatus}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Trạng thái" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                                    <SelectItem value="pending">Chờ nhận</SelectItem>
+                                    <SelectItem value="in_progress">Đang thực hiện</SelectItem>
+                                    <SelectItem value="completed">Hoàn thành</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Task List */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Danh sách công việc</CardTitle>
+                                <CardDescription>Hiển thị {filteredTasks.length} tác vụ</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="w-[300px]">Công việc</TableHead>
+                                            <TableHead>Người thực hiện</TableHead>
+                                            <TableHead>Độ ưu tiên</TableHead>
+                                            <TableHead>Trạng thái</TableHead>
+                                            <TableHead>Hạn chót</TableHead>
+                                            <TableHead className="text-right">Hành động</TableHead>
                                         </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {filteredTasks.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
+                                                    Không có công việc nào
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            filteredTasks.map((task) => (
+                                                <TableRow key={task.id}>
+                                                    <TableCell>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">{task.title}</span>
+                                                            <span className="text-xs text-muted-foreground line-clamp-1">{task.description}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-2">
+                                                            <Avatar className="w-6 h-6">
+                                                                <AvatarFallback>{task.assigneeName?.[0]}</AvatarFallback>
+                                                            </Avatar>
+                                                            <span>{task.assigneeName}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-2" title={`Priority: ${task.priority}`}>
+                                                            {getPriorityIcon(task.priority)}
+                                                            <span className="capitalize text-sm">{task.priority === 'high' ? 'Cao' : task.priority === 'medium' ? 'Trung bình' : 'Thấp'}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>{getStatusBadge(task.status)}</TableCell>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                                            <Calendar className="w-3 h-3" />
+                                                            {format(new Date(task.dueDate), "dd/MM/yyyy")}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="icon">
+                                                                    <MoreHorizontal className="w-4 h-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
+                                                                <DropdownMenuItem onClick={() => setSelectedTask(task)}>
+                                                                    Example Chi tiết
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem className="text-destructive">
+                                                                    Hủy công việc
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </>
+                )}
 
                 {/* Create Task Dialog */}
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
