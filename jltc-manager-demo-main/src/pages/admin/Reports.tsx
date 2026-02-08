@@ -24,75 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AttendanceAggregated from "./AttendanceAggregated";
 import InterviewReport from "./InterviewReport";
 import StatisticsReport from "./StatisticsReport";
-
-// Mock Data for Scoreboard
-interface ScoreRecord {
-  id: number;
-  studentName: string;
-  studentId: string;
-  className: string;
-  examName: string;
-  examType: 'lesson' | 'summary' | 'jlpt';
-  score: number;
-  maxScore: number;
-  date: string;
-  details?: {
-    vocab: number;
-    grammar: number;
-    reading: number;
-    listening: number;
-    speaking?: number;
-  };
-}
-
-const mockScores: ScoreRecord[] = [
-  {
-    id: 1, studentName: "Nguyễn Văn A", studentId: "HV001", className: "N5-01", examName: "Bài 16 - Kiểm tra sau bài học", examType: "lesson", score: 85, maxScore: 100, date: "2024-11-15",
-    details: { vocab: 90, grammar: 80, reading: 85, listening: 85, speaking: 85 }
-  },
-  {
-    id: 2, studentName: "Trần Thị B", studentId: "HV002", className: "N5-01", examName: "Bài 16 - Kiểm tra sau bài học", examType: "lesson", score: 45, maxScore: 100, date: "2024-11-15",
-    details: { vocab: 40, grammar: 50, reading: 45, listening: 45, speaking: 45 }
-  },
-  {
-    id: 3, studentName: "Lê Văn C", studentId: "HV003", className: "N5-01", examName: "Kiểm tra 5 bài (Bài 11-15)", examType: "summary", score: 78, maxScore: 100, date: "2024-11-10",
-    details: { vocab: 80, grammar: 75, reading: 78, listening: 78, speaking: 79 }
-  },
-  {
-    id: 4, studentName: "Phạm Thị D", studentId: "HV004", className: "N4-01", examName: "Thi thử JLPT N4", examType: "jlpt", score: 95, maxScore: 180, date: "2024-12-01",
-    details: { vocab: 30, grammar: 35, reading: 0, listening: 30 }
-  },
-  {
-    id: 5, studentName: "Hoàng Văn E", studentId: "HV005", className: "N3-01", examName: "Thi thử JLPT N3", examType: "jlpt", score: 140, maxScore: 180, date: "2024-12-01",
-    details: { vocab: 50, grammar: 45, reading: 0, listening: 45 }
-  },
-  {
-    id: 6, studentName: "Nguyễn Văn A", studentId: "HV001", className: "N5-01", examName: "Thi thử JLPT N5", examType: "jlpt", score: 160, maxScore: 180, date: "2024-12-05",
-    details: { vocab: 55, grammar: 50, reading: 0, listening: 55 }
-  },
-  {
-    id: 7, studentName: "Vũ Thị F", studentId: "HV006", className: "N5-02", examName: "Bài 10 - Kiểm tra sau bài học", examType: "lesson", score: 65, maxScore: 100, date: "2024-10-20",
-    details: { vocab: 70, grammar: 60, reading: 65, listening: 65, speaking: 65 }
-  },
-  {
-    id: 8, studentName: "Đặng Văn G", studentId: "HV007", className: "N2-01", examName: "Kiểm tra tổng hợp giữa khóa", examType: "summary", score: 92, maxScore: 100, date: "2024-11-25",
-    details: { vocab: 95, grammar: 90, reading: 92, listening: 92, speaking: 91 }
-  },
-  {
-    id: 9, studentName: "Bùi Thị H", studentId: "HV008", className: "N4-01", examName: "Bài 25 - Kiểm tra sau bài học", examType: "lesson", score: 30, maxScore: 100, date: "2024-11-30",
-    details: { vocab: 25, grammar: 35, reading: 30, listening: 30, speaking: 30 }
-  },
-  {
-    id: 10, studentName: "Nguyễn Thị I", studentId: "HV009", className: "N5-01", examName: "Bài 16 - Kiểm tra sau bài học", examType: "lesson", score: 90, maxScore: 100, date: "2024-11-15",
-    details: { vocab: 92, grammar: 88, reading: 90, listening: 90, speaking: 90 }
-  },
-];
-
-const examTypeLabels = {
-  lesson: "Kiểm tra theo bài",
-  summary: "Kiểm tra tổng (1-2 bài/tháng)",
-  jlpt: "Thi thử JLPT",
-};
+import { mockScores, examTypeLabels } from "@/utils/mockData";
 
 const Reports = () => {
   const [selectedClass, setSelectedClass] = useState("all");
