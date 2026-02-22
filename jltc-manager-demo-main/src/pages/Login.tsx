@@ -33,7 +33,7 @@ const Login = () => {
             </Button>
 
             <Button
-              onClick={() => navigate("/teacher/dashboard")}
+              onClick={() => navigate("/teacher/classes")}
               className="w-full h-14 text-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 backdrop-blur-md rounded-2xl"
               size="lg"
               variant="outline"

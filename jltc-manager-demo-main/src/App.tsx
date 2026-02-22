@@ -21,7 +21,6 @@ import TaskManagement from "./pages/admin/TaskManagement";
 import StudentListByClass from "./pages/admin/StudentListByClass";
 import AttendanceAggregated from "./pages/admin/AttendanceAggregated";
 
-import TeacherDashboard from "./pages/teacher/Dashboard";
 import TeacherStudents from "./pages/teacher/Students";
 import TeacherStudentDetail from "./pages/teacher/StudentDetail";
 import TeacherClasses from "./pages/teacher/Classes";
@@ -67,7 +66,6 @@ const App = () => (
           <Route path="/admin/exams/:id" element={<ExamDetail />} />
           <Route path="/admin/settings" element={<Settings />} />
 
-          <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
           <Route path="/teacher/students" element={<TeacherStudents />} />
           <Route path="/teacher/students/:id" element={<TeacherStudentDetail />} />
           <Route path="/teacher/classes" element={<TeacherClasses />} />

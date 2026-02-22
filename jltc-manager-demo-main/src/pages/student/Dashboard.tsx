@@ -1,5 +1,5 @@
 import StudentLayout from "@/components/StudentLayout";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -256,6 +256,8 @@ const StudentDashboard = () => {
   const [yearFilter, setYearFilter] = useState("2026");
   const [examSearchTerm, setExamSearchTerm] = useState("");
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "overview";
 
   const filteredExams = allExams.filter((exam) => {
     const matchesSearch =
@@ -420,31 +422,12 @@ const StudentDashboard = () => {
   return (
     <StudentLayout>
       <div className="space-y-6 pb-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
-            Xin chào, Nguyễn Văn A! 👋
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm lg:text-base">
-            Tiến bộ học tiếng Nhật của bạn đang rất tốt. Hãy tiếp tục cố gắng!
-          </p>
-        </div>
 
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid h-12 w-full max-w-[500px] grid-cols-3 mb-8 bg-muted/20 p-1 rounded-xl border">
-            <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold h-full transition-all">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Tổng quan
-            </TabsTrigger>
-            <TabsTrigger value="grades" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold h-full transition-all">
-              <Trophy className="w-4 h-4 mr-2" />
-              Bảng điểm
-            </TabsTrigger>
-            <TabsTrigger value="exams" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold h-full transition-all">
-              <FileText className="w-4 h-4 mr-2" />
-              Đề thi
-            </TabsTrigger>
-          </TabsList>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setSearchParams({ tab: value })}
+          className="w-full"
+        >
 
           <TabsContent value="overview" className="space-y-8 animate-in fade-in duration-500">
             <div className="grid lg:grid-cols-12 gap-6">
