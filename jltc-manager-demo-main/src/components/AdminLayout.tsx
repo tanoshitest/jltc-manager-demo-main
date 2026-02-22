@@ -28,7 +28,7 @@ interface AdminLayoutProps {
 }
 
 const menuItems = [
-
+  { icon: BarChart3, label: "Dashboard", path: "/admin/dashboard" },
   { icon: Users, label: "Quản lý học viên", path: "/admin/students" },
   { icon: UserCog, label: "Quản lý giáo viên", path: "/admin/teachers" },
   { icon: BookOpen, label: "Quản lý lớp", path: "/admin/classes" },
@@ -55,11 +55,16 @@ const Sidebar = ({ onLogout, isCollapsed, onToggle }: { onLogout: () => void, is
           <GraduationCap className={cn("w-8 h-8 text-primary flex-shrink-0", isCollapsed && "w-6 h-6")} />
           {!isCollapsed && (
             <div className="whitespace-nowrap">
-              <h2 className="font-bold text-lg">IKIGAI CENTER</h2>
+              <h2 className="font-bold text-lg leading-tight">IKIGAI CENTER</h2>
               <p className="text-xs text-muted-foreground">Admin Panel</p>
             </div>
           )}
         </div>
+        {onToggle && (
+          <Button variant="ghost" size="icon" className="h-6 w-6 hidden lg:flex ml-auto" onClick={onToggle}>
+            {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </Button>
+        )}
       </div>
 
       <nav className="flex-1 p-2 space-y-2 overflow-y-auto overflow-x-hidden">

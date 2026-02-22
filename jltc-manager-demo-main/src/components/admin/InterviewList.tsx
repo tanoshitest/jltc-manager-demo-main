@@ -153,11 +153,6 @@ const InterviewList = () => {
                                 <SelectValue placeholder="Kết quả" />
                             </SelectTrigger>
                             <SelectContent>
-                                {Object.values(classData).map((cls) => (
-                                    <SelectItem key={cls.id} value={cls.id}>
-                                        {cls.name}
-                                    </SelectItem>
-                                ))}
                                 <SelectItem value="all">Tất cả</SelectItem>
                                 <SelectItem value="passed">Đậu</SelectItem>
                                 <SelectItem value="failed">Trượt</SelectItem>

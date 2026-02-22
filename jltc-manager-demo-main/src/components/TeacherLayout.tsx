@@ -35,26 +35,26 @@ const menuItems = [
   { icon: Calendar, label: "Lịch dạy tuần này", path: "/teacher/schedule" },
 ];
 
-const Sidebar = ({ onLogout, collapsed, toggleCollapse }: { onLogout: () => void, collapsed?: boolean, toggleCollapse?: () => void }) => {
+const Sidebar = ({ onLogout, isCollapsed, onToggle }: { onLogout: () => void, isCollapsed?: boolean, onToggle?: () => void }) => {
   const location = useLocation();
 
   return (
-    <div className={cn("flex flex-col h-full bg-card border-r border-border transition-all duration-300", collapsed ? "w-16" : "w-64")}>
-      <div className={cn("p-4 border-b border-border flex items-center justify-between", collapsed ? "justify-center" : "")}>
-        {!collapsed && (
+    <div className={cn("flex flex-col h-full bg-card border-r border-border transition-all duration-300", isCollapsed ? "w-16" : "w-64")}>
+      <div className={cn("p-6 border-b border-border flex items-center justify-between", isCollapsed ? "p-4 justify-center" : "")}>
+        {!isCollapsed && (
           <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap">
             <GraduationCap className="w-8 h-8 text-primary shrink-0" />
             <div>
-              <h2 className="font-bold text-lg truncate">IKIGAI CENTER</h2>
+              <h2 className="font-bold text-lg leading-tight truncate">IKIGAI CENTER</h2>
               <p className="text-xs text-muted-foreground truncate">Teacher Portal</p>
             </div>
           </div>
         )}
-        {collapsed && <GraduationCap className="w-8 h-8 text-primary shrink-0" />}
+        {isCollapsed && <GraduationCap className="w-8 h-8 text-primary shrink-0" />}
 
-        {toggleCollapse && (
-          <Button variant="ghost" size="icon" className="h-6 w-6 hidden lg:flex" onClick={toggleCollapse}>
-            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        {onToggle && (
+          <Button variant="ghost" size="icon" className="h-6 w-6 hidden lg:flex ml-auto" onClick={onToggle}>
+            {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </Button>
         )}
       </div>
@@ -71,21 +71,21 @@ const Sidebar = ({ onLogout, collapsed, toggleCollapse }: { onLogout: () => void
                 isActive
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "hover:bg-accent text-foreground",
-                collapsed ? "justify-center" : ""
+                isCollapsed ? "justify-center px-2" : ""
               )}
-              title={collapsed ? item.label : undefined}
+              title={isCollapsed ? item.label : undefined}
             >
               <item.icon className="w-5 h-5 shrink-0" />
-              {!collapsed && <span className="font-medium truncate">{item.label}</span>}
+              {!isCollapsed && <span className="font-medium truncate">{item.label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-2 border-t border-border">
-        <Button variant="outline" className={cn("w-full flex items-center gap-2", collapsed ? "justify-center px-0" : "")} onClick={onLogout} title={collapsed ? "Đăng xuất" : undefined}>
+      <div className="p-4 border-t border-border">
+        <Button variant="outline" className={cn("w-full flex items-center gap-2", isCollapsed ? "justify-center px-0" : "")} onClick={onLogout} title={isCollapsed ? "Đăng xuất" : undefined}>
           <LogOut className="w-4 h-4 shrink-0" />
-          {!collapsed && "Đăng xuất"}
+          {!isCollapsed && "Đăng xuất"}
         </Button>
       </div>
     </div>
@@ -94,14 +94,14 @@ const Sidebar = ({ onLogout, collapsed, toggleCollapse }: { onLogout: () => void
 
 const TeacherLayout = ({ children }: TeacherLayoutProps) => {
   const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(true); // Auto-collapse sidebar by default
+  const [isCollapsed, setIsCollapsed] = useState(false); // Expanded sidebar by default
   const handleLogout = () => navigate("/");
 
   return (
     <div className="flex h-screen overflow-hidden bg-muted">
       {/* Desktop Sidebar */}
-      <aside className={cn("hidden lg:block h-full transition-all duration-300", collapsed ? "w-16" : "w-64")}>
-        <Sidebar onLogout={handleLogout} collapsed={collapsed} toggleCollapse={() => setCollapsed(!collapsed)} />
+      <aside className={cn("hidden lg:block h-full transition-all duration-300", isCollapsed ? "w-16" : "w-64")}>
+        <Sidebar onLogout={handleLogout} isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
       </aside>
 
       {/* Mobile Header */}
@@ -123,8 +123,8 @@ const TeacherLayout = ({ children }: TeacherLayoutProps) => {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden pt-14 lg:pt-0">
-        <div className="h-full">
+      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0">
+        <div className="min-h-full">
           <div className="container mx-auto p-3 lg:p-4">{children}</div>
         </div>
       </main>

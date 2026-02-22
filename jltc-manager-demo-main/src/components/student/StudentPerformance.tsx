@@ -156,12 +156,12 @@ const initialEvaluations: Record<string, any> = {
     jlptTests: [
       {
         id: "jt-11-1", name: "Mock Test N5 Lần 1", date: "2024-11-08",
-        scores: { vocab: 35, grammar: 40, reading: 38, listening: 45, speaking: 0 },
+        scores: { vocab: 35, grammar: 78, reading: 0, listening: 45, speaking: 0 },
         result: "Đỗ"
       },
       {
         id: "jt-11-2", name: "Mock Test N5 Lần 2", date: "2024-11-25",
-        scores: { vocab: 15, grammar: 20, reading: 18, listening: 25, speaking: 0 },
+        scores: { vocab: 15, grammar: 38, reading: 0, listening: 25, speaking: 0 },
         result: "Trượt"
       }
     ],
@@ -469,8 +469,9 @@ const StudentPerformance = () => {
           else if (percentage >= 70) result = "Trung bình";
           else result = "Không đạt";
         } else if (type === 'jlptTests') {
-          // JLPT logic remains as before or uses specific JLPT eval
-          const evalRes = evaluateJLPTTest(prev.jlptLevel as JLPTLevel, currentScores);
+          // JLPT logic: Reading is merged into Grammar, so it's ignored in total here
+          const jlptTotal = currentScores.vocab + currentScores.grammar + currentScores.listening;
+          const evalRes = evaluateJLPTTest(prev.jlptLevel as JLPTLevel, { ...currentScores, reading: 0 });
           result = evalRes.passed ? "Đỗ" : "Trượt";
         }
 
@@ -563,19 +564,23 @@ const StudentPerformance = () => {
               <Input type="number" value={test.scores.grammar} onChange={(e) => updateTestScore(type, test.id, 'grammar', Number(e.target.value))} />
             </div>
             <div className="space-y-2">
-              <Label>Đọc hiểu</Label>
-              <Input type="number" value={test.scores.reading} onChange={(e) => updateTestScore(type, test.id, 'reading', Number(e.target.value))} />
-            </div>
-            <div className="space-y-2">
               <Label>Nghe hiểu</Label>
               <Input type="number" value={test.scores.listening} onChange={(e) => updateTestScore(type, test.id, 'listening', Number(e.target.value))} />
             </div>
-            {type !== 'jlptTests' && (
-              <div className="space-y-2">
-                <Label>Nói</Label>
-                <Input type="number" value={test.scores.speaking} onChange={(e) => updateTestScore(type, test.id, 'speaking', Number(e.target.value))} />
-              </div>
-            )}
+            {type !== 'jlptTests' ? (
+              <>
+                <div className="space-y-2">
+                  <Label>Đọc hiểu</Label>
+                  <Input type="number" value={test.scores.reading} onChange={(e) => updateTestScore(type, test.id, 'reading', Number(e.target.value))} />
+                </div>
+                {type !== 'jlptTests' && type !== 'generalTests' && (
+                  <div className="space-y-2">
+                    <Label>Nói</Label>
+                    <Input type="number" value={test.scores.speaking} onChange={(e) => updateTestScore(type, test.id, 'speaking', Number(e.target.value))} />
+                  </div>
+                )}
+              </>
+            ) : null}
           </div>
           <div className="space-y-2">
             <Label>Kết quả</Label>
@@ -590,242 +595,237 @@ const StudentPerformance = () => {
     </div>
   );
 
-  const renderCombinedTestsTable = () => {
-    const sections = [
-      { title: "Bài kiểm tra sau mỗi bài ( giảng viên nhập - rada tăng trưởng)", type: "lessonTests" as const },
-      { title: "Bài kiểm tra tổng ( mỗi tháng định kì 1 tới 2 bài )", type: "compTests" as const },
-      { title: "Thi thử JLPT ( đánh giá trình độ hiện tại học viên )", type: "jlptTests" as const }
-    ];
+  const renderTestTable = (title: string, type: 'lessonTests' | 'compTests' | 'jlptTests' | 'generalTests') => {
+    const tests = isEditing && currentEvaluation ? formData[type] : (currentEvaluation ? currentEvaluation[type] || [] : []);
+    const isJLPT = type === 'jlptTests';
 
     return (
-      <div className="mb-8 border rounded-md overflow-hidden">
+      <div className="mb-8 border rounded-md overflow-hidden bg-white shadow-sm">
+        <div className="bg-muted/30 p-3 border-b border-border flex justify-between items-center">
+          <h4 className="font-bold text-primary text-sm flex items-center gap-2">
+            <Trophy className="h-4 w-4" />
+            {title}
+          </h4>
+          {isEditing && (
+            <Button size="sm" variant="ghost" onClick={() => addTest(type)} className="h-7 w-7 p-0 hover:bg-background border border-primary/20">
+              <Plus className="w-4 h-4 text-primary" />
+            </Button>
+          )}
+        </div>
         <Table>
-          <TableHeader className="bg-muted/50">
+          <TableHeader className="bg-muted/10">
             <TableRow>
-              <TableHead className="w-[45%] whitespace-nowrap py-3 text-sm font-bold text-foreground border-r">Tên bài kiểm tra</TableHead>
-              <TableHead className="w-[12%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Ngày thi</TableHead>
-              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Từ vựng</TableHead>
-              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Ngữ pháp</TableHead>
-              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Đọc hiểu</TableHead>
-              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Nghe hiểu</TableHead>
-              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Nói</TableHead>
-              <TableHead className="text-center w-[8%] py-3 text-sm font-bold text-foreground whitespace-nowrap border-r">Tổng điểm</TableHead>
-              <TableHead className="text-right w-[11%] py-3 text-sm font-bold text-foreground whitespace-nowrap">{isEditing ? "Hành động" : "Kết quả"}</TableHead>
+              <TableHead className="w-[40%] whitespace-nowrap py-3 text-xs font-bold text-foreground border-r">Tên bài kiểm tra</TableHead>
+              <TableHead className="w-[12%] py-3 text-xs font-bold text-foreground whitespace-nowrap border-r">Ngày thi</TableHead>
+              <TableHead className="text-center w-[8%] py-3 text-xs font-bold text-foreground whitespace-nowrap border-r">Từ vựng</TableHead>
+              <TableHead className="text-center w-[12%] py-3 text-xs font-bold text-foreground whitespace-nowrap border-r">
+                {isJLPT ? "Ngữ pháp & Đọc" : "Ngữ pháp"}
+              </TableHead>
+              {!isJLPT && (
+                <TableHead className="text-center w-[8%] py-3 text-xs font-bold text-foreground whitespace-nowrap border-r">Đọc hiểu</TableHead>
+              )}
+              <TableHead className="text-center w-[8%] py-3 text-xs font-bold text-foreground whitespace-nowrap border-r">Nghe hiểu</TableHead>
+              {!isJLPT && (
+                <TableHead className="text-center w-[8%] py-3 text-xs font-bold text-foreground whitespace-nowrap border-r">Nói</TableHead>
+              )}
+              <TableHead className="text-center w-[10%] py-3 text-xs font-bold text-foreground whitespace-nowrap border-r">Tổng điểm</TableHead>
+              <TableHead className="text-right w-[10%] py-3 text-xs font-bold text-foreground whitespace-nowrap">
+                {isEditing ? "Hành động" : "Kết quả"}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sections.map(({ title, type }) => {
-              const tests = isEditing && currentEvaluation ? formData[type] : (currentEvaluation ? currentEvaluation[type] || [] : []);
+            {tests && tests.length > 0 ? (
+              tests.map((test: TestRecord) => (
+                <TableRow key={test.id} className="hover:bg-muted/10 transition-colors">
+                  <TableCell className="py-2 text-sm border-r font-medium">
+                    {isEditing ? (
+                      <Input
+                        value={test.name}
+                        onChange={(e) => updateTestMeta(type, test.id, 'name', e.target.value)}
+                        placeholder="Tên bài kiểm tra"
+                        className="h-8"
+                      />
+                    ) : (
+                      test.name || "Bài kiểm tra"
+                    )}
+                  </TableCell>
+                  <TableCell className="py-2 text-sm whitespace-nowrap border-r text-center">
+                    {isEditing ? (
+                      <Input
+                        type="date"
+                        value={test.date}
+                        onChange={(e) => updateTestMeta(type, test.id, 'date', e.target.value)}
+                        className="h-8"
+                      />
+                    ) : (
+                      test.date
+                    )}
+                  </TableCell>
+                  <TableCell className="py-2 text-sm text-center border-r">
+                    {isEditing ? (
+                      <Input
+                        type="number"
+                        value={test.scores.vocab}
+                        onChange={(e) => updateTestScore(type, test.id, 'vocab', Number(e.target.value))}
+                        className="h-8 text-center"
+                      />
+                    ) : (
+                      <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.vocab < 50 ? "text-red-600 font-bold" : ""}>
+                        {test.scores.vocab}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="py-2 text-sm text-center border-r">
+                    {isEditing ? (
+                      <Input
+                        type="number"
+                        value={test.scores.grammar}
+                        onChange={(e) => updateTestScore(type, test.id, 'grammar', Number(e.target.value))}
+                        className="h-8 text-center"
+                      />
+                    ) : (
+                      <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.grammar < 50 ? "text-red-600 font-bold" : ""}>
+                        {isJLPT ? (test.scores.grammar + (test.scores.reading || 0)) : test.scores.grammar}
+                      </span>
+                    )}
+                  </TableCell>
+                  {!isJLPT && (
+                    <TableCell className="py-2 text-sm text-center border-r">
+                      {isEditing ? (
+                        <Input
+                          type="number"
+                          value={test.scores.reading}
+                          onChange={(e) => updateTestScore(type, test.id, 'reading', Number(e.target.value))}
+                          className="h-8 text-center"
+                        />
+                      ) : (
+                        <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.reading < 50 ? "text-red-600 font-bold" : ""}>
+                          {test.scores.reading}
+                        </span>
+                      )}
+                    </TableCell>
+                  )}
+                  <TableCell className="py-2 text-sm text-center border-r">
+                    {isEditing ? (
+                      <Input
+                        type="number"
+                        value={test.scores.listening}
+                        onChange={(e) => updateTestScore(type, test.id, 'listening', Number(e.target.value))}
+                        className="h-8 text-center"
+                      />
+                    ) : (
+                      <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.listening < 50 ? "text-red-600 font-bold" : ""}>
+                        {test.scores.listening}
+                      </span>
+                    )}
+                  </TableCell>
+                  {!isJLPT && (
+                    <TableCell className="py-2 text-sm text-center border-r">
+                      {isEditing ? (
+                        <Input
+                          type="number"
+                          value={test.scores.speaking}
+                          onChange={(e) => updateTestScore(type, test.id, 'speaking', Number(e.target.value))}
+                          className="h-8 text-center"
+                        />
+                      ) : (
+                        <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.speaking < 50 ? "text-red-600 font-bold" : ""}>
+                          {test.scores.speaking}
+                        </span>
+                      )}
+                    </TableCell>
+                  )}
+                  <TableCell className="py-2 text-sm text-center font-bold border-r">
+                    {test.scores.vocab + test.scores.grammar + (test.scores.reading || 0) + test.scores.listening + (test.scores.speaking || 0)}
+                  </TableCell>
+                  <TableCell className="py-2 text-sm text-right">
+                    {isEditing ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeTest(type, test.id)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    ) : (
+                      <span className={`font-bold ${test.result === "Giỏi" ? "text-blue-600" :
+                        test.result === "Khá" ? "text-green-600" :
+                          test.result === "Trung bình" ? "text-yellow-600" :
+                            test.result === "Đỗ" ? "text-green-600" :
+                              "text-red-600"
+                        }`}>
+                        {test.result || "-"}
+                      </span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={isJLPT ? 7 : 9} className="text-center text-muted-foreground py-6 text-sm italic">
+                  Chưa có dữ liệu bài thi {title.toLowerCase()}
+                </TableCell>
+              </TableRow>
+            )}
+
+            {/* Average Row for Comprehensive Test */}
+            {type === "compTests" && !isEditing && tests && tests.length > 0 && (() => {
+              const total = tests.reduce((acc: any, t: TestRecord) => ({
+                vocab: acc.vocab + t.scores.vocab,
+                grammar: acc.grammar + t.scores.grammar,
+                reading: acc.reading + t.scores.reading,
+                listening: acc.listening + t.scores.listening,
+                speaking: acc.speaking + (t.scores.speaking || 0),
+              }), { vocab: 0, grammar: 0, reading: 0, listening: 0, speaking: 0 });
+              const count = tests.length;
+              const avg = {
+                vocab: (total.vocab / count).toFixed(1),
+                grammar: (total.grammar / count).toFixed(1),
+                reading: (total.reading / count).toFixed(1),
+                listening: (total.listening / count).toFixed(1),
+                speaking: (total.speaking / count).toFixed(1),
+              };
+
+              const sumAvg = parseFloat(avg.vocab) + parseFloat(avg.grammar) + parseFloat(avg.reading) + parseFloat(avg.listening) + parseFloat(avg.speaking);
+              const percentage = (sumAvg / 500) * 100;
+
+              let classification = "";
+              if (percentage >= 85) classification = "Giỏi";
+              else if (percentage >= 70) classification = "Khá";
+              else if (percentage >= 50) classification = "Trung bình";
+              else classification = "Chưa đạt";
+
+              let colorClass = "text-red-600";
+              let bgClass = "bg-red-50 hover:bg-red-50 border-red-200";
+
+              if (classification === "Giỏi") {
+                colorClass = "text-blue-600";
+                bgClass = "bg-blue-50 hover:bg-blue-50 border-blue-200";
+              } else if (classification === "Khá") {
+                colorClass = "text-green-600";
+                bgClass = "bg-green-50 hover:bg-green-50 border-green-200";
+              } else if (classification === "Trung bình") {
+                colorClass = "text-yellow-600";
+                bgClass = "bg-yellow-50 hover:bg-yellow-50 border-yellow-200";
+              }
 
               return (
-                <Fragment key={type}>
-                  {/* Section Header */}
-                  <TableRow className="bg-muted/30">
-                    <TableCell colSpan={7} className="font-bold text-primary py-3">
-                      <div className="flex justify-between items-center">
-                        <span>{title}</span>
-                        {isEditing && (
-                          <Button size="sm" variant="ghost" onClick={() => addTest(type)} className="h-6 w-6 p-0 hover:bg-background">
-                            <Plus className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-
-                  {/* Test Rows */}
-                  {tests && tests.length > 0 ? (
-                    tests.map((test: TestRecord) => (
-                      <TableRow key={test.id}>
-                        <TableCell className="py-2 text-sm whitespace-nowrap border-r">
-                          {isEditing ? (
-                            <Input
-                              value={test.name}
-                              onChange={(e) => updateTestMeta(type, test.id, 'name', e.target.value)}
-                              placeholder="Tên bài kiểm tra"
-                              className="h-8"
-                            />
-                          ) : (
-                            test.name || "Bài kiểm tra"
-                          )}
-                        </TableCell>
-                        <TableCell className="py-2 text-sm whitespace-nowrap border-r">
-                          {isEditing ? (
-                            <Input
-                              type="date"
-                              value={test.date}
-                              onChange={(e) => updateTestMeta(type, test.id, 'date', e.target.value)}
-                              className="h-8"
-                            />
-                          ) : (
-                            test.date
-                          )}
-                        </TableCell>
-                        <TableCell className="py-2 text-sm text-center border-r">
-                          {isEditing ? (
-                            <Input
-                              type="number"
-                              value={test.scores.vocab}
-                              onChange={(e) => updateTestScore(type, test.id, 'vocab', Number(e.target.value))}
-                              className="h-8 text-center"
-                            />
-                          ) : (
-                            <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.vocab < 50 ? "text-red-600 font-bold" : ""}>
-                              {test.scores.vocab}
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="py-2 text-sm text-center border-r">
-                          {isEditing ? (
-                            <Input
-                              type="number"
-                              value={test.scores.grammar}
-                              onChange={(e) => updateTestScore(type, test.id, 'grammar', Number(e.target.value))}
-                              className="h-8 text-center"
-                            />
-                          ) : (
-                            <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.grammar < 50 ? "text-red-600 font-bold" : ""}>
-                              {test.scores.grammar}
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="py-2 text-sm text-center border-r">
-                          {isEditing ? (
-                            <Input
-                              type="number"
-                              value={test.scores.reading}
-                              onChange={(e) => updateTestScore(type, test.id, 'reading', Number(e.target.value))}
-                              className="h-8 text-center"
-                            />
-                          ) : (
-                            <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.reading < 50 ? "text-red-600 font-bold" : ""}>
-                              {test.scores.reading}
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="py-2 text-sm text-center border-r">
-                          {isEditing ? (
-                            <Input
-                              type="number"
-                              value={test.scores.listening}
-                              onChange={(e) => updateTestScore(type, test.id, 'listening', Number(e.target.value))}
-                              className="h-8 text-center"
-                            />
-                          ) : (
-                            <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.listening < 50 ? "text-red-600 font-bold" : ""}>
-                              {test.scores.listening}
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="py-2 text-sm text-center border-r">
-                          {type === 'jlptTests' ? (
-                            <span className="text-muted-foreground">-</span>
-                          ) : isEditing ? (
-                            <Input
-                              type="number"
-                              value={test.scores.speaking}
-                              onChange={(e) => updateTestScore(type, test.id, 'speaking', Number(e.target.value))}
-                              className="h-8 text-center"
-                            />
-                          ) : (
-                            <span className={(type === 'lessonTests' || type === 'compTests') && test.scores.speaking < 50 ? "text-red-600 font-bold" : ""}>
-                              {test.scores.speaking}
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell className="py-2 text-sm text-center font-bold border-r">
-                          {test.scores.vocab + test.scores.grammar + test.scores.reading + test.scores.listening + (type === 'jlptTests' ? 0 : (test.scores.speaking || 0))}
-                        </TableCell>
-                        <TableCell className="py-2 text-sm text-right">
-                          {isEditing ? (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeTest(type, test.id)}
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          ) : (
-                            <span className={`font-bold ${test.result === "Giỏi" ? "text-blue-600" :
-                              test.result === "Khá" ? "text-green-600" :
-                                test.result === "Trung bình" ? "text-yellow-600" :
-                                  test.result === "Đỗ" ? "text-green-600" :
-                                    "text-red-600"
-                              }`}>
-                              {test.result || "-"}
-                            </span>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center text-muted-foreground py-2 text-sm italic">
-                        Chưa có dữ liệu
-                      </TableCell>
-                    </TableRow>
-                  )}
-
-                  {/* Average Row for Comprehensive Test */}
-                  {type === "compTests" && !isEditing && tests && tests.length > 0 && (() => {
-                    const total = tests.reduce((acc: any, t: TestRecord) => ({
-                      vocab: acc.vocab + t.scores.vocab,
-                      grammar: acc.grammar + t.scores.grammar,
-                      reading: acc.reading + t.scores.reading,
-                      listening: acc.listening + t.scores.listening,
-                      speaking: acc.speaking + (t.scores.speaking || 0),
-                    }), { vocab: 0, grammar: 0, reading: 0, listening: 0, speaking: 0 });
-                    const count = tests.length;
-                    const avg = {
-                      vocab: (total.vocab / count).toFixed(1),
-                      grammar: (total.grammar / count).toFixed(1),
-                      reading: (total.reading / count).toFixed(1),
-                      listening: (total.listening / count).toFixed(1),
-                      speaking: (total.speaking / count).toFixed(1),
-                    };
-
-                    const sumAvg = parseFloat(avg.vocab) + parseFloat(avg.grammar) + parseFloat(avg.reading) + parseFloat(avg.listening) + parseFloat(avg.speaking);
-                    const percentage = (sumAvg / 500) * 100;
-
-                    let classification = "";
-                    if (percentage >= 90) classification = "Giỏi";
-                    else if (percentage >= 80) classification = "Khá";
-                    else if (percentage >= 70) classification = "Trung bình";
-                    else classification = "Không đạt";
-
-                    let colorClass = "text-red-600";
-                    let bgClass = "bg-red-50 hover:bg-red-50 border-red-200";
-
-                    if (classification === "Giỏi") {
-                      colorClass = "text-blue-600";
-                      bgClass = "bg-blue-50 hover:bg-blue-50 border-blue-200";
-                    } else if (classification === "Khá") {
-                      colorClass = "text-green-600";
-                      bgClass = "bg-green-50 hover:bg-green-50 border-green-200";
-                    } else if (classification === "Trung bình") {
-                      colorClass = "text-yellow-600";
-                      bgClass = "bg-yellow-50 hover:bg-yellow-50 border-yellow-200";
-                    }
-
-                    return (
-                      <TableRow className={`${bgClass} border-t-2`}>
-                        <TableCell colSpan={2} className={`font-bold ${colorClass} border-r`}>Điểm trung bình tháng ( báo cáo công ty khách hàng)</TableCell>
-                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.vocab}</TableCell>
-                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.grammar}</TableCell>
-                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.reading}</TableCell>
-                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.listening}</TableCell>
-                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.speaking}</TableCell>
-                        <TableCell className={`text-center font-bold ${colorClass} border-r`}>{(parseFloat(avg.vocab) + parseFloat(avg.grammar) + parseFloat(avg.reading) + parseFloat(avg.listening) + parseFloat(avg.speaking)).toFixed(1)}</TableCell>
-                        <TableCell className={`text-right font-bold ${colorClass} whitespace-nowrap`}>
-                          {classification}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })()}
-                </Fragment>
+                <TableRow className={`${bgClass} border-t-2`}>
+                  <TableCell colSpan={2} className={`font-bold ${colorClass} border-r`}>Điểm trung bình tháng ( báo cáo công ty khách hàng)</TableCell>
+                  <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.vocab}</TableCell>
+                  <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.grammar}</TableCell>
+                  <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.reading}</TableCell>
+                  <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.listening}</TableCell>
+                  <TableCell className={`text-center font-bold ${colorClass} border-r`}>{avg.speaking}</TableCell>
+                  <TableCell className={`text-center font-bold ${colorClass} border-r`}>{(parseFloat(avg.vocab) + parseFloat(avg.grammar) + parseFloat(avg.reading) + parseFloat(avg.listening) + parseFloat(avg.speaking)).toFixed(1)}</TableCell>
+                  <TableCell className={`text-right font-bold ${colorClass} whitespace-nowrap`}>
+                    {classification}
+                  </TableCell>
+                </TableRow>
               );
-            })}
+            })()}
           </TableBody>
         </Table>
       </div>
@@ -1013,8 +1013,10 @@ const StudentPerformance = () => {
                 </div>
 
 
-                {/* Combined Test Results Table */}
-                {renderCombinedTestsTable()}
+                {/* Render each section as its own table */}
+                {renderTestTable("Bài kiểm tra sau mỗi bài ( giảng viên nhập - rada tăng trưởng)", "lessonTests")}
+                {renderTestTable("Bài kiểm tra tổng ( mỗi tháng định kì 1 tới 2 bài )", "compTests")}
+                {renderTestTable("Thi thử JLPT ( đánh giá trình độ hiện tại học viên )", "jlptTests")}
 
 
               </>

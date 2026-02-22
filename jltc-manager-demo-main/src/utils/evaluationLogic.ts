@@ -161,7 +161,8 @@ export function evaluateGeneralTest(scores: GeneralTestScores): EvaluationResult
  * 3. JLPT Evaluation
  */
 export function evaluateJLPTTest(level: JLPTLevel, scores: JLPTSectionScores): EvaluationResult {
-    const totalScore = scores.vocab + scores.grammar + scores.reading + scores.listening;
+    // Reading is now merged into Grammar per user request
+    const totalScore = scores.vocab + scores.grammar + scores.listening;
     const totalMaxScore = 180;
 
     // Pass Thresholds
@@ -171,17 +172,16 @@ export function evaluateJLPTTest(level: JLPTLevel, scores: JLPTSectionScores): E
     else if (level === 'N3') passThreshold = 95;
     else if (level === 'N2') passThreshold = 90;
 
-    // Component Thresholds (User rule: "ko có môn dưới 19")
-    // We apply 19/60 or equivalent as minimum for ALL 4 sections to match the "4 section" request strictly.
+    // Component Thresholds (Simplified to 3 sections)
+    // For 180 total, common min is 19/60 per section for N1-N3, but since it's gộp we'll use a consistent min
     const componentThreshold = 19;
 
     const passedTotal = totalScore >= passThreshold;
     const passedVocab = scores.vocab >= componentThreshold;
     const passedGrammar = scores.grammar >= componentThreshold;
-    const passedReading = scores.reading >= componentThreshold;
     const passedListening = scores.listening >= componentThreshold;
 
-    const passed = passedTotal && passedVocab && passedGrammar && passedReading && passedListening;
+    const passed = passedTotal && passedVocab && passedGrammar && passedListening;
 
     let reason = '';
     if (!passed) {
@@ -189,27 +189,12 @@ export function evaluateJLPTTest(level: JLPTLevel, scores: JLPTSectionScores): E
         if (!passedTotal) reasons.push(`Total < ${passThreshold} (${totalScore})`);
         if (!passedVocab) reasons.push(`Vocab < ${componentThreshold}`);
         if (!passedGrammar) reasons.push(`Grammar < ${componentThreshold}`);
-        if (!passedReading) reasons.push(`Reading < ${componentThreshold}`);
         if (!passedListening) reasons.push(`Listening < ${componentThreshold}`);
         reason = reasons.join(', ');
     }
 
-    // Rough Max Score Estimation for UI details (JLPT doesn't strictly have 4x45 but we simulate)
-    // N5/N4: List 60. Remainder 120 -> 40/40/40.
-    // N3/N2: List 60, Read 60. Remainder 60 -> 30/30.
-    let maxVocab = 45, maxGrammar = 45, maxReading = 45, maxListening = 45;
-
-    if (['N5', 'N4'].includes(level)) {
-        maxListening = 60;
-        maxVocab = 40;
-        maxGrammar = 40;
-        maxReading = 40;
-    } else {
-        maxListening = 60;
-        maxReading = 60;
-        maxVocab = 30;
-        maxGrammar = 30;
-    }
+    // Simplified Max Scores for UI details (60 per section)
+    const maxVocab = 60, maxGrammar = 60, maxListening = 60;
 
     return {
         passed,
@@ -219,7 +204,6 @@ export function evaluateJLPTTest(level: JLPTLevel, scores: JLPTSectionScores): E
         details: {
             vocab: { score: scores.vocab, max: maxVocab, passed: passedVocab },
             grammar: { score: scores.grammar, max: maxGrammar, passed: passedGrammar },
-            reading: { score: scores.reading, max: maxReading, passed: passedReading },
             listening: { score: scores.listening, max: maxListening, passed: passedListening },
         }
     };

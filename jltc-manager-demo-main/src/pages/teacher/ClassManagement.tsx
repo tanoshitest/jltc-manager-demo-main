@@ -82,30 +82,17 @@ const ClassManagement = () => {
     }
   };
 
-  const selectedClass = classData[id as keyof typeof classData];
-
-  if (!selectedClass) {
-    return (
-      <div className="min-h-screen bg-background p-8">
-        <Button variant="ghost" onClick={() => navigate("/teacher/dashboard")}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Quay lại
-        </Button>
-        <p className="mt-4">Không tìm thấy lớp học</p>
-      </div>
-    );
-  }
-
   const [testType, setTestType] = useState<string>("after_lesson");
-  const [attendance, setAttendance] = useState<Record<string, boolean>>(
-    Object.fromEntries(selectedClass.studentList.map(s => [s.id, true]))
+  const [attendance, setAttendance] = useState<Record<string, boolean>>(() =>
+    selectedClass ? Object.fromEntries(selectedClass.studentList.map(s => [s.id, true])) : {}
   );
-  const [grades, setGrades] = useState<Record<string, StudentGrade>>(
-    Object.fromEntries(selectedClass.studentList.map(s => [s.id, { scores: {}, total: 0, passed: false, comment: "" }]))
+  const [grades, setGrades] = useState<Record<string, StudentGrade>>(() =>
+    selectedClass ? Object.fromEntries(selectedClass.studentList.map(s => [s.id, { scores: {}, total: 0, passed: false, comment: "" }])) : {}
   );
 
   // Generate dates for attendance table (demo: 3 months with 3 classes per week)
   const generateCourseDates = () => {
+    if (!selectedClass) return [];
     const dates = [];
     const start = new Date(selectedClass.startDate);
     const end = new Date(selectedClass.endDate);
@@ -123,16 +110,28 @@ const ClassManagement = () => {
   };
 
   const courseDates = generateCourseDates();
-  
+
   // New attendance data structure with status and reason
-  const [attendanceData, setAttendanceData] = useState<Record<string, Record<string, AttendanceRecord>>>(
-    Object.fromEntries(
+  const [attendanceData, setAttendanceData] = useState<Record<string, Record<string, AttendanceRecord>>>(() =>
+    selectedClass ? Object.fromEntries(
       selectedClass.studentList.map(student => [
         student.id,
         Object.fromEntries(courseDates.map(date => [date.toISOString(), { status: "present" as const }]))
       ])
-    )
+    ) : {}
   );
+
+  if (!selectedClass) {
+    return (
+      <div className="min-h-screen bg-background p-8">
+        <Button variant="ghost" onClick={() => navigate("/teacher/dashboard")}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Quay lại
+        </Button>
+        <p className="mt-4">Không tìm thấy lớp học</p>
+      </div>
+    );
+  }
 
   const handleAttendanceChange = (studentId: string, dateStr: string, status: AttendanceRecord["status"], reason?: string) => {
     setAttendanceData(prev => ({
@@ -219,7 +218,7 @@ const ClassManagement = () => {
     const values = fields.map(f => scores[f.key] || 0);
     const total = values.length > 0 ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : 0;
     const passed = total >= 60;
-    
+
     setGrades(prev => ({
       ...prev,
       [studentId]: {

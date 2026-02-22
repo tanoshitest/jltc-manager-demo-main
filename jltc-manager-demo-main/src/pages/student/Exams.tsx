@@ -191,81 +191,70 @@ const StudentExams = () => {
 
   return (
     <StudentLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
-            Danh sách đề thi
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Chọn đề thi để bắt đầu làm bài
-          </p>
-        </div>
-
-        {/* Filters */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Tìm kiếm đề thi..."
-                className="pl-9"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Exam Tabs */}
+      <div className="relative">
         <Tabs defaultValue="available" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="available">
-              Có thể làm ({availableExams.length})
-            </TabsTrigger>
-            <TabsTrigger value="completed">
-              Đã hoàn thành ({completedExams.length})
-            </TabsTrigger>
-            <TabsTrigger value="locked">
-              Chưa mở ({lockedExams.length})
-            </TabsTrigger>
-          </TabsList>
+          <div className="sticky top-[56px] lg:top-0 z-30 bg-muted -mx-3 lg:-mx-4 px-3 lg:px-4 pt-4 pb-4 space-y-6 border-b border-border shadow-sm transform-none">
+            {/* Header */}
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+                Danh sách đề thi
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Chọn đề thi để bắt đầu làm bài
+              </p>
+            </div>
 
-          <TabsContent value="available" className="space-y-4 mt-4">
-            {availableExams.length > 0 ? (
-              availableExams.map((exam) => <ExamCard key={exam.id} exam={exam} />)
-            ) : (
-              <Card>
-                <CardContent className="p-8 text-center text-muted-foreground">
-                  Không có đề thi nào phù hợp
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
+            {/* Filters */}
+            <Card className="shadow-none border-border/60">
+              <CardContent className="p-3 lg:p-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Tìm kiếm đề thi..."
+                    className="pl-9 h-11 lg:h-12 bg-background/50 border-border/40 focus-visible:ring-primary shadow-none"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-          <TabsContent value="completed" className="space-y-4 mt-4">
-            {completedExams.length > 0 ? (
-              completedExams.map((exam) => <ExamCard key={exam.id} exam={exam} />)
-            ) : (
-              <Card>
-                <CardContent className="p-8 text-center text-muted-foreground">
-                  Bạn chưa hoàn thành đề thi nào
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
+            {/* TabsList */}
+            <TabsList className="grid w-full grid-cols-2 p-1 h-12 bg-card/50 backdrop-blur-none border border-border">
+              <TabsTrigger value="available" className="rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold">
+                Đề thi ({availableExams.length})
+              </TabsTrigger>
+              <TabsTrigger value="completed" className="rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold">
+                Đã hoàn thành ({completedExams.length})
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="locked" className="space-y-4 mt-4">
-            {lockedExams.length > 0 ? (
-              lockedExams.map((exam) => <ExamCard key={exam.id} exam={exam} />)
-            ) : (
-              <Card>
-                <CardContent className="p-8 text-center text-muted-foreground">
-                  Không có đề thi nào bị khóa
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
+          <div className="space-y-6 mt-6">
+            <TabsContent value="available" className="space-y-4">
+              {availableExams.length > 0 ? (
+                availableExams.map((exam) => <ExamCard key={exam.id} exam={exam} />)
+              ) : (
+                <Card>
+                  <CardContent className="p-8 text-center text-muted-foreground">
+                    Không có đề thi nào phù hợp
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="completed" className="space-y-4">
+              {completedExams.length > 0 ? (
+                completedExams.map((exam) => <ExamCard key={exam.id} exam={exam} />)
+              ) : (
+                <Card>
+                  <CardContent className="p-8 text-center text-muted-foreground">
+                    Bạn chưa hoàn thành đề thi nào
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+          </div>
         </Tabs>
       </div>
     </StudentLayout>
