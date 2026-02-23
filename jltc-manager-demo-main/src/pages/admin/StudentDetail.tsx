@@ -10,10 +10,6 @@ import StudentBasicInfo from "@/components/student/StudentBasicInfo";
 import StudentPerformance from "@/components/student/StudentPerformance";
 import StudentAttendance from "@/components/student/StudentAttendance";
 
-import StudentFinance from "@/components/student/StudentFinance";
-import StudentHistory from "@/components/student/StudentHistory";
-import StudentNotes from "@/components/student/StudentNotes";
-
 const StudentDetail = () => {
   const { id } = useParams();
 
@@ -63,13 +59,10 @@ const StudentDetail = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="basic">Thông tin</TabsTrigger>
             <TabsTrigger value="performance">Năng lực</TabsTrigger>
             <TabsTrigger value="attendance">Điểm danh</TabsTrigger>
-            <TabsTrigger value="finance">Học phí</TabsTrigger>
-            <TabsTrigger value="history">Lịch sử</TabsTrigger>
-            <TabsTrigger value="notes">Ghi chú</TabsTrigger>
           </TabsList>
 
           <TabsContent value="basic" className="mt-6">
@@ -82,19 +75,6 @@ const StudentDetail = () => {
 
           <TabsContent value="attendance" className="mt-6">
             <StudentAttendance />
-          </TabsContent>
-
-
-          <TabsContent value="finance" className="mt-6">
-            <StudentFinance />
-          </TabsContent>
-
-          <TabsContent value="history" className="mt-6">
-            <StudentHistory />
-          </TabsContent>
-
-          <TabsContent value="notes" className="mt-6">
-            <StudentNotes />
           </TabsContent>
         </Tabs>
       </div>

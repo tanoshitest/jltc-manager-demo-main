@@ -27,7 +27,7 @@ interface TeacherLayoutProps {
 }
 
 const menuItems = [
-  { icon: Users, label: "Học viên", path: "/teacher/students" },
+  { icon: Users, label: "Quản lý học viên", path: "/teacher/students" },
   { icon: BookOpen, label: "Quản lý Lớp", path: "/teacher/classes" },
   { icon: FileText, label: "Quản lý Đề thi", path: "/teacher/exams" },
   { icon: ClipboardList, label: "Công việc được giao", path: "/teacher/tasks" },

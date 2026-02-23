@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/table";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 import { useState, Fragment } from "react";
-import { Plus, Edit, Trash2, Printer } from "lucide-react";
+import { Plus, Edit, Trash2, Printer, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { evaluateJLPTTest, evaluateLessonTest, evaluateComprehensiveTest, evaluateGeneralTest, JLPTLevel } from "@/utils/evaluationLogic";
 
