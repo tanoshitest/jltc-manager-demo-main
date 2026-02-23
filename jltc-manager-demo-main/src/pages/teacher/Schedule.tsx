@@ -140,21 +140,15 @@ const TeacherScheduleTable: React.FC<TeacherScheduleTableProps> = ({ schedule, t
 
   return (
     <div className="overflow-x-auto border rounded-md shadow-sm">
-      <table className="w-full border-collapse min-w-[900px] text-sm">
+      <table className="w-full border-collapse min-w-[800px] text-xs">
         <thead>
           <tr className="bg-primary/10 text-center font-bold text-foreground border-b border-border">
-            <th className="border p-2 w-[80px] bg-primary/10" rowSpan={2}>BUỔI</th>
-            <th className="border p-2 w-[120px] bg-primary/10" rowSpan={2}>TIẾT</th>
+            <th className="border px-1 py-1 w-[50px] bg-primary/10" rowSpan={2}>BUỔI</th>
+            <th className="border px-1 py-1 w-[90px] bg-primary/10" rowSpan={2}>TIẾT</th>
             {days.map((day) => (
-              <th key={day.key} className="border p-2 bg-primary/5 min-w-[120px]">
-                <div className="font-bold">{day.label}</div>
-              </th>
-            ))}
-          </tr>
-          <tr className="bg-muted/30 text-center text-xs text-muted-foreground border-b-2">
-            {days.map((day) => (
-              <th key={day.key} className="border p-1">
-                {String(day.date).padStart(2, '0')}/{String(day.month).padStart(2, '0')}
+              <th key={day.key} className="border px-1 py-1 bg-primary/5 min-w-[90px]">
+                <div className="font-bold text-xs">{day.label}</div>
+                <div className="text-[10px] font-normal text-muted-foreground">{String(day.date).padStart(2, '0')}/{String(day.month).padStart(2, '0')}</div>
               </th>
             ))}
           </tr>
@@ -166,15 +160,15 @@ const TeacherScheduleTable: React.FC<TeacherScheduleTableProps> = ({ schedule, t
                 <tr key={`${session.name}-${slotIndex}`} className="hover:bg-muted/20 transition-colors">
                   {idxInSession === 0 && (
                     <td
-                      className="border p-2 text-center font-bold bg-muted/10 text-muted-foreground"
+                      className="border px-1 py-1 text-center font-bold bg-muted/10 text-muted-foreground text-[10px]"
                       rowSpan={session.slots.length}
                     >
                       {session.name}
                     </td>
                   )}
-                  <td className="border p-2 text-center">
-                    <div className="font-medium">Tiết {slotIndex + 1}</div>
-                    <div className="text-xs text-muted-foreground">({ts[slotIndex]})</div>
+                  <td className="border px-1 py-0.5 text-center">
+                    <div className="font-medium text-[11px]">Tiết {slotIndex + 1}</div>
+                    <div className="text-[9px] text-muted-foreground">({ts[slotIndex]})</div>
                   </td>
                   {days.map((day) => {
                     const item = findItem(day.key, slotIndex);
@@ -183,18 +177,18 @@ const TeacherScheduleTable: React.FC<TeacherScheduleTableProps> = ({ schedule, t
                       <td
                         key={day.key}
                         className={cn(
-                          "border p-1.5 text-center transition-colors",
+                          "border px-0.5 py-0.5 text-center transition-colors",
                           item && "cursor-pointer"
                         )}
                         onClick={() => item && onCellClick(day.key, slotIndex, item)}
                       >
                         {item && color ? (
-                          <div className={cn("p-2 rounded-lg border text-center", color.bg, color.border)}>
-                            <p className={cn("font-bold text-sm", color.text)}>{item.class}</p>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">P.{item.room}</p>
+                          <div className={cn("px-1 py-1 rounded border text-center", color.bg, color.border)}>
+                            <p className={cn("font-bold text-[11px] leading-tight", color.text)}>{item.class}</p>
+                            <p className="text-[9px] text-muted-foreground">P.{item.room}</p>
                           </div>
                         ) : (
-                          <span className="text-muted-foreground/20">-</span>
+                          <span className="text-muted-foreground/15 text-[10px]">-</span>
                         )}
                       </td>
                     );
@@ -317,103 +311,78 @@ const TeacherSchedule = () => {
 
   return (
     <TeacherLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Lịch dạy tuần này</h1>
-          <p className="text-muted-foreground">
-            Xin chào, <span className="font-semibold text-primary">{LOGGED_IN_TEACHER}</span>-sensei! Đây là kế hoạch giảng dạy của bạn.
-          </p>
-        </div>
-
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="bg-primary/5 border-primary/20">
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-primary">{totalClasses}</p>
-                <p className="text-xs text-muted-foreground">Tổng số tiết dạy</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-blue-600">{uniqueClasses.size}</p>
-                <p className="text-xs text-muted-foreground">Lớp đang phụ trách</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-amber-50 border-amber-200">
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                <Users className="w-5 h-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-amber-600">
-                  {Object.values(teacherSchedule).flat().reduce((sum, c) => sum + c.students, 0)}
-                </p>
-                <p className="text-xs text-muted-foreground">Tổng học viên</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Schedule Table */}
-        <Card>
-          <CardHeader className="pb-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Button size="icon" variant="outline" onClick={handlePrevWeek}>
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
-                  <span className="text-sm font-medium">
-                    Tuần {selectedWeek} - Tháng {selectedMonth}/{selectedYear}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    ({formatDate(weekData.start)} - {formatDate(weekData.end)})
-                  </span>
-                </div>
-                <Button size="icon" variant="outline" onClick={handleNextWeek}>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-
-              <div className="h-6 w-px bg-border hidden md:block" />
-
-              <Select value={String(selectedMonth)} onValueChange={(v) => { setSelectedMonth(parseInt(v)); setSelectedWeek(1); }}>
-                <SelectTrigger className="w-[110px] h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <SelectItem key={i + 1} value={String(i + 1)}>Tháng {i + 1}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={String(selectedYear)} onValueChange={(v) => { setSelectedYear(parseInt(v)); setSelectedWeek(1); }}>
-                <SelectTrigger className="w-[90px] h-9"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2024">2024</SelectItem>
-                  <SelectItem value="2025">2025</SelectItem>
-                  <SelectItem value="2026">2026</SelectItem>
-                </SelectContent>
-              </Select>
+      <div className="space-y-2">
+        {/* Compact header: title + stats inline */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Lịch dạy tuần này</h1>
+            <p className="text-xs text-muted-foreground">
+              Xin chào, <span className="font-semibold text-primary">{LOGGED_IN_TEACHER}</span>-sensei!
+            </p>
+          </div>
+          <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-1.5 bg-primary/5 border border-primary/20 rounded-lg px-3 py-1.5">
+              <Calendar className="w-3.5 h-3.5 text-primary" />
+              <span className="font-bold text-primary">{totalClasses}</span>
+              <span className="text-muted-foreground">tiết</span>
             </div>
-          </CardHeader>
-          <CardContent>
-            <TeacherScheduleTable
-              schedule={teacherSchedule}
-              timeSlots={timeSlots}
-              days={days}
-              onCellClick={handleCellClick}
-            />
-          </CardContent>
-        </Card>
+            <div className="flex items-center gap-1.5 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5">
+              <BookOpen className="w-3.5 h-3.5 text-blue-600" />
+              <span className="font-bold text-blue-600">{uniqueClasses.size}</span>
+              <span className="text-muted-foreground">lớp</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">
+              <Users className="w-3.5 h-3.5 text-amber-600" />
+              <span className="font-bold text-amber-600">{Object.values(teacherSchedule).flat().reduce((sum, c) => sum + c.students, 0)}</span>
+              <span className="text-muted-foreground">HV</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Week nav - compact */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" variant="outline" className="h-7 w-7 p-0" onClick={handlePrevWeek}>
+            <ChevronLeft className="w-3.5 h-3.5" />
+          </Button>
+          <div className="flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-md text-xs">
+            <span className="font-medium">
+              Tuần {selectedWeek} - Tháng {selectedMonth}/{selectedYear}
+            </span>
+            <span className="text-muted-foreground">
+              ({formatDate(weekData.start)} - {formatDate(weekData.end)})
+            </span>
+          </div>
+          <Button size="sm" variant="outline" className="h-7 w-7 p-0" onClick={handleNextWeek}>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Button>
+
+          <div className="h-5 w-px bg-border hidden md:block" />
+
+          <Select value={String(selectedMonth)} onValueChange={(v) => { setSelectedMonth(parseInt(v)); setSelectedWeek(1); }}>
+            <SelectTrigger className="w-[100px] h-7 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: 12 }, (_, i) => (
+                <SelectItem key={i + 1} value={String(i + 1)}>Tháng {i + 1}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={String(selectedYear)} onValueChange={(v) => { setSelectedYear(parseInt(v)); setSelectedWeek(1); }}>
+            <SelectTrigger className="w-[80px] h-7 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2024">2024</SelectItem>
+              <SelectItem value="2025">2025</SelectItem>
+              <SelectItem value="2026">2026</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Schedule Table - directly, no Card wrapper */}
+        <TeacherScheduleTable
+          schedule={teacherSchedule}
+          timeSlots={timeSlots}
+          days={days}
+          onCellClick={handleCellClick}
+        />
       </div>
 
       {/* Class Detail Dialog (read-only) */}
