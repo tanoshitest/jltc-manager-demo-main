@@ -322,14 +322,7 @@ const StudentDashboard = () => {
                 Làm bài
               </Button>
             )}
-            {exam.status === "completed" && (
-              <Button
-                variant="outline"
-                onClick={() => navigate(`/student/result/${exam.id}`)}
-              >
-                Xem kết quả
-              </Button>
-            )}
+            {/* Removed "Xem kết quả" button as per user request */}
             {exam.status === "locked" && (
               <Button disabled variant="secondary">
                 <Lock className="h-4 w-4 mr-2" />
@@ -733,50 +726,26 @@ const StudentDashboard = () => {
               </CardContent>
             </Card>
 
-            <Tabs defaultValue="available" className="w-full">
-              <TabsList className="flex w-fit gap-2 bg-transparent p-0 mb-6 border-b border-border w-full justify-start rounded-none h-auto">
-                <TabsTrigger
-                  value="available"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none font-bold pb-3 px-4 transition-all text-muted-foreground data-[state=active]:text-primary"
-                >
-                  Đề thi ({availableExams.length})
-                </TabsTrigger>
-                <TabsTrigger
-                  value="completed"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none font-bold pb-3 px-4 transition-all text-muted-foreground data-[state=active]:text-primary"
-                >
-                  Đã hoàn thành ({completedExams.length})
-                </TabsTrigger>
-              </TabsList>
+            {/* Unifed Exam List (No more tabs) */}
+            <div className="space-y-4">
+              {(() => {
+                const sortedExams = [...filteredExams].sort((a, b) => {
+                  const priority: Record<string, number> = { available: 1, locked: 2, completed: 3 };
+                  return (priority[a.status] || 99) - (priority[b.status] || 99);
+                });
 
-              <TabsContent value="available" className="space-y-4 outline-none mt-0">
-                <div className="grid gap-4">
-                  {availableExams.length > 0 ? (
-                    availableExams.map((exam) => <ExamCard key={exam.id} exam={exam} />)
-                  ) : (
-                    <Card className="border-dashed border-2">
-                      <CardContent className="p-8 text-center text-muted-foreground">
-                        Không có đề thi nào khả dụng
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="completed" className="space-y-4 outline-none mt-0">
-                <div className="grid gap-4">
-                  {completedExams.length > 0 ? (
-                    completedExams.map((exam) => <ExamCard key={exam.id} exam={exam} />)
-                  ) : (
-                    <Card className="border-dashed border-2">
-                      <CardContent className="p-8 text-center text-muted-foreground">
-                        Chưa có đề thi nào được hoàn thành
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
+                return sortedExams.length > 0 ? (
+                  sortedExams.map((exam) => <ExamCard key={exam.id} exam={exam} />)
+                ) : (
+                  <Card className="border-dashed border-2">
+                    <CardContent className="p-12 text-center text-muted-foreground">
+                      <FileText className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                      <p>Không tìm thấy đề thi nào phù hợp</p>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
+            </div>
           </TabsContent>
         </Tabs>
       </div>

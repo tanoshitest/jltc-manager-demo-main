@@ -12,15 +12,15 @@ interface OverviewScheduleTableProps {
 const SESSIONS = [
     {
         name: "SÁNG",
-        slots: [0, 1, 2], // 08:00, 09:00, 10:30
+        slots: [0, 1, 2], // Tiết 1, 2, 3
     },
     {
         name: "CHIỀU",
-        slots: [3, 4, 5], // 13:00, 14:15, 15:30
+        slots: [3, 4, 5], // Tiết 4, 5, 6
     },
     {
         name: "TỐI",
-        slots: [6, 7, 8], // 18:00, 19:15, 20:30
+        slots: [6, 7], // Tiết 7, 8
     },
 ];
 
@@ -39,12 +39,14 @@ const OverviewScheduleTable: React.FC<OverviewScheduleTableProps> = ({ schedule,
         return Array.from(classes).sort(); // Sort alphabetically
     };
 
-    // Helper to find teacher for a specific day, slot, and class
-    const getTeacherForCell = (dayKey: keyof ScheduleData, slotIndex: number, className: string) => {
-        const item = schedule[dayKey]?.find(
+    // Helper to find teachers for a specific day, slot, and class
+    const getTeachersForCell = (dayKey: keyof ScheduleData, slotIndex: number, className: string) => {
+        const items = schedule[dayKey]?.filter(
             (c) => c.slot === slotIndex && c.class === className
         );
-        return item ? item.teacher : null;
+        return items && items.length > 0
+            ? items.map(i => `${i.teacher} (${i.learningMode === "online" ? "On" : "Off"})`).join(", ")
+            : null;
     };
 
     return (
@@ -149,14 +151,14 @@ const OverviewScheduleTable: React.FC<OverviewScheduleTableProps> = ({ schedule,
 
                                                 {/* DAYS Columns */}
                                                 {days.map((day) => {
-                                                    const teacher = className ? getTeacherForCell(day.key as keyof ScheduleData, slotIndex, className) : null;
+                                                    const teacherText = className ? getTeachersForCell(day.key as keyof ScheduleData, slotIndex, className) : null;
                                                     return (
                                                         <td
                                                             key={day.key}
                                                             className="border p-2 text-center text-sm"
                                                             onClick={() => className && onClassClick && onClassClick(day.key, slotIndex, className)}
                                                         >
-                                                            {teacher || ""}
+                                                            {teacherText || ""}
                                                         </td>
                                                     );
                                                 })}

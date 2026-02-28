@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Briefcase,
+  UserPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -29,6 +30,7 @@ interface AdminLayoutProps {
 
 const menuItems = [
   { icon: BarChart3, label: "Dashboard", path: "/admin/dashboard" },
+  { icon: UserPlus, label: "Quản lý Lead", path: "/admin/leads" },
   { icon: Users, label: "Quản lý học viên", path: "/admin/students" },
   { icon: UserCog, label: "Quản lý giáo viên", path: "/admin/teachers" },
   { icon: BookOpen, label: "Quản lý lớp", path: "/admin/classes" },

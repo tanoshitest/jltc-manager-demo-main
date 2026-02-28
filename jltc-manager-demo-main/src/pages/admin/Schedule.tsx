@@ -96,56 +96,108 @@ const timeSlots = [
   "18:00-19:00", "19:15-20:15", "20:30-21:30"
 ];
 
-const initialSchedule = {
+const initialSchedule: ScheduleData = {
   monday: [
-    { slot: 0, class: "Lớp 1", teacher: "Hường", room: "201", students: 15, classLevel: "Sơ cấp" },
-    { slot: 0, class: "Lớp 2", teacher: "Khôi", room: "202", students: 16, classLevel: "Sơ cấp" },
-    { slot: 0, class: "Lớp 3", teacher: "Linh", room: "203", students: 18, classLevel: "Trung cấp" },
-    { slot: 0, class: "Lớp 4", teacher: "Mẫn", room: "204", students: 14, classLevel: "Trung cấp" },
-    { slot: 1, class: "N5-02", teacher: "Sato", room: "202", students: 16, classLevel: "Sơ cấp" },
-    { slot: 1, class: "N4-01", teacher: "Tanaka", room: "301", students: 14, classLevel: "Trung cấp" },
-    { slot: 2, class: "N4-02", teacher: "Tanaka", room: "203", students: 18, classLevel: "Trung cấp" },
-    { slot: 3, class: "N4-03", teacher: "Kobayashi", room: "204", students: 14, classLevel: "Trung cấp" },
-    { slot: 4, class: "N3-02", teacher: "Nakamura", room: "205", students: 13, classLevel: "Trung cấp" },
-    { slot: 5, class: "N3-01", teacher: "Suzuki", room: "301", students: 12, classLevel: "Cao cấp" },
+    { id: "m1", slot: 0, class: "Lớp 1", teacher: "Hường", room: "201", students: 15, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "m1_sec", slot: 0, class: "Lớp 1", teacher: "Ito", room: "201", students: 15, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "m1_online", slot: 0, class: "Lớp 1", teacher: "Sato", room: "", students: 12, classLevel: "Sơ cấp", learningMode: "online" },
+    { id: "m2", slot: 0, class: "Lớp 3", teacher: "Khôi", room: "202", students: 16, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "m3", slot: 1, class: "Lớp 1", teacher: "Linh", room: "201", students: 18, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "m4", slot: 1, class: "Lớp 3", teacher: "Mẫn", room: "202", students: 14, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "m5", slot: 2, class: "Lớp 1", teacher: "Sato", room: "", students: 16, classLevel: "Sơ cấp", learningMode: "online" },
+    { id: "m6", slot: 2, class: "Lớp 3", teacher: "Tanaka", room: "202", students: 14, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "m7", slot: 3, class: "N5-01", teacher: "Tanaka", room: "301", students: 18, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "m8", slot: 3, class: "N5-02", teacher: "Kobayashi", room: "302", students: 14, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "m9", slot: 4, class: "N5-01", teacher: "Nakamura", room: "301", students: 13, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "m10", slot: 4, class: "N5-02", teacher: "Suzuki", room: "", students: 12, classLevel: "JLPT N5", learningMode: "online" },
+    { id: "m11", slot: 5, class: "N5-01", teacher: "Sasaki", room: "301", students: 15, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "m12", slot: 5, class: "N5-02", teacher: "Yamada", room: "302", students: 16, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "m13", slot: 6, class: "N4-01", teacher: "Kato", room: "401", students: 12, classLevel: "JLPT N4", learningMode: "offline" },
+    { id: "m14", slot: 6, class: "N4-02", teacher: "Yamamoto", room: "402", students: 14, classLevel: "JLPT N4", learningMode: "offline" },
+    { id: "m15", slot: 7, class: "N4-01", teacher: "Watanabe", room: "", students: 13, classLevel: "JLPT N4", learningMode: "online" },
+    { id: "m16", slot: 7, class: "N4-02", teacher: "Ito", room: "402", students: 15, classLevel: "JLPT N4", learningMode: "offline" },
+    { id: "m17", slot: 0, class: "N3-01", teacher: "Saito", room: "501", students: 11, classLevel: "JLPT N3", learningMode: "offline" },
+    { id: "m18", slot: 1, class: "N3-02", teacher: "Hường", room: "502", students: 10, classLevel: "JLPT N3", learningMode: "offline" },
+    { id: "m19", slot: 2, class: "N3-01", teacher: "Khôi", room: "", students: 12, classLevel: "JLPT N3", learningMode: "online" },
+    { id: "m20", slot: 3, class: "N3-02", teacher: "Linh", room: "502", students: 14, classLevel: "JLPT N3", learningMode: "offline" },
   ],
   tuesday: [
-    { slot: 0, class: "N5-04", teacher: "Sasaki", room: "201", students: 16, classLevel: "Sơ cấp" },
-    { slot: 0, class: "N5-06", teacher: "Yamada", room: "302", students: 14, classLevel: "Sơ cấp" },
-    { slot: 1, class: "N5-05", teacher: "Kato", room: "202", students: 15, classLevel: "Sơ cấp" },
-    { slot: 2, class: "N4-05", teacher: "Yamamoto", room: "203", students: 17, classLevel: "Trung cấp" },
-    { slot: 3, class: "N4-01", teacher: "Watanabe", room: "204", students: 14, classLevel: "Trung cấp" },
-    { slot: 4, class: "N3-04", teacher: "Ito", room: "205", students: 13, classLevel: "Cao cấp" },
-    { slot: 5, class: "N3-05", teacher: "Saito", room: "301", students: 11, classLevel: "Cao cấp" },
+    { id: "t1", slot: 0, class: "Lớp 1", teacher: "Tanaka", room: "201", students: 16, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "t2", slot: 0, class: "Lớp 3", teacher: "Sato", room: "202", students: 14, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "t3", slot: 1, class: "Lớp 1", teacher: "Kobayashi", room: "201", students: 15, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "t4", slot: 1, class: "Lớp 3", teacher: "Nakamura", room: "202", students: 17, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "t5", slot: 2, class: "Lớp 1", teacher: "Suzuki", room: "", students: 14, classLevel: "Sơ cấp", learningMode: "online" },
+    { id: "t6", slot: 2, class: "Lớp 3", teacher: "Sasaki", room: "202", students: 13, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "t7", slot: 3, class: "N5-01", teacher: "Yamada", room: "301", students: 11, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "t8", slot: 3, class: "N5-02", teacher: "Kato", room: "302", students: 12, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "t9", slot: 4, class: "N5-01", teacher: "Yamamoto", room: "301", students: 14, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "t10", slot: 4, class: "N5-02", teacher: "Watanabe", room: "", students: 15, classLevel: "JLPT N5", learningMode: "online" },
+    { id: "t11", slot: 5, class: "N5-01", teacher: "Ito", room: "301", students: 13, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "t12", slot: 5, class: "N5-02", teacher: "Saito", room: "302", students: 11, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "t13", slot: 6, class: "N4-01", teacher: "Hường", room: "401", students: 16, classLevel: "JLPT N4", learningMode: "offline" },
+    { id: "t14", slot: 6, class: "N4-02", teacher: "Khôi", room: "402", students: 14, classLevel: "JLPT N4", learningMode: "offline" },
+    { id: "t15", slot: 7, class: "N4-01", teacher: "Linh", room: "", students: 15, classLevel: "JLPT N4", learningMode: "online" },
+    { id: "t16", slot: 7, class: "N4-02", teacher: "Mẫn", room: "402", students: 17, classLevel: "JLPT N4", learningMode: "offline" },
+    { id: "t17", slot: 0, class: "N3-01", teacher: "Sato", room: "501", students: 14, classLevel: "JLPT N3", learningMode: "offline" },
+    { id: "t18", slot: 1, class: "N3-02", teacher: "Tanaka", room: "502", students: 13, classLevel: "JLPT N3", learningMode: "offline" },
   ],
   wednesday: [
-    { slot: 0, class: "N5-01", teacher: "Yamada", room: "201", students: 15, classLevel: "Sơ cấp" },
-    { slot: 0, class: "N5-03", teacher: "Hường", room: "202", students: 13, classLevel: "Sơ cấp" },
-    { slot: 0, class: "N4-04", teacher: "Linh", room: "203", students: 16, classLevel: "Trung cấp" },
-    { slot: 2, class: "N4-02", teacher: "Tanaka", room: "202", students: 18, classLevel: "Trung cấp" },
-    { slot: 4, class: "N3-01", teacher: "Suzuki", room: "203", students: 12, classLevel: "Cao cấp" },
+    { id: "w1", slot: 0, class: "Lớp 1", teacher: "Sato", room: "201", students: 15, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "w2", slot: 0, class: "Lớp 3", teacher: "Tanaka", room: "202", students: 13, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "w3", slot: 1, class: "Lớp 1", teacher: "Kobayashi", room: "201", students: 16, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "w4", slot: 1, class: "Lớp 3", teacher: "Nakamura", room: "202", students: 18, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "w5", slot: 2, class: "Lớp 1", teacher: "Suzuki", room: "", students: 12, classLevel: "Sơ cấp", learningMode: "online" },
+    { id: "w6", slot: 2, class: "Lớp 3", teacher: "Sasaki", room: "202", students: 14, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "w7", slot: 3, class: "N5-01", teacher: "Yamada", room: "301", students: 15, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "w8", slot: 3, class: "N5-02", teacher: "Kato", room: "302", students: 14, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "w9", slot: 4, class: "N5-01", teacher: "Yamamoto", room: "301", students: 13, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "w10", slot: 4, class: "N5-02", teacher: "Watanabe", room: "", students: 12, classLevel: "JLPT N5", learningMode: "online" },
+    { id: "w11", slot: 5, class: "N5-01", teacher: "Ito", room: "301", students: 16, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "w12", slot: 5, class: "N5-02", teacher: "Saito", room: "302", students: 14, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "w13", slot: 6, class: "N4-01", teacher: "Hường", room: "401", students: 15, classLevel: "JLPT N4", learningMode: "offline" },
+    { id: "w14", slot: 6, class: "N4-02", teacher: "Khôi", room: "402", students: 18, classLevel: "JLPT N4", learningMode: "offline" },
+    { id: "w15", slot: 7, class: "N4-01", teacher: "Linh", room: "", students: 12, classLevel: "JLPT N4", learningMode: "online" },
+    { id: "w16", slot: 7, class: "N4-02", teacher: "Mẫn", room: "402", students: 14, classLevel: "JLPT N4", learningMode: "offline" },
   ],
   thursday: [
-    { slot: 1, class: "N5-02", teacher: "Sato", room: "201", students: 16, classLevel: "Sơ cấp" },
-    { slot: 1, class: "N5-07", teacher: "Khôi", room: "302", students: 12, classLevel: "Sơ cấp" },
-    { slot: 3, class: "N4-01", teacher: "Watanabe", room: "202", students: 14, classLevel: "Trung cấp" },
-    { slot: 5, class: "N2-01", teacher: "Ito", room: "301", students: 10, classLevel: "Cao cấp" },
+    { id: "th1", slot: 0, class: "Lớp 1", teacher: "Suzuki", room: "201", students: 16, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "th2", slot: 0, class: "Lớp 3", teacher: "Sasaki", room: "202", students: 12, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "th3", slot: 1, class: "Lớp 1", teacher: "Yamada", room: "201", students: 14, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "th4", slot: 1, class: "Lớp 3", teacher: "Kato", room: "202", students: 10, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "th5", slot: 2, class: "Lớp 1", teacher: "Yamamoto", room: "", students: 13, classLevel: "Sơ cấp", learningMode: "online" },
+    { id: "th6", slot: 2, class: "Lớp 3", teacher: "Watanabe", room: "202", students: 15, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "th7", slot: 3, class: "N5-01", teacher: "Ito", room: "301", students: 11, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "th8", slot: 3, class: "N5-02", teacher: "Saito", room: "302", students: 12, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "th9", slot: 4, class: "N5-01", teacher: "Hường", room: "301", students: 14, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "th10", slot: 4, class: "N5-02", teacher: "Khôi", room: "", students: 15, classLevel: "JLPT N5", learningMode: "online" },
+    { id: "th11", slot: 5, class: "N5-01", teacher: "Linh", room: "301", students: 13, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "th12", slot: 5, class: "N5-02", teacher: "Mẫn", room: "302", students: 11, classLevel: "JLPT N5", learningMode: "offline" },
   ],
   friday: [
-    { slot: 0, class: "N5-01", teacher: "Yamada", room: "201", students: 15, classLevel: "Sơ cấp" },
-    { slot: 0, class: "N4-06", teacher: "Mẫn", room: "203", students: 17, classLevel: "Trung cấp" },
-    { slot: 2, class: "N4-02", teacher: "Tanaka", room: "202", students: 18, classLevel: "Trung cấp" },
-    { slot: 4, class: "N3-01", teacher: "Suzuki", room: "203", students: 12, classLevel: "Cao cấp" },
+    { id: "f1", slot: 0, class: "Lớp 1", teacher: "Yamamoto", room: "201", students: 15, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "f2", slot: 0, class: "Lớp 3", teacher: "Watanabe", room: "202", students: 17, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "f3", slot: 1, class: "Lớp 1", teacher: "Ito", room: "201", students: 18, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "f4", slot: 1, class: "Lớp 3", teacher: "Saito", room: "202", students: 12, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "f5", slot: 2, class: "Lớp 1", teacher: "Hường", room: "", students: 14, classLevel: "Sơ cấp", learningMode: "online" },
+    { id: "f6", slot: 2, class: "Lớp 3", teacher: "Khôi", room: "202", students: 16, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "f7", slot: 3, class: "N5-01", teacher: "Linh", room: "301", students: 17, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "f8", slot: 3, class: "N5-02", teacher: "Mẫn", room: "302", students: 15, classLevel: "JLPT N5", learningMode: "offline" },
   ],
   saturday: [
-    { slot: 0, class: "N5-07", teacher: "Yamada", room: "201", students: 14, classLevel: "Sơ cấp" },
-    { slot: 0, class: "N5-08", teacher: "Hường", room: "202", students: 15, classLevel: "Sơ cấp" },
-    { slot: 1, class: "N4-07", teacher: "Tanaka", room: "202", students: 16, classLevel: "Trung cấp" },
-    { slot: 3, class: "N3-07", teacher: "Suzuki", room: "203", students: 11, classLevel: "Cao cấp" },
+    { id: "s1", slot: 0, class: "Lớp 1", teacher: "Yamada", room: "201", students: 14, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "s2", slot: 0, class: "Lớp 3", teacher: "Kato", room: "202", students: 15, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "s3", slot: 1, class: "Lớp 1", teacher: "Yamamoto", room: "201", students: 16, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "s4", slot: 1, class: "Lớp 3", teacher: "Watanabe", room: "202", students: 11, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "s5", slot: 2, class: "Lớp 1", teacher: "Ito", room: "", students: 13, classLevel: "Sơ cấp", learningMode: "online" },
+    { id: "s6", slot: 2, class: "Lớp 3", teacher: "Saito", room: "202", students: 14, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "s7", slot: 3, class: "N5-01", teacher: "Hường", room: "301", students: 12, classLevel: "JLPT N5", learningMode: "offline" },
+    { id: "s8", slot: 3, class: "N5-02", teacher: "Khôi", room: "302", students: 10, classLevel: "JLPT N5", learningMode: "offline" },
   ],
   sunday: [
-    { slot: 2, class: "N5-08", teacher: "Sato", room: "201", students: 13, classLevel: "Sơ cấp" },
-    { slot: 4, class: "N2-07", teacher: "Ito", room: "301", students: 9, classLevel: "Cao cấp" },
+    { id: "su1", slot: 0, class: "Lớp 1", teacher: "Linh", room: "201", students: 13, classLevel: "Sơ cấp", learningMode: "offline" },
+    { id: "su2", slot: 0, class: "Lớp 3", teacher: "Mẫn", room: "202", students: 9, classLevel: "Trung cấp", learningMode: "offline" },
+    { id: "su3", slot: 1, class: "Lớp 1", teacher: "Sato", room: "", students: 11, classLevel: "Sơ cấp", learningMode: "online" },
+    { id: "su4", slot: 1, class: "Lớp 3", teacher: "Tanaka", room: "202", students: 12, classLevel: "Trung cấp", learningMode: "offline" },
   ],
 };
 
@@ -158,10 +210,19 @@ import { ScheduleData, ClassItem } from "@/types/schedule";
 const formSchema = z.object({
   class: z.string().min(1, "Vui lòng nhập tên lớp"),
   teacher: z.string().min(1, "Vui lòng nhập tên giáo viên"),
-  room: z.string().min(1, "Vui lòng nhập phòng học"),
+  learningMode: z.enum(["online", "offline"]),
+  room: z.string().optional(),
   students: z.coerce.number().min(1, "Số học viên phải lớn hơn 0"),
   lessonContent: z.string().optional(),
   notes: z.string().optional(),
+}).refine((data) => {
+  if (data.learningMode === "offline") {
+    return !!data.room && data.room.length > 0;
+  }
+  return true;
+}, {
+  message: "Vui lòng nhập phòng học cho lớp Offline",
+  path: ["room"],
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -202,6 +263,7 @@ const Schedule = () => {
     defaultValues: {
       class: "",
       teacher: "",
+      learningMode: "offline",
       room: "",
       students: 0,
       lessonContent: "",
@@ -321,6 +383,7 @@ const Schedule = () => {
       form.reset({
         class: existingClass.class,
         teacher: existingClass.teacher,
+        learningMode: existingClass.room ? "offline" : "online",
         room: existingClass.room,
         students: existingClass.students,
         lessonContent: "",
@@ -330,6 +393,7 @@ const Schedule = () => {
       form.reset({
         class: "",
         teacher: "",
+        learningMode: "offline",
         room: "",
         students: 0,
         lessonContent: "",
@@ -353,10 +417,10 @@ const Schedule = () => {
       form.reset({
         class: existingClass.class,
         teacher: existingClass.teacher,
-        // Use existing class room or default to empty if not set
+        learningMode: existingClass.learningMode || (existingClass.room ? "offline" : "online"),
         room: existingClass.room || "",
         students: existingClass.students || 0,
-        lessonContent: existingClass.lessonContent || "", // Assuming ClassItem has lessonContent
+        lessonContent: existingClass.lessonContent || "",
         notes: existingClass.notes || "",
       });
     } else {
@@ -372,6 +436,7 @@ const Schedule = () => {
       form.reset({
         class: className,
         teacher: "",
+        learningMode: defaultRoom ? "offline" : "online",
         room: defaultRoom,
         students: 15,
         lessonContent: "",
@@ -384,35 +449,40 @@ const Schedule = () => {
   const onSubmit = (data: FormValues) => {
     if (!editMode) return;
 
-    const newClass: ClassItem = {
-      slot: editMode.slot,
-      class: data.class,
-      teacher: data.teacher,
-      room: data.room,
-      students: data.students,
-      lessonContent: data.lessonContent,
-      notes: data.notes,
-      // Create a unique ID or use composite key if needed
-    };
-
     const dayKey = editMode.day as keyof ScheduleData;
 
     setSchedule((prev) => {
       const newSchedule = { ...prev };
       const daySchedule = [...newSchedule[dayKey]];
 
-      // Find if we are editing an existing item for THIS class in THIS slot
-      // We need to match by slot AND class name because multiple classes are in the same slot (in different rows)
-      const existingIndex = daySchedule.findIndex(
-        (c) => c.slot === editMode.slot && c.class === data.class
-      );
-
-      if (existingIndex !== -1) {
-        // Update existing
-        daySchedule[existingIndex] = { ...daySchedule[existingIndex], ...newClass };
+      // If editing an existing assignment (selectedClass has an id)
+      if (selectedClass?.id) {
+        const existingIndex = daySchedule.findIndex((c) => c.id === selectedClass.id);
+        if (existingIndex !== -1) {
+          daySchedule[existingIndex] = {
+            ...daySchedule[existingIndex],
+            teacher: data.teacher,
+            room: data.learningMode === "offline" ? data.room || "" : "",
+            learningMode: data.learningMode,
+            lessonContent: data.lessonContent,
+            notes: data.notes,
+            students: data.students,
+          };
+        }
       } else {
-        // Add new
-        daySchedule.push(newClass);
+        // Adding a new assignment
+        const newAssignment: ClassItem = {
+          id: Math.random().toString(36).substring(2, 9),
+          slot: editMode.slot,
+          class: data.class,
+          teacher: data.teacher,
+          room: data.learningMode === "offline" ? data.room || "" : "",
+          learningMode: data.learningMode,
+          students: data.students,
+          lessonContent: data.lessonContent,
+          notes: data.notes,
+        };
+        daySchedule.push(newAssignment);
       }
 
       newSchedule[dayKey] = daySchedule;
@@ -426,6 +496,7 @@ const Schedule = () => {
 
     setFormDialogOpen(false);
     setEditMode(null);
+    setSelectedClass(null);
   };
 
   const handleRoomClick = (day: string, className: string, currentRoom: string, startSlot: number, endSlot: number) => {
@@ -467,17 +538,15 @@ const Schedule = () => {
     setEditingRoom(null);
   };
 
-  const handleDeleteTeacher = (dayKey: string, slotIndex: number, className: string) => {
+  const handleDeleteTeacher = (dayKey: string, id: string) => {
     const dayScheduleKey = dayKey as keyof ScheduleData;
 
     setSchedule((prev) => {
       const newSchedule = { ...prev };
       const daySchedule = [...newSchedule[dayScheduleKey]];
 
-      // Remove the item matching the slot and class
-      const filtered = daySchedule.filter(
-        (item) => !(item.slot === slotIndex && item.class === className)
-      );
+      // Remove the item matching the ID
+      const filtered = daySchedule.filter((item) => item.id !== id);
 
       newSchedule[dayScheduleKey] = filtered;
       return newSchedule;
@@ -485,7 +554,7 @@ const Schedule = () => {
 
     toast({
       title: "Đã xóa giáo viên",
-      description: `Đã xóa giáo viên khỏi tiết ${slotIndex + 1}`,
+      description: "Đã xóa phân công giảng dạy",
     });
   };
 
@@ -879,31 +948,66 @@ const Schedule = () => {
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="teacher"
+                  name="learningMode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Giáo viên</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Tên giáo viên" {...field} />
-                      </FormControl>
+                      <FormLabel>Hình thức</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn hình thức" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="offline">Offline (Tại lớp)</SelectItem>
+                          <SelectItem value="online">Online</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="room"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phòng</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Phòng học" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {form.watch("learningMode") === "offline" && (
+                  <FormField
+                    control={form.control}
+                    name="room"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phòng</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Phòng học" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
+
+              <FormField
+                control={form.control}
+                name="teacher"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Giáo viên</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn giáo viên" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {allTeachers.map((teacher) => (
+                          <SelectItem key={teacher} value={teacher}>
+                            {teacher}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}

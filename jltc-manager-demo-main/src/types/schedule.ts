@@ -1,4 +1,5 @@
 export interface ClassItem {
+    id: string;
     slot: number;
     class: string;
     teacher: string;
@@ -7,8 +8,9 @@ export interface ClassItem {
     classLevel?: string;
     day?: string;      // Added optional props used in Schedule.tsx state
     timeSlot?: string; // Added optional props used in Schedule.tsx state
-    lessonContent?: string;
     notes?: string;
+    lessonContent?: string;
+    learningMode?: "online" | "offline";
 }
 
 export interface ScheduleData {

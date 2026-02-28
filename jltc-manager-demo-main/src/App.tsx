@@ -20,6 +20,7 @@ import AdminCreateJLPTExam from "./pages/admin/CreateJLPTExam";
 import TaskManagement from "./pages/admin/TaskManagement";
 import StudentListByClass from "./pages/admin/StudentListByClass";
 import AttendanceAggregated from "./pages/admin/AttendanceAggregated";
+import LeadManagement from "./pages/admin/LeadManagement";
 
 import TeacherStudents from "./pages/teacher/Students";
 import TeacherStudentDetail from "./pages/teacher/StudentDetail";
@@ -50,6 +51,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/leads" element={<LeadManagement />} />
           <Route path="/admin/students" element={<Students />} />
           <Route path="/admin/students/:id" element={<StudentDetail />} />
           <Route path="/admin/teachers" element={<Teachers />} />
