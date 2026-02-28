@@ -55,8 +55,10 @@ const ExamResult = () => {
   // Integrate Evaluation Logic (Assuming N5 for this demo page)
   const currentLevel = 'N5';
   const evaluation = evaluateJLPTTest(currentLevel, {
-    section1: s1.score + s2.score, // N5 Written uses combined Vocab + Grammar + Reading score
-    section2: s3.score             // N5 Listening
+    vocab: s1.score,
+    grammar: s2.score,
+    listening: s3.score,
+    reading: 0 // Reading is combined into grammar for N5
   });
 
   const totalScore = evaluation.totalScore;
@@ -130,62 +132,7 @@ const ExamResult = () => {
           </CardContent>
         </Card>
 
-        {/* Tabs Section */}
-        <Tabs defaultValue="sec1" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 h-12 bg-muted/50 p-1">
-            <TabsTrigger value="sec1" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
-              <span className="font-bold mr-2">Phần 1</span> 文字・語彙 (Vocab)
-            </TabsTrigger>
-            <TabsTrigger value="sec2" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
-              <span className="font-bold mr-2">Phần 2</span> 文法・読解 (Grammar)
-            </TabsTrigger>
-            <TabsTrigger value="sec3" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
-              <span className="font-bold mr-2">Phần 3</span> 聴解 (Listening)
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="bg-white rounded-b-lg border border-t-0 p-6 min-h-[500px]">
-            <TabsContent value="sec1" className="mt-0 focus-visible:outline-none">
-              <div className="mb-6 pb-4 border-b">
-                <h3 className="text-xl font-bold text-blue-800">言語知識（文字・語彙）</h3>
-                <p className="text-gray-500">Language Knowledge (Vocabulary)</p>
-              </div>
-              <JLPTQuestionView
-                mondaiList={jlptVocabData}
-                answers={answersSec1}
-                onAnswer={() => { }}
-                showResults={true}
-              />
-            </TabsContent>
-
-            <TabsContent value="sec2" className="mt-0 focus-visible:outline-none">
-              <div className="mb-6 pb-4 border-b">
-                <h3 className="text-xl font-bold text-blue-800">言語知識（文法）・読解</h3>
-                <p className="text-gray-500">Language Knowledge (Grammar) / Reading</p>
-              </div>
-              <JLPTQuestionView
-                mondaiList={jlptGrammarData}
-                answers={answersSec2}
-                onAnswer={() => { }}
-                showResults={true}
-              />
-            </TabsContent>
-
-            <TabsContent value="sec3" className="mt-0 focus-visible:outline-none">
-              <div className="mb-6 pb-4 border-b">
-                <h3 className="text-xl font-bold text-blue-800">聴解</h3>
-                <p className="text-gray-500">Listening</p>
-              </div>
-              <JLPTQuestionView
-                mondaiList={jlptListeningData}
-                answers={answersSec3}
-                onAnswer={() => { }}
-                showResults={true}
-                hideQuestionId={true}
-              />
-            </TabsContent>
-          </div>
-        </Tabs>
+        {/* Detailed results hidden as per user request */}
       </div>
     </StudentLayout>
   );
